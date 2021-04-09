@@ -1,0 +1,9 @@
+(library
+ (name parser)
+ (libraries util))
+
+(ocamllex
+ (modules coollexer))
+
+(ocamlyacc
+ (modules coolparser))
