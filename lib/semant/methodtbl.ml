@@ -5,11 +5,12 @@ open Util
 open Helpers
 
 type method_sig = {
-    return_type : Ast.type_sym;
+    return_type : Tables.type_sym;
     formals : Ast.formal list;
+    impl_class : Tables.type_sym;
   }
 
-type t = (Ast.type_sym * Ast.id_sym, method_sig) Hashtbl.t
+type t = (Tables.type_sym * Tables.id_sym, method_sig) Hashtbl.t
 
 let create = Hashtbl.create ~random:false
 
@@ -20,6 +21,7 @@ let add ~tbl ~clazz ~method_id ~return_type ~formals =
     Hashtbl.replace tbl (clazz, method_id) {
         return_type;
         formals;
+        impl_class = clazz;
       };
     true
 

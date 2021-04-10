@@ -79,7 +79,7 @@ let rec aux ~ctx (exp, _ as exp_node) =
   | DynDispatch dyn -> aux_dyn_dispatch ~ctx exp_node dyn
   | StaticDispatch stat -> aux_stat_dispatch ~ctx exp_node stat
   | Case (exp_node', branches) -> aux_case ~ctx exp_node exp_node' branches
-  | NoExpr -> exp_node
+  | NoExpr -> invalid_arg "Reached empty init expression in typecheck stage"
 
 and aux_var ~ctx (_, line_num as exp_node) id =
   match Typeenv.find_opt ctx.id_env id with

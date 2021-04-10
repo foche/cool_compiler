@@ -4,11 +4,11 @@ open Parser
 open Util
 
 type context = {
-    id_env : (Ast.id_sym, Ast.type_sym) Typeenv.t;
+    id_env : (Tables.id_sym, Tables.type_sym) Typeenv.t;
     sigs : Methodtbl.t;
-    graph : Ast.type_sym Tree.t;
+    graph : Tables.type_sym Tree.t;
     cl : Ast.clazz;
-    filename : Ast.str_sym;
+    filename : Tables.str_sym;
   }
 
 val typecheck :

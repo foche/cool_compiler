@@ -1,4 +1,4 @@
-(* sparsetbl.ml *)
+(* rmq.ml *)
 
 type t = {
     tbl : int array array;

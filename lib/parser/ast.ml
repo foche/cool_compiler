@@ -2,11 +2,7 @@
 
 open Util
 open Helpers
-
-type id_sym = Tbl.handle
-type type_sym = Tbl.handle
-type str_sym = Tbl.handle
-type int_sym = Tbl.handle
+open Tables
 
 type 'a with_loc = 'a * int
 

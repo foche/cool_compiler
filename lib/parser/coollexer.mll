@@ -13,7 +13,7 @@ let lexer_debug = ref false
 let max_str_len = 1024
 
 let make_str_const s =
-  Coolparser.STR_CONST (Tbl.add Tables.str_const_tbl s)
+  Coolparser.STR_CONST (Tables.make_str s)
 
 let make_int_const s =
   Coolparser.INT_CONST (Tbl.add Tables.int_const_tbl s)
@@ -58,7 +58,7 @@ let process_word s =
 
 let print_filename filename =
   if !lexer_debug
-  then Tbl.add Tables.str_const_tbl filename |> Lexerprint.print_filename
+  then Tables.make_str filename |> Lexerprint.print_filename
   else ()
 }
 

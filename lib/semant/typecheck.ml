@@ -31,19 +31,6 @@ let basic_classes = [
     self_type;
   ]
 
-let basic_methods = [
-    object_type, make_id "abort", object_type, [];
-    object_type, make_id "type_name", string_type, [];
-    object_type, make_id "copy", self_type, [];
-    io_type, make_id "out_string", self_type, [make_id "x", string_type];
-    io_type, make_id "out_int", self_type, [make_id "x", int_type];
-    io_type, make_id "in_string", string_type, [];
-    io_type, make_id "in_int", int_type, [];
-    string_type, make_id "length", int_type, [];
-    string_type, make_id "concat", string_type, [make_id "s", string_type];
-    string_type, make_id "substr", string_type, [make_id "i", int_type; make_id "l", int_type];
-  ]
-
 let init_method_sigs _ =
   let tbl = Methodtbl.create 64 in
   List.iter (fun (clazz, method_id, return_type, formals) ->

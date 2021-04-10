@@ -10,7 +10,7 @@ type validator_args = {
     reserved_classes : (type_sym, unit) Hashtbl.t;
     inheritance_blocklist : (type_sym, unit) Hashtbl.t;
     handle_to_class : (type_sym, class_node) Hashtbl.t;
-    graph : (Ast.type_sym, Ast.type_sym) Hashtbl.t;
+    graph : (Tables.type_sym, Tables.type_sym) Hashtbl.t;
     sigs : Methodtbl.t;
   }
 

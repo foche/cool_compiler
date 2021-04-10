@@ -76,7 +76,7 @@ clazz : CLASS TYPEID parent_class LBRACE feature_list RBRACE SEMI {
               Ast.class_type = $2;
               Ast.class_parent = parent;
               Ast.class_features = List.rev features;
-              Ast.class_filename = Tbl.add Tables.str_const_tbl pos.pos_fname;
+              Ast.class_filename = Tables.make_str pos.pos_fname;
             },
             get_line_num 1)
           $3 $5

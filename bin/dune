@@ -1,4 +1,4 @@
 (executable
  (name cc)
  (modes byte exe)
- (libraries parser semant))
+ (libraries parser semant translator))

@@ -37,5 +37,3 @@ let is_none_opt opt =
 
 let flatten_opt_list opt_list =
   List.fold_left (fun acc opt -> merge opt acc) (Some []) opt_list
-
-let ignore2 _ _ = ()
