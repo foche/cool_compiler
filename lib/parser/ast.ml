@@ -6,6 +6,16 @@ open Tables
 
 type 'a with_loc = 'a * int
 
+type arith_op =
+  | Add
+  | Sub
+  | Mul
+  | Div
+
+type comp_op =
+  | Lt
+  | Le
+
 type expr =
   | Assign of id_sym * expr_node
   | DynDispatch of dynamic_dispatch
@@ -17,13 +27,9 @@ type expr =
   | Case of expr_node * branch_node list
   | New of type_sym
   | IsVoid of expr_node
-  | Add of expr_node * expr_node
-  | Sub of expr_node * expr_node
-  | Mult of expr_node * expr_node
-  | Div of expr_node * expr_node
+  | Arith of arith_op * expr_node * expr_node
   | Neg of expr_node
-  | Lt of expr_node * expr_node
-  | Le of expr_node * expr_node
+  | Comp of comp_op * expr_node * expr_node
   | Eq of expr_node * expr_node
   | Not of expr_node
   | Variable of id_sym
@@ -50,6 +56,7 @@ and static_dispatch = {
     stat_type : type_sym;
     stat_method : id_sym;
     stat_args : expr_node list;
+    stat_label : id_sym option;
   }
 
 and let_statement = {
@@ -122,10 +129,10 @@ let make_let bindings body =
   List.fold_left f init (List.tl bindings)
 
 let make_single ~f ~x n =
-  map_opt ~f:(fun x' -> make_untyped_expr ~exp:(f x') n) x
+  map_opt ~f:(fun x' -> Some (make_untyped_expr ~exp:(f x') n)) x
 
 let make_double ~f ~x ~y n =
-  map_opt2 ~f:(fun x' y' -> make_untyped_expr ~exp:(f x' y') n) x y
+  map_opt2 ~f:(fun x' y' -> Some (make_untyped_expr ~exp:(f x' y') n)) x y
 
 let no_expr = make_untyped_expr ~exp:NoExpr 0
 

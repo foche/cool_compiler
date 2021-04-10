@@ -8,19 +8,19 @@ let get_opt ?(default = None) opt =
 
 let map_opt ~f opt =
   match opt with
-  | Some x -> Some (f x)
+  | Some x -> f x
   | None -> None
 
 let map_opt2 ~f opt1 opt2 =
   match opt1, opt2 with
-  | Some x, Some y -> Some (f x y)
+  | Some x, Some y -> f x y
   | _ -> None
 
 let singleton x_opt =
-  map_opt ~f:(fun x -> [x]) x_opt
+  map_opt ~f:(fun x -> Some [x]) x_opt
 
 let merge x_opt xs_opt =
-  map_opt2 ~f:(fun x xs -> x :: xs) x_opt xs_opt
+  map_opt2 ~f:(fun x xs -> Some (x :: xs)) x_opt xs_opt
 
 let init_hashtbl n kv_pairs =
   let tbl = Hashtbl.create n in

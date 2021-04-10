@@ -7,30 +7,6 @@ open Tables
 
 let semant_verbose = ref false
 
-let reserved_classes = init_hashtbl 16 [
-    object_type, ();
-    io_type, ();
-    int_type, ();
-    string_type, ();
-    bool_type, ();
-    self_type, ();
-  ]
-
-let inheritance_blocklist = init_hashtbl 8 [
-    int_type, ();
-    string_type, ();
-    bool_type, ();
-    self_type, ();
-  ]
-
-let basic_classes = [
-    io_type;
-    int_type;
-    string_type;
-    bool_type;
-    self_type;
-  ]
-
 let init_method_sigs _ =
   let tbl = Methodtbl.create 64 in
   List.iter (fun (clazz, method_id, return_type, formals) ->

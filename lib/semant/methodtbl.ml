@@ -8,6 +8,7 @@ type method_sig = {
     return_type : Tables.type_sym;
     formals : Ast.formal list;
     impl_class : Tables.type_sym;
+    label : Tables.id_sym;
   }
 
 type t = (Tables.type_sym * Tables.id_sym, method_sig) Hashtbl.t
@@ -22,6 +23,7 @@ let add ~tbl ~clazz ~method_id ~return_type ~formals =
         return_type;
         formals;
         impl_class = clazz;
+        label = Tables.method_label clazz method_id;
       };
     true
 
@@ -35,7 +37,7 @@ let find_opt ~tbl ~graph ~clazz ~method_id =
       | Some parent ->
         aux parent (fun sig_opt ->
           map_opt ~f:(fun method_sig ->
-              Hashtbl.replace tbl (cl, method_id) method_sig)
+              Hashtbl.replace tbl (cl, method_id) method_sig; None)
             sig_opt |>
           ignore;
           cont sig_opt)

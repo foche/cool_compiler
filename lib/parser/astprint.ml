@@ -36,6 +36,18 @@ let print_type n typ_opt =
   | None -> print_endline "_no_type"
   | Some handle -> print_typ 0 handle
 
+let get_arith_name op =
+  match op with
+  | Add -> "_plus"
+  | Sub -> "_sub"
+  | Mul -> "_mul"
+  | Div -> "_divide"
+
+let get_comp_name op =
+  match op with
+  | Lt -> "_lt"
+  | Le -> "_leq"
+
 let rec print_case n ((id, typ_opt, exp), line_number) =
   print_header n line_number "_branch";
   print_id (n + 2) id;
@@ -101,32 +113,16 @@ and print_e n line_number exp =
     print_header_with_name "_isvoid";
     print_expr (n + 2) exp'
 
-  | Add (e1, e2) ->
-    print_header_with_name "_plus";
-    print_e_list (n + 2) [e1; e2]
-
-  | Sub (e1, e2) ->
-    print_header_with_name "_sub";
-    print_e_list (n + 2) [e1; e2]
-
-  | Mult (e1, e2) ->
-    print_header_with_name "_mul";
-    print_e_list (n + 2) [e1; e2]
-
-  | Div (e1, e2) ->
-    print_header_with_name "_divide";
+  | Arith (op, e1, e2) ->
+    get_arith_name op |> print_header_with_name;
     print_e_list (n + 2) [e1; e2]
 
   | Neg exp' ->
     print_header_with_name "_neg";
     print_expr (n + 2) exp'
 
-  | Lt (e1, e2) ->
-    print_header_with_name "_lt";
-    print_e_list (n + 2) [e1; e2]
-
-  | Le (e1, e2) ->
-    print_header_with_name "_leq";
+  | Comp (op, e1, e2) ->
+    get_comp_name op |> print_header_with_name;
     print_e_list (n + 2) [e1; e2]
 
   | Eq (e1, e2) ->

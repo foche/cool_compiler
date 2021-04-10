@@ -8,6 +8,7 @@ type method_sig = {
     return_type : type_sym;
     formals : Ast.formal list;
     impl_class : type_sym;
+    label : id_sym;
   }
 
 type t

@@ -1,5 +1,7 @@
 (* tables.ml *)
 
+open Helpers
+
 type id_sym = Tbl.handle
 type type_sym = Tbl.handle
 type str_sym = Tbl.handle
@@ -37,15 +39,18 @@ let print_int out x =
   find_int x |> Printf.fprintf out "%s"
 
 let method_label typ method_id =
-  Printf.printf "%s.%s"
+  Printf.sprintf "%s.%s"
     (find_type typ)
-    (find_id method_id)
+    (find_id method_id) |>
+  make_id
 
 let clinit_label typ =
-  find_type typ |> Printf.sprintf "%s_init"
+  find_type typ |> Printf.sprintf "%s_init" |> make_id
 
 let prototype_label typ =
-  find_type typ |> Printf.sprintf "%s_protObj"
+  find_type typ |> Printf.sprintf "%s_protObj" |> make_id
+
+let empty_str = make_str ""
 
 let object_type = make_type "Object"
 let io_type = make_type "IO"
@@ -81,6 +86,30 @@ let basic_methods = [
     string_type, str_substr, string_type, [make_id "i", int_type; make_id "l", int_type];
   ]
 
+let reserved_classes = init_hashtbl 16 [
+    object_type, ();
+    io_type, ();
+    int_type, ();
+    string_type, ();
+    bool_type, ();
+    self_type, ();
+  ]
+
+let inheritance_blocklist = init_hashtbl 8 [
+    int_type, ();
+    string_type, ();
+    bool_type, ();
+    self_type, ();
+  ]
+
+let primitives = [
+    int_type;
+    string_type;
+    bool_type;
+  ]
+
+let basic_classes = io_type :: self_type :: primitives
+
 let create_basic_labels _ =
   let tbl = Hashtbl.create 32 in
   List.iter (fun (typ, method_id, _, _) ->
@@ -89,3 +118,6 @@ let create_basic_labels _ =
   tbl
 
 let basic_method_labels = create_basic_labels ()
+
+let is_prim typ =
+  List.find_opt ((=) typ) primitives |> is_some_opt

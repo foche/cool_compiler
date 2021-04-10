@@ -53,6 +53,18 @@ let validate_arg_types_match ctx method_id (arg, line_num) (id, formal_typ) =
       print_type formal_typ;
     false
 
+let get_arith_op_str op =
+  match op with
+  | Add -> "+"
+  | Sub -> "-"
+  | Mul -> "*"
+  | Div -> "/"
+
+let get_comp_op_str op =
+  match op with
+  | Lt -> "<"
+  | Le -> "<="
+
 let rec aux ~ctx (exp, _ as exp_node) =
   match exp.typ_expr with
   | IntConst _ -> add_type exp_node int_type
@@ -61,19 +73,19 @@ let rec aux ~ctx (exp, _ as exp_node) =
   | Variable id -> aux_var ~ctx exp_node id
   | Assign (id, exp_node') -> aux_assign ~ctx exp_node id exp_node'
   | New typ -> aux_new ~ctx exp_node typ
-  | Cond (if_exp_node, then_exp_node, else_exp_node) ->
-    aux_cond ~ctx exp_node if_exp_node then_exp_node else_exp_node
+  | Cond (if_node, then_node, else_node) ->
+    aux_cond ~ctx exp_node if_node then_node else_node
   | Block exp_nodes -> aux_block ~ctx exp_node exp_nodes
   | IsVoid exp_node' -> aux_isvoid ~ctx exp_node exp_node'
-  | Loop (pred_exp_node, body_exp_node) -> aux_loop ~ctx exp_node pred_exp_node body_exp_node
+  | Loop (pred_node, body_node) -> aux_loop ~ctx exp_node pred_node body_node
   | Not exp_node' -> aux_not ~ctx exp_node exp_node'
   | Neg exp_node' -> aux_neg ~ctx exp_node exp_node'
-  | Add (e1, e2) -> aux_binop ~ctx exp_node "+" (fun e1' e2' -> Add (e1', e2')) e1 e2 int_type
-  | Sub (e1, e2) -> aux_binop ~ctx exp_node "-" (fun e1' e2' -> Sub (e1', e2')) e1 e2 int_type
-  | Mult (e1, e2) -> aux_binop ~ctx exp_node "*" (fun e1' e2' -> Mult (e1', e2')) e1 e2 int_type
-  | Div (e1, e2) -> aux_binop ~ctx exp_node "/" (fun e1' e2' -> Div (e1', e2')) e1 e2 int_type
-  | Lt (e1, e2) -> aux_binop ~ctx exp_node "<" (fun e1' e2' -> Lt (e1', e2')) e1 e2 bool_type
-  | Le (e1, e2) -> aux_binop ~ctx exp_node "<=" (fun e1' e2' -> Le (e1', e2')) e1 e2 bool_type
+  | Arith (op, e1, e2) ->
+    let op_str = get_arith_op_str op in
+    aux_binop ~ctx exp_node op_str (fun e1' e2' -> Arith (op, e1', e2')) e1 e2 int_type
+  | Comp (op, e1, e2) ->
+    let op_str = get_comp_op_str op in
+    aux_binop ~ctx exp_node op_str (fun e1' e2' -> Comp (op, e1', e2')) e1 e2 bool_type
   | Eq (e1, e2) -> aux_eq ~ctx exp_node e1 e2
   | Let let_stmt -> aux_let ~ctx exp_node let_stmt
   | DynDispatch dyn -> aux_dyn_dispatch ~ctx exp_node dyn
@@ -132,15 +144,14 @@ and aux_new ~ctx (_, line_num as exp_node) typ =
       print_type typ;
     exp_node
 
-and aux_cond ~ctx (_, line_num as exp_node) if_exp_node then_exp_node else_exp_node =
+and aux_cond ~ctx (_, line_num as exp_node) if_node then_node else_node =
   rec_helper
     ~ctx
-    ~cont:(fun if_exp_node' _ ->
-      let then_exp_node' = aux ~ctx then_exp_node in
-      let else_exp_node' = aux ~ctx else_exp_node in
-      match get_exp_type then_exp_node', get_exp_type else_exp_node' with
+    ~cont:(fun if_node' _ ->
+      let exp_nodes' = Array.map (aux ~ctx) [|then_node; else_node|] in
+      match get_exp_type exp_nodes'.(0), get_exp_type exp_nodes'.(1) with
       | Some then_typ, Some else_typ -> {
-          typ_expr = Cond (if_exp_node', then_exp_node', else_exp_node');
+          typ_expr = Cond (if_node', exp_nodes'.(0), exp_nodes'.(1));
           typ_type = Some (lca ctx.graph ctx.cl then_typ else_typ);
         },
         line_num
@@ -148,14 +159,14 @@ and aux_cond ~ctx (_, line_num as exp_node) if_exp_node then_exp_node else_exp_n
     ~err_fun:(fun _ ->
       Semantprint.print_location ctx.filename line_num;
       prerr_endline "Predicate of 'if' does not have type Bool.")
-    (if_exp_node, bool_type)
+    (if_node, bool_type)
 
 and aux_block ~ctx (_, line_num as exp_node) exp_nodes =
-  let exp_nodes' = List.rev_map (aux ~ctx) exp_nodes in
+  let exp_nodes' = List.map (aux ~ctx) exp_nodes in
   match List.for_all (fun (exp', _) -> is_some_opt exp'.typ_type) exp_nodes' with
   | true -> {
-      typ_expr = Block (List.rev exp_nodes');
-      typ_type = List.hd exp_nodes' |> get_exp_type;
+      typ_expr = Block exp_nodes';
+      typ_type = List.rev exp_nodes' |> List.hd |> get_exp_type;
     },
     line_num
   | false -> exp_node
@@ -170,22 +181,22 @@ and aux_isvoid ~ctx (_, line_num as exp_node) exp_node' =
     },
     line_num
 
-and aux_loop ~ctx (_, line_num as exp_node) pred_exp_node body_exp_node =
+and aux_loop ~ctx (_, line_num as exp_node) pred_node body_node =
   rec_helper
     ~ctx
-    ~cont:(fun pred_exp_node' _ ->
-      let body_exp_node' = aux ~ctx body_exp_node in
-      match get_exp_type body_exp_node' with
+    ~cont:(fun pred_node' _ ->
+      let body_node' = aux ~ctx body_node in
+      match get_exp_type body_node' with
       | None -> exp_node
       | Some _ -> {
-          typ_expr = Loop (pred_exp_node', body_exp_node');
+          typ_expr = Loop (pred_node', body_node');
           typ_type = Some object_type;
         },
         line_num)
     ~err_fun:(fun _ ->
       Semantprint.print_location ctx.filename line_num;
       prerr_endline "Loop condition does not have type Bool.")
-    (pred_exp_node, bool_type)
+    (pred_node, bool_type)
 
 and aux_not ~ctx (_, line_num) exp_node' =
   rec_helper
@@ -217,8 +228,8 @@ and aux_neg ~ctx (_, line_num) exp_node' =
         print_type typ')
     (exp_node', int_type)
 
-and aux_binop ~ctx (_, line_num as exp_node) op f e1 e2 exp_typ =
-  let exp_nodes' = Array.map (aux ~ctx) [| e1; e2 |] in
+and aux_binop ~ctx (_, line_num as exp_node) op_str f e1 e2 exp_typ =
+  let exp_nodes' = Array.map (aux ~ctx) [|e1; e2|] in
   match get_exp_type exp_nodes'.(0), get_exp_type exp_nodes'.(1) with
   | Some typ1, Some typ2 ->
     (match typ1 = int_type && typ2 = int_type with
@@ -232,7 +243,7 @@ and aux_binop ~ctx (_, line_num as exp_node) op f e1 e2 exp_typ =
       Printf.eprintf
         "non-Int arguments: %a %s %a\n"
         print_type typ1
-        op
+        op_str
         print_type typ2;
       exp_node)
   | _ -> exp_node
@@ -302,7 +313,7 @@ and aux_dyn_dispatch ~ctx (_, line_num as exp_node) dyn =
     ~recv:dyn.dyn_recv
     ~args:dyn.dyn_args
     ~validate_recv_type:(fun recv_typ -> Some (translate_type ctx.cl recv_typ))
-    ~cont:(fun recv args ret_type -> {
+    ~cont:(fun recv args ret_type _ -> {
         typ_expr = DynDispatch {
           dyn with
           dyn_recv = recv;
@@ -337,11 +348,12 @@ and aux_stat_dispatch ~ctx (_, line_num as exp_node) stat =
             print_type recv_typ
             print_type stat.stat_type;
           None)
-      ~cont:(fun recv args ret_type -> {
+      ~cont:(fun recv args ret_type label -> {
           typ_expr = StaticDispatch {
             stat with
             stat_recv = recv;
             stat_args = args;
+            stat_label = Some label;
           };
           typ_type = Some ret_type;
         },
@@ -384,7 +396,7 @@ and aux_dispatch_common ~ctx ~exp_node ~method_id ~recv ~args ~validate_recv_typ
               method_sig.formals in
           (match valid_arg_types with
           | false -> exp_node
-          | true -> cont recv' args' ret_type')
+          | true -> cont recv' args' ret_type' method_sig.label)
         | _ ->
           Semantprint.print_location ctx.filename (snd exp_node);
           Printf.eprintf
