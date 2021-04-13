@@ -8,98 +8,84 @@
  *)
 
 open Util
+module Parse = Coolparser
 
 let lexer_debug = ref false
 let max_str_len = 1024
-
-let make_str_const s =
-  Coolparser.STR_CONST (Tables.make_str s)
-
-let make_int_const s =
-  Coolparser.INT_CONST (Tbl.add Tables.int_const_tbl s)
 
 let process_word s =
   let first_char = String.get s 0 in
   let is_lowercase = Char.lowercase_ascii first_char = first_char in
 
-  let make_type_id s =
-    Coolparser.TYPEID (Tbl.add Tables.type_tbl s) in
-
-  let make_object_id s =
-    Coolparser.OBJECTID (Tbl.add Tables.id_tbl s) in
-
   let make_bool_const x =
     if first_char = (if x then 't' else 'f')
-    then Coolparser.BOOL_CONST x
-    else make_type_id s in
+    then Parse.BOOL_CONST x
+    else Parse.TYPEID s in
 
   (* try to match with keywords *)
   match String.lowercase_ascii s with
-  | "class" -> Coolparser.CLASS
-  | "else" -> Coolparser.ELSE
-  | "fi" -> Coolparser.FI
-  | "if" -> Coolparser.IF
-  | "inherits" -> Coolparser.INHERITS
-  | "in" -> Coolparser.IN
-  | "let" -> Coolparser.LET
-  | "loop" -> Coolparser.LOOP
-  | "pool" -> Coolparser.POOL
-  | "then" -> Coolparser.THEN
-  | "while" -> Coolparser.WHILE
-  | "case" -> Coolparser.CASE
-  | "esac" -> Coolparser.ESAC
-  | "of" -> Coolparser.OF
-  | "new" -> Coolparser.NEW
-  | "isvoid" -> Coolparser.ISVOID
-  | "not" -> Coolparser.NOT
+  | "class" -> Parse.CLASS
+  | "else" -> Parse.ELSE
+  | "fi" -> Parse.FI
+  | "if" -> Parse.IF
+  | "inherits" -> Parse.INHERITS
+  | "in" -> Parse.IN
+  | "let" -> Parse.LET
+  | "loop" -> Parse.LOOP
+  | "pool" -> Parse.POOL
+  | "then" -> Parse.THEN
+  | "while" -> Parse.WHILE
+  | "case" -> Parse.CASE
+  | "esac" -> Parse.ESAC
+  | "of" -> Parse.OF
+  | "new" -> Parse.NEW
+  | "isvoid" -> Parse.ISVOID
+  | "not" -> Parse.NOT
   | "true" -> make_bool_const true
   | "false" -> make_bool_const false
-  | _ -> if is_lowercase then make_object_id s else make_type_id s
+  | _ -> if is_lowercase then Parse.OBJECTID s else Parse.TYPEID s
 
 let print_filename filename =
-  if !lexer_debug
-  then Tables.make_str filename |> Lexerprint.print_filename
-  else ()
+  if !lexer_debug then Tables.make_str filename |> Lexerprint.print_filename
 }
 
 (* rules *)
 
 let space = [' ' '\r' '\t' '\011' (* vertical tab *) '\012' (* form feed *)]
 let digit = ['0' - '9']
-let alpha = ['A' - 'Z' 'a' - 'z']
+let alpha = ['A'-'Z' 'a'-'z']
 let ch = alpha | digit | '_'
 
 (* Parse the next token *)
 rule next_token = parse
-  | space+ { next_token lexbuf } (* whitespace except new line *)
-  | '\n' { Lexing.new_line lexbuf; next_token lexbuf } (* new line *)
+  | space+ | "--" [^'\n']* { next_token lexbuf } (* skip comments and whitespace except new line *)
+  | '\n' { Lexing.new_line lexbuf; next_token lexbuf }
   | alpha ch* { Lexing.lexeme lexbuf |> process_word } (* identifiers and keywords *)
-  | digit+ { Lexing.lexeme lexbuf |> make_int_const } (* integer constants *)
+  | digit+ { Parse.INT_CONST (Lexing.lexeme lexbuf) }
   | '"' { str_const (Buffer.create 32) 0 lexbuf } (* string constants *)
-  | "--" [^'\n']* { next_token lexbuf } (* single comments *)
-  | "(*" { skip_comment 0 lexbuf } (* multiline comments *)
-  | "*)" { Coolparser.ERR "Unmatched *)" }
-  | "=>" { Coolparser.DARROW }
-  | "<-" { Coolparser.ASSIGN }
-  | "<=" { Coolparser.LE }
-  | '<' { Coolparser.LT }
-  | '=' { Coolparser.EQ }
-  | '+' { Coolparser.PLUS }
-  | '-' { Coolparser.MINUS }
-  | '*' { Coolparser.MULT }
-  | '/' { Coolparser.DIV }
-  | '~' { Coolparser.NEG }
-  | '@' { Coolparser.AT }
-  | '.' { Coolparser.DOT }
-  | ',' { Coolparser.COMMA }
-  | ':' { Coolparser.COLON }
-  | ';' { Coolparser.SEMI }
-  | '{' { Coolparser.LBRACE }
-  | '}' { Coolparser.RBRACE }
-  | '(' { Coolparser.LPAREN }
-  | ')' { Coolparser.RPAREN }
-  | eof { Coolparser.EOF }
-  | _ { Coolparser.ERR (Lexing.lexeme lexbuf) }
+  | "(*" { skip_comment 0 lexbuf } (* nested multiline comments *)
+  | "*)" { Parse.ERR "Unmatched *)" }
+  | "=>" { Parse.DARROW }
+  | "<-" { Parse.ASSIGN }
+  | "<=" { Parse.LE }
+  | '<' { Parse.LT }
+  | '=' { Parse.EQ }
+  | '+' { Parse.PLUS }
+  | '-' { Parse.MINUS }
+  | '*' { Parse.MULT }
+  | '/' { Parse.DIV }
+  | '~' { Parse.NEG }
+  | '@' { Parse.AT }
+  | '.' { Parse.DOT }
+  | ',' { Parse.COMMA }
+  | ':' { Parse.COLON }
+  | ';' { Parse.SEMI }
+  | '{' { Parse.LBRACE }
+  | '}' { Parse.RBRACE }
+  | '(' { Parse.LPAREN }
+  | ')' { Parse.RPAREN }
+  | eof { Parse.EOF }
+  | _ { Parse.ERR (Lexing.lexeme lexbuf) }
 
 (* Skip over multiline comment *)
 and skip_comment depth = parse
@@ -110,16 +96,18 @@ and skip_comment depth = parse
       else skip_comment (depth - 1) lexbuf
     }
   | '\n' { Lexing.new_line lexbuf; skip_comment depth lexbuf }
-  | [^'(' '*' '\n']+ { skip_comment depth lexbuf } (* match anything until one of the previous classes *)
-  | eof { Coolparser.ERR "EOF in comment" }
+
+  (* match anything until we see one of the previous classes *)
+  | [^'(' '*' '\n']+ { skip_comment depth lexbuf }
+  | eof { Parse.ERR "EOF in comment" }
   | _ { skip_comment depth lexbuf }
 
 (* Parse string constant *)
 and str_const strbuf n = parse
   | '"' {
       if n > max_str_len
-      then Coolparser.ERR "String constant too long"
-      else Buffer.contents strbuf |> make_str_const
+      then Parse.ERR "String constant too long"
+      else Parse.STR_CONST (Buffer.contents strbuf)
     }
   | "\\b" { Buffer.add_char strbuf '\b'; str_const strbuf (n + 1) lexbuf }
   | "\\n" { Buffer.add_char strbuf '\n'; str_const strbuf (n + 1) lexbuf }
@@ -135,18 +123,16 @@ and str_const strbuf n = parse
   | '\\' { str_const strbuf n lexbuf } (* ignore single back slashes *)
   | '\000' { (* consume characters until the end of the string on null char *)
       str_const strbuf (n + 1) lexbuf |> ignore;
-      Coolparser.ERR "String contains null character."
+      Parse.ERR "String contains null character."
     }
-  | '\n' { Lexing.new_line lexbuf; Coolparser.ERR "Unterminated string constant" }
-  | eof { Coolparser.ERR "EOF in string constant" }
+  | '\n' { Lexing.new_line lexbuf; Parse.ERR "Unterminated string constant" }
+  | eof { Parse.ERR "EOF in string constant" }
   | _ as c { Buffer.add_char strbuf c; str_const strbuf (n + 1) lexbuf }
 
 {
 let get_token lexbuf =
   let tok = next_token lexbuf in
   let line_num = lexbuf.Lexing.lex_curr_p.pos_lnum in
-  (if !lexer_debug
-  then Lexerprint.print_token tok line_num
-  else ());
+  if !lexer_debug then Lexerprint.print_token tok line_num;
   tok
 }

@@ -22,8 +22,13 @@ let make_double ~f ~x ~y n =
 let make_untyped_expr ~exp n =
   get_line_num n |> Ast.make_untyped_expr ~exp
 
-let print_error_item n =
-  Astprint.print_error_item (Parsing.rhs_start_pos n) (Parsing.rhs_end_pos n)
+let err_unclosed tok n =
+  Astprint.err_unclosed tok (Parsing.rhs_start_pos n) (Parsing.rhs_end_pos n);
+  None
+
+let err_expected msg n =
+  Astprint.err_expected msg (Parsing.rhs_start_pos n) (Parsing.rhs_end_pos n);
+  None
 %}
 
 // tokens
@@ -34,11 +39,12 @@ let print_error_item n =
 %token PLUS MINUS MULT DIV LE LT EQ NEG NOT
 
 %token <string> ERR
-%token <Util.Tbl.handle> TYPEID OBJECTID STR_CONST INT_CONST
+%token <string> TYPEID OBJECTID STR_CONST INT_CONST
 %token <bool> BOOL_CONST
 
 // precedences
 
+%nonassoc let_prec
 %right ASSIGN
 %right NOT
 %nonassoc LE LT EQ
@@ -47,7 +53,7 @@ let print_error_item n =
 %nonassoc ISVOID
 %right NEG
 %nonassoc AT
-%left DOT
+%nonassoc DOT
 
 // start symbol
 
@@ -63,34 +69,41 @@ parse : classes { $1, false }
       ;
 
 classes : class_list { map_opt ~f:(fun cls -> Some (List.rev cls)) $1 }
-        | error { print_error_item 1; None }
         ;
 
 class_list  : { Some [] }
-            | class_list clazz { merge $2 $1 }
+            | class_list clazz SEMI { merge $2 $1 }
+            | class_list clazz error { err_expected "\";\" after a class definition" 3 }
             ;
 
-clazz : CLASS TYPEID parent_class LBRACE feature_list RBRACE SEMI {
+clazz : CLASS TYPEID parent_class features {
           let pos = Parsing.symbol_start_pos () in
           map_opt2 ~f:(fun parent features -> Some ({
-              Ast.class_type = $2;
+              Ast.class_type = Tables.make_type $2;
               Ast.class_parent = parent;
               Ast.class_features = List.rev features;
               Ast.class_filename = Tables.make_str pos.pos_fname;
             },
             get_line_num 1))
-          $3 $5
+          $3 $4
         }
+      | CLASS error parent_class features { err_expected "a class name after \"class\"" 2 }
       ;
 
 parent_class  : { Some Tables.object_type }
-              | INHERITS TYPEID { Some $2 }
-              | error { print_error_item 1; None }
+              | INHERITS TYPEID { Some (Tables.make_type $2) }
+              | INHERITS error { err_expected "a class name after \"inherits\"" 2 }
               ;
+
+features  : LBRACE feature_list RBRACE { $2 }
+          | LBRACE feature_list error { err_unclosed "{" 3 }
+          ;
 
 feature_list  : { Some [] }
               | feature_list feature SEMI { merge $2 $1 }
-              | feature_list error SEMI { print_error_item 2; None }
+              | feature_list feature error {
+                  err_expected "\";\" after a field or method definition" 3
+                }
               ;
 
 feature : field { $1 }
@@ -98,7 +111,9 @@ feature : field { $1 }
         ;
 
 field : OBJECTID COLON TYPEID init {
-          map_opt ~f:(fun exp -> Some (Ast.Field ($1, $3, exp), get_line_num 1)) $4
+          map_opt ~f:(fun exp ->
+              Some (Ast.Field (Tables.make_id $1, Tables.make_type $3, exp), get_line_num 1))
+            $4
         }
       ;
 
@@ -106,82 +121,88 @@ init  : { Some Ast.no_expr }
       | ASSIGN expr { $2 }
       ;
 
-mthd  : OBJECTID LPAREN formal_list_or_empty RPAREN COLON TYPEID LBRACE unsafe_expr RBRACE {
+mthd  : OBJECTID formals COLON TYPEID LBRACE expr RBRACE {
           map_opt2 ~f:(fun args exp ->
             Some (Ast.Method {
-              method_id = $1;
+              method_id = Tables.make_id $1;
               method_args = List.rev args;
-              method_ret_type = $6;
+              method_ret_type = Tables.make_type $4;
               method_body = exp;
             },
             get_line_num 1))
-          $3 $8
+          $2 $6
         }
       ;
 
-formal_list_or_empty  : { Some [] }
-                      | formal_list { $1 }
-                      ;
+formals : LPAREN RPAREN { Some [] }
+        | LPAREN formal_list RPAREN { $2 }
+        | LPAREN error { err_unclosed "(" 2 }
+        | LPAREN formal_list error { err_unclosed "(" 3 }
 
 formal_list : formal { singleton $1 }
             | formal_list COMMA formal { merge $3 $1 }
+            | formal_list error formal { err_expected "\",\" between formal arguments" 2 }
             ;
 
-formal  : OBJECTID COLON TYPEID { Some (($1, $3), get_line_num 1) }
+formal  : OBJECTID COLON TYPEID {
+            Some ((Tables.make_id $1, Tables.make_type $3), get_line_num 1)
+          }
         ;
 
-expr  : OBJECTID ASSIGN expr { make_single ~f:(fun e -> Assign ($1, e)) ~x:$3 1 }
-      | OBJECTID ASSIGN error { print_error_item 3; None }
-      | OBJECTID arg_list_or_empty {
+expr  : OBJECTID ASSIGN expr {
+          make_single ~f:(fun e -> Assign (Tables.make_id $1, e)) ~x:$3 1
+        }
+      | OBJECTID ASSIGN error { err_expected "an expression" 3 }
+      | OBJECTID args {
           map_opt ~f:(fun args ->
             Some (make_untyped_expr ~exp:(
               DynDispatch {
                 dyn_recv = make_untyped_expr ~exp:(Variable Tables.self_var) 1;
-                dyn_method = $1;
+                dyn_method = Tables.make_id $1;
                 dyn_args = List.rev args;
               })
             1))
           $2
         }
-      | expr DOT OBJECTID arg_list_or_empty {
+      | expr DOT OBJECTID args {
           map_opt2 ~f:(fun recv args ->
             Some (make_untyped_expr ~exp:(
               DynDispatch {
                 dyn_recv = recv;
-                dyn_method = $3;
+                dyn_method = Tables.make_id $3;
                 dyn_args = List.rev args;
               })
             2))
           $1 $4
         }
-      | expr AT TYPEID DOT OBJECTID arg_list_or_empty {
+      | expr AT TYPEID DOT OBJECTID args {
           map_opt2 ~f:(fun recv args ->
             Some (make_untyped_expr ~exp:(
               StaticDispatch {
                 stat_recv = recv;
-                stat_type = $3;
-                stat_method = $5;
+                stat_type = Tables.make_type $3;
+                stat_method = Tables.make_id $5;
                 stat_args = List.rev args;
                 stat_label = None;
               })
             4))
           $1 $6
         }
-      | IF unsafe_expr THEN unsafe_expr ELSE unsafe_expr FI {
+      | IF expr THEN expr ELSE expr FI {
           match $2, $4, $6 with
           | Some e1, Some e2, Some e3 ->
             Some (make_untyped_expr ~exp:(Cond (e1, e2, e3)) 1)
           | _ -> None
         }
-      | WHILE unsafe_expr LOOP unsafe_expr POOL { make_double ~f:(fun e1 e2 -> Loop (e1, e2)) ~x:$2 ~y:$4 1 }
+      | WHILE expr LOOP expr POOL { make_double ~f:(fun e1 e2 -> Loop (e1, e2)) ~x:$2 ~y:$4 1 }
       | LBRACE expr_list RBRACE { make_single ~f:(fun es -> Block (List.rev es)) ~x:$2 1 }
-      | LET binding_list IN expr %prec ASSIGN {
+      | LET binding_list IN expr %prec let_prec {
           map_opt2 ~f:(fun bindings exps -> Some (Ast.make_let bindings exps)) $2 $4
         }
-      | CASE unsafe_expr OF branch_list ESAC {
+      | CASE expr OF branch_list ESAC {
           make_double ~f:(fun exp cases -> Case (exp, List.rev cases)) ~x:$2 ~y:$4 1
         }
-      | NEW TYPEID { Some (make_untyped_expr ~exp:(New $2) 1) }
+      | NEW TYPEID { Some (make_untyped_expr ~exp:(New (Tables.make_type $2)) 1) }
       | ISVOID expr { make_single ~f:(fun exp -> IsVoid exp) ~x:$2 1 }
       | expr PLUS expr { make_double ~f:(fun e1 e2 -> Arith (Add, e1, e2)) ~x:$1 ~y:$3 2 }
       | expr MINUS expr { make_double ~f:(fun e1 e2 -> Arith (Sub, e1, e2)) ~x:$1 ~y:$3 2 }
@@ -193,41 +214,49 @@ expr  : OBJECTID ASSIGN expr { make_single ~f:(fun e -> Assign ($1, e)) ~x:$3 1 
       | expr EQ expr { make_double ~f:(fun e1 e2 -> Eq (e1, e2)) ~x:$1 ~y:$3 2 }
       | NOT expr { make_single ~f:(fun exp -> Not exp) ~x:$2 1 }
       | LPAREN expr RPAREN { $2 }
-      | OBJECTID { Some (make_untyped_expr ~exp:(Variable $1) 1) }
-      | INT_CONST { Some (make_untyped_expr ~exp:(IntConst $1) 1) }
-      | STR_CONST { Some (make_untyped_expr ~exp:(StrConst $1) 1) }
+      | LPAREN expr error { err_unclosed "(" 3 }
+      | OBJECTID { Some (make_untyped_expr ~exp:(Variable (Tables.make_id $1)) 1) }
+      | INT_CONST { Some (make_untyped_expr ~exp:(IntConst (Tables.make_int $1)) 1) }
+      | STR_CONST { Some (make_untyped_expr ~exp:(StrConst (Tables.make_str $1)) 1) }
       | BOOL_CONST { Some (make_untyped_expr ~exp:(BoolConst $1) 1) }
       ;
-
-unsafe_expr : expr { $1 }
-            | error { print_error_item 1; None }
-            ;
 
 binding_list  : binding { singleton $1 }
               | binding_list COMMA binding { merge $3 $1 }
               ;
 
-binding : OBJECTID COLON TYPEID init { map_opt ~f:(fun exp -> Some ($1, $3, exp, get_line_num 1)) $4 }
-        | error { print_error_item 1; None }
+binding : OBJECTID COLON TYPEID init {
+            map_opt ~f:(fun exp ->
+                Some (Tables.make_id $1, Tables.make_type $3, exp, get_line_num 1))
+              $4
+          }
         ;
 
 branch_list : branch { singleton $1 }
             | branch_list branch { merge $2 $1 }
             ;
 
-branch  : OBJECTID COLON TYPEID DARROW unsafe_expr SEMI {
-            map_opt ~f:(fun exp -> Some (($1, $3, exp), get_line_num 1)) $5
+branch  : OBJECTID COLON TYPEID DARROW expr SEMI {
+            map_opt ~f:(fun exp ->
+                Some ((Tables.make_id $1, Tables.make_type $3, exp), get_line_num 1))
+              $5
           }
         ;
 
-arg_list_or_empty : LPAREN RPAREN { Some [] }
-                  | LPAREN arg_list RPAREN { $2 }
-                  ;
-
-arg_list  : unsafe_expr { singleton $1 }
-          | arg_list COMMA unsafe_expr { merge $3 $1 }
+expr_list : expr SEMI { singleton $1 }
+          | expr_list expr SEMI { merge $2 $1 }
+          | expr error { err_expected "\";\" at the end of an expression" 2 }
+          | expr_list expr error { err_expected "\";\" at the end of an expression" 3 }
           ;
 
-expr_list : unsafe_expr SEMI { singleton $1 }
-          | expr_list unsafe_expr SEMI { merge $2 $1 }
+arg_list  : expr { singleton $1 }
+          | arg_list COMMA expr { merge $3 $1 }
+          | arg_list error expr { err_expected "\",\" between method arguments" 2 }
+          | arg_list COMMA error { err_expected "a method argument after \",\"" 3 }
           ;
+
+args  : LPAREN RPAREN { Some [] }
+      | LPAREN arg_list RPAREN { $2 }
+      | LPAREN error { err_unclosed "(" 2 }
+      | LPAREN arg_list error { err_unclosed "(" 3 }
+      ;

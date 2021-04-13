@@ -16,9 +16,7 @@ let fill_log2 log2 n =
 let argmin tbl data row1 col1 row2 col2 =
   let i = tbl.(row1).(col1) in
   let j = tbl.(row2).(col2) in
-  if data.(i) < data.(j)
-  then i
-  else j
+  if data.(i) < data.(j) then i else j
 
 let preprocess_data tbl m n data =
   for col = 0 to n - 1 do

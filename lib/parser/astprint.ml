@@ -3,6 +3,8 @@
 open Util
 open Ast
 
+let error = "\027[31mError:\027[0m"
+
 let indent n =
   for _ = 1 to n do
     print_char ' '
@@ -26,7 +28,7 @@ let print_int_const n handle =
   Tbl.find Tables.int_const_tbl handle |> dump_string n
 
 let print_header n line_number name =
-  Printf.sprintf "#%d" line_number |> dump_string n;
+  Printf.sprintf "\027[35m#%d\027[0m" line_number |> dump_string n;
   dump_string n name
 
 let print_type n typ_opt =
@@ -195,14 +197,25 @@ let print_ast (classes, line_number) =
 let print_syntax_error _ =
   prerr_endline "Compilation halted due to lex and parse errors"
 
-let print_error_item pos_start pos_end =
+let print_eof_error filename =
+  Printf.eprintf "%s %S, line 0: syntax error at or near EOF\n" error filename
+
+let err_unclosed tok pos_start pos_end =
   Printf.eprintf
-    "%S, lines %d:%d-%d:%d: syntax error\n"
+    "File %S, line %d, characters %d-%d:\n%s Unclosed %S\n"
     pos_start.Lexing.pos_fname
     pos_start.Lexing.pos_lnum
     (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
-    pos_end.Lexing.pos_lnum
     (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
+    error
+    tok
 
-let print_eof_error filename =
-  Printf.eprintf "%S, line 0: syntax error at or near EOF\n" filename
+let err_expected msg pos_start pos_end =
+  Printf.eprintf
+    "File %S, line %d, characters %d-%d:\n%s Expected %s\n"
+    pos_start.Lexing.pos_fname
+    pos_start.Lexing.pos_lnum
+    (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
+    (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
+    error
+    msg

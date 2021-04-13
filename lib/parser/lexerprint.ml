@@ -45,14 +45,10 @@ let print_token tok line_number =
     | Coolparser.RBRACE -> "'}'"
     | Coolparser.LPAREN -> "'('"
     | Coolparser.RPAREN -> "')'"
-    | Coolparser.STR_CONST handle ->
-      Tbl.find Tables.str_const_tbl handle |> Printf.sprintf "STR_CONST %S"
-    | Coolparser.INT_CONST handle ->
-      Tbl.find Tables.int_const_tbl handle |> Printf.sprintf "INT_CONST %s"
-    | Coolparser.TYPEID handle ->
-      Tbl.find Tables.type_tbl handle |> Printf.sprintf "TYPEID %s"
-    | Coolparser.OBJECTID handle ->
-      Tbl.find Tables.id_tbl handle |> Printf.sprintf "OBJECTID %s"
+    | Coolparser.STR_CONST s -> Printf.sprintf "STR_CONST %S" s
+    | Coolparser.INT_CONST s -> Printf.sprintf "INT_CONST %s" s
+    | Coolparser.TYPEID s -> Printf.sprintf "TYPEID %s" s
+    | Coolparser.OBJECTID s -> Printf.sprintf "OBJECTID %s" s
     | Coolparser.BOOL_CONST x -> Printf.sprintf "BOOL_CONST %B" x
     | Coolparser.ERR err -> Printf.sprintf "ERROR %S" err in
   Printf.printf "#%d %s\n" line_number token_string

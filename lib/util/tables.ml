@@ -21,6 +21,9 @@ let make_type typ =
 let make_str str =
   Tbl.add str_const_tbl str
 
+let make_int str =
+  Tbl.add int_const_tbl str
+
 let find_id = Tbl.find id_tbl
 let find_type = Tbl.find type_tbl
 let find_str = Tbl.find str_const_tbl

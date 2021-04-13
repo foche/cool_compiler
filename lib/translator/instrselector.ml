@@ -196,8 +196,9 @@ let translate_method blocks typ mthd =
       temp = 0;
       block = [];
     } in
-  let block = trans_exp args RetReg no_expr mthd.method_body in
-  Hashtbl.add blocks (typ, mthd.method_id) block
+  let args' = trans_exp args RetReg no_expr mthd.method_body in
+  let args'' = {args' with block = Return :: args'.block} in
+  List.rev args''.block |> Hashtbl.add blocks (typ, mthd.method_id)
 
 let translate_feature blocks typ (feat, _) =
   match feat with
