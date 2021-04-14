@@ -219,3 +219,12 @@ let err_expected msg pos_start pos_end =
     (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
     error
     msg
+
+let err_syntax pos_start pos_end =
+  Printf.eprintf
+    "File %S, line %d, characters %d-%d:\n%s Syntax error\n"
+    pos_start.Lexing.pos_fname
+    pos_start.Lexing.pos_lnum
+    (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
+    (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
+    error

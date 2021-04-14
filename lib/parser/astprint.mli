@@ -15,3 +15,5 @@ val print_eof_error : string -> unit
 val err_unclosed : string -> Lexing.position -> Lexing.position -> unit
 
 val err_expected : string -> Lexing.position -> Lexing.position -> unit
+
+val err_syntax : Lexing.position -> Lexing.position -> unit

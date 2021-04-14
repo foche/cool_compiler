@@ -14,11 +14,10 @@ let lexer_debug = ref false
 let max_str_len = 1024
 
 let process_word s =
-  let first_char = String.get s 0 in
-  let is_lowercase = Char.lowercase_ascii first_char = first_char in
+  let is_lowercase = Char.lowercase_ascii s.[0] = s.[0] in
 
   let make_bool_const x =
-    if first_char = (if x then 't' else 'f')
+    if s.[0] = (if x then 't' else 'f')
     then Parse.BOOL_CONST x
     else Parse.TYPEID s in
 

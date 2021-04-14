@@ -29,6 +29,10 @@ let err_unclosed tok n =
 let err_expected msg n =
   Astprint.err_expected msg (Parsing.rhs_start_pos n) (Parsing.rhs_end_pos n);
   None
+
+let err_syntax n =
+  Astprint.err_syntax (Parsing.rhs_start_pos n) (Parsing.rhs_end_pos n);
+  None
 %}
 
 // tokens
@@ -45,13 +49,13 @@ let err_expected msg n =
 // precedences
 
 %nonassoc let_prec
-%right ASSIGN
-%right NOT
+%nonassoc ASSIGN
+%nonassoc NOT
 %nonassoc LE LT EQ
 %left PLUS MINUS
 %left MULT DIV
 %nonassoc ISVOID
-%right NEG
+%nonassoc NEG
 %nonassoc AT
 %nonassoc DOT
 
@@ -64,12 +68,10 @@ let err_expected msg n =
 
 // rules
 
-parse : classes { $1, false }
+parse : class_list { map_opt ~f:(fun cls -> Some (List.rev cls)) $1, false }
+      | error { err_syntax 1, false }
       | EOF { None, true }
       ;
-
-classes : class_list { map_opt ~f:(fun cls -> Some (List.rev cls)) $1 }
-        ;
 
 class_list  : { Some [] }
             | class_list clazz SEMI { merge $2 $1 }
@@ -87,20 +89,26 @@ clazz : CLASS TYPEID parent_class features {
             get_line_num 1))
           $3 $4
         }
-      | CLASS error parent_class features { err_expected "a class name after \"class\"" 2 }
+      | CLASS error parent_class features {
+          err_expected "a capitalized class name after \"class\"" 2
+        }
       ;
 
 parent_class  : { Some Tables.object_type }
               | INHERITS TYPEID { Some (Tables.make_type $2) }
-              | INHERITS error { err_expected "a class name after \"inherits\"" 2 }
+              | INHERITS error {
+                  err_expected "a capitalized class name after \"inherits\"" 2
+                }
               ;
 
-features  : LBRACE feature_list RBRACE { $2 }
+features  : LBRACE RBRACE { Some [] }
+          | LBRACE feature_list RBRACE { $2 }
           | LBRACE feature_list error { err_unclosed "{" 3 }
           ;
 
-feature_list  : { Some [] }
+feature_list  : feature SEMI { singleton $1 }
               | feature_list feature SEMI { merge $2 $1 }
+              | feature error { err_expected "\";\" after a field or method definition" 2 }
               | feature_list feature error {
                   err_expected "\";\" after a field or method definition" 3
                 }
@@ -115,6 +123,7 @@ field : OBJECTID COLON TYPEID init {
               Some (Ast.Field (Tables.make_id $1, Tables.make_type $3, exp), get_line_num 1))
             $4
         }
+      | OBJECTID COLON error { err_syntax 2 }
       ;
 
 init  : { Some Ast.no_expr }
@@ -152,7 +161,6 @@ formal  : OBJECTID COLON TYPEID {
 expr  : OBJECTID ASSIGN expr {
           make_single ~f:(fun e -> Assign (Tables.make_id $1, e)) ~x:$3 1
         }
-      | OBJECTID ASSIGN error { err_expected "an expression" 3 }
       | OBJECTID args {
           map_opt ~f:(fun args ->
             Some (make_untyped_expr ~exp:(
@@ -196,6 +204,7 @@ expr  : OBJECTID ASSIGN expr {
         }
       | WHILE expr LOOP expr POOL { make_double ~f:(fun e1 e2 -> Loop (e1, e2)) ~x:$2 ~y:$4 1 }
       | LBRACE expr_list RBRACE { make_single ~f:(fun es -> Block (List.rev es)) ~x:$2 1 }
+      | LBRACE expr_list error { err_unclosed "{" 3 }
       | LET binding_list IN expr %prec let_prec {
           map_opt2 ~f:(fun bindings exps -> Some (Ast.make_let bindings exps)) $2 $4
         }
@@ -210,8 +219,17 @@ expr  : OBJECTID ASSIGN expr {
       | expr DIV expr { make_double ~f:(fun e1 e2 -> Arith (Div, e1, e2)) ~x:$1 ~y:$3 2 }
       | NEG expr { make_single ~f:(fun exp -> Neg exp) ~x:$2 1 }
       | expr LT expr { make_double ~f:(fun e1 e2 -> Comp (Lt, e1, e2)) ~x:$1 ~y:$3 2 }
+      | expr LT error {
+          err_expected "an expression after \"<\"; \"<\", \"<=\" and \"=\" are non-associative" 3
+        }
       | expr LE expr { make_double ~f:(fun e1 e2 -> Comp (Le, e1, e2)) ~x:$1 ~y:$3 2 }
+      | expr LE error {
+          err_expected "an expression after \"<=\"; \"<\", \"<=\" and \"=\" are non-associative" 3
+        }
       | expr EQ expr { make_double ~f:(fun e1 e2 -> Eq (e1, e2)) ~x:$1 ~y:$3 2 }
+      | expr EQ error {
+          err_expected "an expression after \"=\"; \"<\", \"<=\" and \"=\" are non-associative" 3
+        }
       | NOT expr { make_single ~f:(fun exp -> Not exp) ~x:$2 1 }
       | LPAREN expr RPAREN { $2 }
       | LPAREN expr error { err_unclosed "(" 3 }

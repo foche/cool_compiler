@@ -184,6 +184,28 @@ class BigInteger inherits Number {
     }
   };
 
+  addInteger(y : Integer) : Number {
+    addBigInteger((new BigInteger).init(y.getValue()))
+  };
+
+  addRational(y : Rational) : Number {
+    addBigInteger((new BigInteger).init(y.getDividend() / y.getDivisor()))
+  };
+
+  addBigInteger(y : BigInteger) : Number {
+    if isvoid x.tail() then {
+      x;
+    } else {
+      x;
+    } fi
+  };
+
+  addWithCarry(a : BigInteger, b : BigInteger, carry : Int) : Number {
+    if isvoid a.tail() then {
+      
+    }
+  };
+
   head() : Int {
     x
   };
@@ -213,12 +235,15 @@ class Main inherits IO {
   main(): Object {
     let
       x : Number <- (new Rational).init(847, 84),
-      y : Number <- (new Integer).init(42)
+      y : Number <- (new Integer).init(42),
+      z : Number <- (new BigInteger).init(2000000000)
     in {
       out_string("x = ");
       x.print();
       out_string("\ny = ");
       y.print();
+      out_string("\nz = ");
+      z.print();
       out_string("\nx + x = ");
       x.add(x).print();
       out_string("\ny + y = ");

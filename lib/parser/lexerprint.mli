@@ -2,6 +2,8 @@
 
 open Util
 
+val token_string : Coolparser.token -> string
+
 val print_filename : Tables.str_sym -> unit
 (** [print_filename filename] prints the name of the file [filename]. *)
 
