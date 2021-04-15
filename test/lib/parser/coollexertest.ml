@@ -1,4 +1,4 @@
-(** parsertests.ml *)
+(** coollexertest.ml *)
 
 open Parser
 open Coolparser
@@ -72,16 +72,16 @@ let%test _ = assert_equal_token "(**)" EOF
 let%test _ = assert_equal_token "(* -- *)" EOF
 let%test _ = assert_equal_token "(* \000 \\ \t \r *)" EOF
 let%test _ = assert_equal_token "(* 3 * 5 *)" EOF
-let%test _ = assert_equal_token "(*\n\n*)" EOF
+let%test _ = assert_equal_token "(*\n sdf sf \n*)" EOF
 let%test _ = assert_equal_token "(*" (ERR "EOF in comment")
 let%test _ = assert_equal_token "(*)" (ERR "EOF in comment")
 let%test _ = assert_equal_token "(*(*)" (ERR "EOF in comment")
 let%test _ = assert_equal_token "(" LPAREN
 let%test _ = assert_equal_tokens "( *" [LPAREN; MULT]
 let%test _ = assert_equal_token "(********)" EOF
-let%test _ = assert_equal_token "(* (* **** *) (* (* *** *) *) *)" EOF
-let%test _ = assert_equal_token "(* (* **** *) (* (* *** ) *) *)" (ERR "EOF in comment")
-let%test _ = assert_equal_tokens "( (* **** *) (* (* *** *) *) *)" [LPAREN; ERR "Unmatched *)"]
+let%test _ = assert_equal_token "(* (* **** *) (* (* *** *) (* *) *) *)" EOF
+let%test _ = assert_equal_token "(* (* **** *) (* (* *** ) (* *) *) *)" (ERR "EOF in comment")
+let%test _ = assert_equal_tokens "( (* **** *) (* (* *** *) (* *) *) *)" [LPAREN; ERR "Unmatched *)"]
 let%test _ = assert_equal_token "(* \"hello\" *)" EOF
 let%test _ = assert_equal_token "(* \"hello\" *)" EOF
 let%test _ = assert_equal_token "--\"--\"--\"\n\"--\"--\"--\n--\"--\"--\"" (STR_CONST "--")
@@ -89,8 +89,9 @@ let%test _ =
   assert_equal_token
     "\"\\\" \\\\ \\0 \\b \\t \\n \\f \\\n \011\""
     (STR_CONST "\" \\ 0 \b \t \n \012 \n \011")
+
 let%test _ = assert_equal_token "\"\\\"\\0\\\\0\\f\\\\f\"" (STR_CONST "\"0\\0\012\\f")
-let%test _ = assert_equal_tokens "\"\000 4 * 4\" in" [ERR "String contains null character."; IN]
+let%test _ = assert_equal_tokens "\"\000 4 * 4\"in" [ERR "String contains null character."; IN]
 let%test _ = assert_equal_tokens "\"\000 4 * 4 \nin" [ERR "String contains null character."; IN]
 let%test _ = assert_equal_token "\"" (ERR "EOF in string constant")
 let%test _ = assert_equal_tokens "\"\n\"" [ERR "Unterminated string constant"; ERR "EOF in string constant"]
@@ -104,11 +105,10 @@ let%test _ = assert_equal_token "Abc_123" (TYPEID "Abc_123")
 let%test _ = assert_equal_token "aBC_123" (OBJECTID "aBC_123")
 let%test _ = assert_equal_token "-- \"123\"" EOF
 let%test _ = assert_equal_token "--- 123" EOF
-let%test _ = assert_equal_tokens "abc--\n 123" [OBJECTID "abc"; INT_CONST "123"]
+let%test _ = assert_equal_tokens "abc-- stuff \n 123" [OBJECTID "abc"; INT_CONST "123"]
 let%test _ = assert_equal_token "(* * \"123\" -- * *) abc" (OBJECTID "abc")
 let%test _ = assert_equal_token "-- (*\n*)" (ERR "Unmatched *)")
-let%test _ = assert_equal_token "\" (* 123 *) \"" (STR_CONST " (* 123 *) ")
-let%test _ = assert_equal_token "\" -- 123 \"" (STR_CONST " -- 123 ")
+let%test _ = assert_equal_token "\" (* 123 -- *) \"" (STR_CONST " (* 123 -- *) ")
 let%test _ = assert_equal_token "(* \n * 123 * \n *)" EOF
 let%test _ = assert_equal_token "\"\\" (ERR "EOF in string constant")
 let%test _ = assert_equal_token "\"hello\\\"" (ERR "EOF in string constant")
@@ -117,9 +117,11 @@ let%test _ =
   assert_equal_tokens
     "(*\"(*\"*)\"*)\"(*\"*)\"*)(*\""
     [STR_CONST "(*"; ERR "Unmatched *)"; STR_CONST "*)(*"]
+
 let%test _ = assert_equal_token "(*\n\n*)" EOF
 let%test _ = assert_equal_token "000" (INT_CONST "000")
 let%test _ = assert_equal_tokens "0x14" [INT_CONST "0"; OBJECTID "x14"]
+let%test _ = assert_equal_tokens "0110b" [INT_CONST "0110"; OBJECTID "b"]
 let%test _ = assert_equal_tokens "-14" [MINUS; INT_CONST "14"]
 let%test _ = assert_equal_tokens "~14" [NEG; INT_CONST "14"]
 
@@ -130,31 +132,26 @@ let%test _ =
     "!#$%^&_>?`[]\\|'"
     [ERR "!"; ERR "#"; ERR "$"; ERR "%"; ERR "^"; ERR "&"; ERR "_"; ERR ">"; ERR "?";
      ERR "`"; ERR "["; ERR "]"; ERR "\\"; ERR "|"; ERR "'"]
+
 let%test _ = assert_equal_tokens "" [ERR "\001"; ERR "\002"; ERR "\003"; ERR "\004"]
 let%test _ = assert_equal_tokens "<<=" [LT; LE]
 let%test _ = assert_equal_tokens "<==" [LE; EQ]
 let%test _ = assert_equal_tokens "<==>" [LE; DARROW]
 let%test _ = assert_equal_tokens "<<-" [LT; ASSIGN]
+let%test _ = assert_equal_token "\t \n \r \012 \011 in" IN
 
 let long_comment = "(*" ^ (String.make 5000 ' ') ^ "*)"
-
 let%test _ = assert_equal_token long_comment EOF
-
-let%test _ = assert_equal_token "%" (ERR "%")
-let%test _ = assert_equal_token "\\" (ERR "\\")
 let%test _ = assert_equal_token "\n" EOF
+
 let%test _ = assert_equal_tokens "123in" [INT_CONST "123"; IN]
 let%test _ = assert_equal_token "in123" (OBJECTID "in123")
 
 let long_str_a = String.make 1024 'a'
 let%test _ = assert_equal_token (stringify long_str_a) (STR_CONST long_str_a)
-
-let str_a_too_long = String.make 1025 'a'
-let%test _ = assert_equal_token (stringify str_a_too_long) (ERR "String constant too long")
+let%test _ = assert_equal_token (stringify (long_str_a ^ "a")) (ERR "String constant too long")
 
 let long_esc_str = String.make 2048 '\\'
 let long_esc_str_res = String.make 1024 '\\'
 let%test _ = assert_equal_token (stringify long_esc_str) (STR_CONST long_esc_str_res)
-
-let long_esc_str_too_long = String.make 2050 '\\'
-let%test _ = assert_equal_token (stringify long_esc_str_too_long) (ERR "String constant too long")
+let%test _ = assert_equal_token (stringify (long_esc_str ^ "a")) (ERR "String constant too long")

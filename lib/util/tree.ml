@@ -8,7 +8,7 @@ type 'a t = {
     root : 'a;
     euler_tour : 'a array;
     firsts : ('a, int) Hashtbl.t;
-    rmq : Rmq.t
+    tbl : Sparsetbl.t
   }
 
 type 'a create_result =
@@ -60,7 +60,7 @@ let check_is_tree ~parents ~out_edges ~root =
   | false ->
     get_opt (Hashtbl.fold (find_disconnected ~parents ~visited) parents None)
 
-let reduce_to_rmq ~out_edges ~euler_tour ~firsts ~depths ~root =
+let reduce_to_tbl ~out_edges ~euler_tour ~firsts ~depths ~root =
   dfs ~out_edges
     ~visit_fun:(fun _ (i, depth) v ->
       euler_tour.(i) <- v;
@@ -86,14 +86,14 @@ let create ~parents ~root =
     let euler_tour = Array.make (2 * n) root in
     let firsts = Hashtbl.create 32 in
     let depths = Array.make (2 * n) 0 in
-    reduce_to_rmq ~out_edges ~euler_tour ~firsts ~depths ~root;
+    reduce_to_tbl ~out_edges ~euler_tour ~firsts ~depths ~root;
     Tree {
       out_edges;
       parents = Hashtbl.copy parents;
       root;
       euler_tour;
       firsts;
-      rmq = Rmq.create depths;
+      tbl = Sparsetbl.create depths;
     }
 
 let find_out_edges g =
@@ -119,7 +119,7 @@ let lca g u v =
   | false ->
     let i = Hashtbl.find g.firsts u in
     let j = Hashtbl.find g.firsts v in
-    let lca_i, _ = Rmq.find g.rmq i j in
+    let lca_i, _ = Sparsetbl.range_min g.tbl i j in
     g.euler_tour.(lca_i)
 
 let all_lca g vlist =

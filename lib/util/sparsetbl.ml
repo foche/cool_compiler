@@ -1,4 +1,4 @@
-(* rmq.ml *)
+(* sparsetbl.ml *)
 
 type t = {
     tbl : int array array;
@@ -47,9 +47,9 @@ let create data =
     n;
   }
 
-let rec find tbl left right =
+let rec range_min tbl left right =
   match left <= right, left >= 0 && right < tbl.n with
-  | false, _ -> find tbl right left
+  | false, _ -> range_min tbl right left
   | true, false ->
     Printf.sprintf
       "RMQ query is out of bounds: (%d, %d); element count: %d"
