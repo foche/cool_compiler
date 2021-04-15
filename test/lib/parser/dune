@@ -2,4 +2,5 @@
  (name parsertest)
  (libraries parser)
  (inline_tests)
- (preprocess (pps ppx_inline_test)))
+ (preprocess
+  (pps ppx_inline_test)))

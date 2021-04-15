@@ -2,10 +2,7 @@
 
 type 'a t
 
-type 'a create_result =
-  | Tree of 'a t
-  | Cycle of 'a
-  | Disconnected of 'a * 'a
+type 'a create_result = Tree of 'a t | Cycle of 'a | Disconnected of 'a * 'a
 
 val create : parents:('a, 'a) Hashtbl.t -> root:'a -> 'a create_result
 

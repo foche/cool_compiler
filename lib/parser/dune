@@ -1,6 +1,7 @@
 (library
  (name parser)
- (instrumentation (backend bisect_ppx))
+ (instrumentation
+  (backend bisect_ppx))
  (libraries util))
 
 (ocamllex

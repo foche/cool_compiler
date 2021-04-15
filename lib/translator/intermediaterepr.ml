@@ -6,37 +6,17 @@ type temp = int
 
 type var = Tables.id_sym * int
 
-type reg =
-  | ITemp of temp
-  | IVar of var
-  | RetReg
-  | SelfReg
+type reg = ITemp of temp | IVar of var | RetReg | SelfReg
 
-type const =
-  | IInt32Const of int32
-  | IStrConst of Tables.str_sym
+type const = IInt32Const of int32 | IStrConst of Tables.str_sym
 
-type arith =
-  | IAdd
-  | ISub
-  | IMul
-  | IDiv
+type arith = IAdd | ISub | IMul | IDiv
 
-type comp =
-  | ILt
-  | ILe
-  | IGt
-  | IGe
-  | IEq
-  | INotEq
+type comp = ILt | ILe | IGt | IGe | IEq | INotEq
 
-type binop =
-  | IArith of arith
-  | IComp of comp
+type binop = IArith of arith | IComp of comp
 
-type unary =
-  | INeg
-  | INot
+type unary = INeg | INot
 
 type value =
   | IReg of reg
@@ -48,6 +28,7 @@ type value =
   | IUnary of unary * reg
 
 type block_id = int
+
 type label = Tables.id_sym
 
 type stmt =

@@ -1,10 +1,10 @@
 (* strtbl.mli *)
 
-type handle
 (** A [handle] that identifies a string. Can be used to retrieve the original string. *)
+type handle
 
-type 'a t
 (** The type of string tables. *)
+type 'a t
 
 val create : int -> 'a t
 (** [create n] creates a string table with an initial size [n]. *)
