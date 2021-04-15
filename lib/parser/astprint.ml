@@ -15,17 +15,17 @@ let dump_string n s =
   print_endline s
 
 let dump_string_escaped n handle =
-  Tbl.find Tables.str_const_tbl handle |>
+  Strtbl.find Tables.str_const_tbl handle |>
   Printf.sprintf "%S" |> dump_string n
 
 let print_id n handle =
-  Tbl.find Tables.id_tbl handle |> dump_string n
+  Strtbl.find Tables.id_tbl handle |> dump_string n
 
 let print_typ n handle =
-  Tbl.find Tables.type_tbl handle |> dump_string n
+  Strtbl.find Tables.type_tbl handle |> dump_string n
 
 let print_int_const n handle =
-  Tbl.find Tables.int_const_tbl handle |> dump_string n
+  Strtbl.find Tables.int_const_tbl handle |> dump_string n
 
 let print_header n line_number name =
   Printf.sprintf "\027[35m#%d\027[0m" line_number |> dump_string n;

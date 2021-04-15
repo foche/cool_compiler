@@ -1,4 +1,4 @@
-(* typeenv.ml *)
+(* symtbl.ml *)
 
 type ('a, 'b) t = 'a list Stack.t * ('a, 'b) Hashtbl.t
 

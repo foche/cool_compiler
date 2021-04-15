@@ -1,4 +1,4 @@
-(* tbl.ml *)
+(* strtbl.ml *)
 
 type handle = int
 
@@ -18,11 +18,9 @@ let add (handle_to_elem, elem_to_handle, i) x =
     j
 
 let remove (handle_to_elem, elem_to_handle, _) handle =
-  match Hashtbl.find_opt handle_to_elem handle with
-  | None -> ()
-  | Some x ->
-    Hashtbl.remove handle_to_elem handle;
-    Hashtbl.remove elem_to_handle x
+  let x = Hashtbl.find handle_to_elem handle in
+  Hashtbl.remove handle_to_elem handle;
+  Hashtbl.remove elem_to_handle x
 
 let find (handle_to_elem, _, _) =
   Hashtbl.find handle_to_elem

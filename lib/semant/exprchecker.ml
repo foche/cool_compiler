@@ -7,7 +7,7 @@ open Helpers
 open Tables
 
 type context = {
-    id_env : (id_sym, type_sym) Typeenv.t;
+    id_env : (id_sym, type_sym) Symtbl.t;
     sigs : Methodtbl.t;
     graph : type_sym Tree.t;
     cl : clazz;
@@ -21,7 +21,7 @@ let all_lca graph cl typs =
   List.map (translate_type cl) typs |> Tree.all_lca graph
 
 let validate_let_var_not_self filename line_num id =
-  match id != self_var with
+  match id <> self_var with
   | true -> true
   | false ->
     Semantprint.print_location filename line_num;
@@ -94,7 +94,7 @@ let rec aux ~ctx (exp, _ as exp_node) =
   | NoExpr -> invalid_arg "Reached empty init expression in typecheck stage"
 
 and aux_var ~ctx (_, line_num as exp_node) id =
-  match Typeenv.find_opt ctx.id_env id with
+  match Symtbl.find_opt ctx.id_env id with
   | Some typ -> add_type exp_node typ
   | None ->
     Semantprint.print_location ctx.filename line_num;
@@ -110,7 +110,7 @@ and aux_assign ~ctx (_, line_num as exp_node) id exp_node' =
     prerr_endline "Cannot assign to 'self'.\n";
     exp_node
   | false ->
-    match Typeenv.find_opt ctx.id_env id with
+    match Symtbl.find_opt ctx.id_env id with
     | None ->
       Semantprint.print_location ctx.filename line_num;
       Printf.eprintf
@@ -290,8 +290,8 @@ and aux_let ~ctx (_, line_num as exp_node) let_stmt =
       (init, typ)
 
 and aux_let_helper ~ctx (_, line_num as exp_node) let_stmt typed_init =
-  Typeenv.enter_scope ctx.id_env (lazy (
-    Typeenv.add ctx.id_env let_stmt.let_var let_stmt.let_var_type |> ignore;
+  Symtbl.enter_scope ctx.id_env (lazy (
+    Symtbl.add ctx.id_env let_stmt.let_var let_stmt.let_var_type |> ignore;
     let typed_body = aux ~ctx let_stmt.let_body in
     match get_exp_type typed_body with
     | None -> exp_node
@@ -444,15 +444,15 @@ and aux_branch ~ctx ((id, typ, body), line_num) =
   match is_valid_id && is_valid_typ with
   | false -> None
   | true ->
-    Typeenv.enter_scope ctx.id_env (lazy (
-      Typeenv.add ctx.id_env id typ |> ignore;
+    Symtbl.enter_scope ctx.id_env (lazy (
+      Symtbl.add ctx.id_env id typ |> ignore;
       let typed_body = aux ~ctx body in
       match get_exp_type typed_body with
       | None -> None
       | Some _ -> Some ((id, typ, typed_body), line_num)))
 
 and validate_branch_id ~ctx line_num id =
-  match id != self_var with
+  match id <> self_var with
   | true -> true
   | false ->
     Semantprint.print_location ctx.filename line_num;
@@ -460,7 +460,7 @@ and validate_branch_id ~ctx line_num id =
     false
 
 and validate_branch_typ ~ctx line_num id typ =
-  match typ != self_type with
+  match typ <> self_type with
   | false ->
     Semantprint.print_location ctx.filename line_num;
     Printf.eprintf

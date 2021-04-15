@@ -1,4 +1,4 @@
-(* typeenv.mli *)
+(* symtbl.mli *)
 
 type ('a, 'b) t
 

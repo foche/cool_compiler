@@ -8,8 +8,8 @@ open Tables
 
 type validator_args = {
     ignored_classes : (type_sym, unit) Hashtbl.t;
-    id_env : (id_sym, type_sym) Typeenv.t;
-    func_env : (id_sym, mthd) Typeenv.t;
+    id_env : (id_sym, type_sym) Symtbl.t;
+    func_env : (id_sym, mthd) Symtbl.t;
     graph : type_sym Tree.t;
     sigs : Methodtbl.t;
     untyped_classes : (type_sym, class_node) Hashtbl.t;
@@ -47,7 +47,7 @@ let typecheck_field args cl line_number id typ (init, _ as init_node) =
 
 let typecheck_method args cl mthd line_number =
   let add_formal ((id, typ), line_number') =
-    match Typeenv.add args.id_env id typ |> fst with
+    match Symtbl.add args.id_env id typ |> fst with
     | false -> true
     | true ->
       Semantprint.print_location cl.class_filename line_number';
@@ -71,7 +71,7 @@ let typecheck_method args cl mthd line_number =
           }
           ~exp_node:mthd.method_body) in
 
-  let typed_body = Typeenv.enter_scope args.id_env lazy_typecheck in
+  let typed_body = Symtbl.enter_scope args.id_env lazy_typecheck in
   match get_exp_type typed_body with
   | None -> None
   | Some typ ->
@@ -137,14 +137,14 @@ let validate_method_sig filename line_number mthd parent_method =
   param_counts_match && return_types_match && formal_types_match
 
 let extract_method func_env filename line_number mthd =
-  let parent_method_opt = Typeenv.find_opt func_env mthd.method_id in
-  let _, is_overridden = Typeenv.add func_env mthd.method_id mthd in
+  let parent_method_opt = Symtbl.find_opt func_env mthd.method_id in
+  let _, is_overridden = Symtbl.add func_env mthd.method_id mthd in
   match is_overridden with
   | false -> true
   | true -> get_opt parent_method_opt |> validate_method_sig filename line_number mthd
 
 let extract_field id_env cl line_number id typ =
-  let is_duplicate, is_shadowed = Typeenv.add id_env id typ in
+  let is_duplicate, is_shadowed = Symtbl.add id_env id typ in
 
   (match is_duplicate with
   | false -> ()
@@ -197,14 +197,14 @@ let typecheck_class args typ (cl, line_number) =
       true
 
 let rec traverse_class_tree args root =
-  Typeenv.enter_scope args.id_env (lazy (
-    Typeenv.enter_scope args.func_env (lazy (
+  Symtbl.enter_scope args.id_env (lazy (
+    Symtbl.enter_scope args.func_env (lazy (
       (Hashtbl.mem args.ignored_classes root ||
         Hashtbl.find args.untyped_classes root |> typecheck_class args root) &&
       Tree.find_out_edges args.graph root |>
       List.for_all (traverse_class_tree args)))))
 
 let validate args =
-  Typeenv.enter_scope args.id_env (lazy (
-    Typeenv.add args.id_env self_var self_type |> ignore;
+  Symtbl.enter_scope args.id_env (lazy (
+    Symtbl.add args.id_env self_var self_type |> ignore;
     traverse_class_tree args object_type))

@@ -17,6 +17,7 @@ grading
 *.py
 *.out
 *.unfilt
+_coverage
 
 # ocamlbuild working directory
 _build/

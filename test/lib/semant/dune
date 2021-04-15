@@ -1,5 +1,5 @@
 (library
- (name parsertest)
- (libraries parser)
+ (name semanttest)
+ (libraries semant)
  (inline_tests)
  (preprocess (pps ppx_inline_test)))

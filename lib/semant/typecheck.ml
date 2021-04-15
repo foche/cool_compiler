@@ -20,8 +20,8 @@ let init_inherit_graph _ =
   graph
 
 let internal_typecheck (classes, line_number as program) =
-  let id_env = Typeenv.create () in
-  let func_env = Typeenv.create () in
+  let id_env = Symtbl.create () in
+  let func_env = Symtbl.create () in
   let graph = init_inherit_graph () in
   let sigs = init_method_sigs () in
   let typed_classes = Hashtbl.create 32 in

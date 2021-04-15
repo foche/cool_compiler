@@ -9,6 +9,7 @@
 
 open Util
 module Parse = Coolparser
+module Print = Lexerprint
 
 let lexer_debug = ref false
 let max_str_len = 1024
@@ -45,7 +46,7 @@ let process_word s =
   | _ -> if is_lowercase then Parse.OBJECTID s else Parse.TYPEID s
 
 let print_filename filename =
-  if !lexer_debug then Tables.make_str filename |> Lexerprint.print_filename
+  if !lexer_debug then Tables.make_str filename |> Print.print_filename
 }
 
 (* rules *)
@@ -132,6 +133,6 @@ and str_const strbuf n = parse
 let get_token lexbuf =
   let tok = next_token lexbuf in
   let line_num = lexbuf.Lexing.lex_curr_p.pos_lnum in
-  if !lexer_debug then Lexerprint.print_token tok line_num;
+  if !lexer_debug then Print.print_token tok line_num;
   tok
 }

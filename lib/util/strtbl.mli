@@ -1,4 +1,4 @@
-(* tbl.mli *)
+(* strtbl.mli *)
 
 type handle
 (** A [handle] that identifies a string. Can be used to retrieve the original string. *)

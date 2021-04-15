@@ -67,7 +67,7 @@ let validate_method_types graph (cl, _) =
 
 let validate_formal_not_self filename ((id, typ), line_number) =
   let is_valid_id =
-    match id != self_var with
+    match id <> self_var with
     | true -> true
     | false ->
       Semantprint.print_location filename line_number;
@@ -75,7 +75,7 @@ let validate_formal_not_self filename ((id, typ), line_number) =
       false in
 
   let is_valid_type =
-    match typ != self_type with
+    match typ <> self_type with
     | true -> true
     | false ->
       Semantprint.print_location filename line_number;
@@ -121,7 +121,7 @@ let add_to_sigs sigs cl mthd line_number =
   is_unique
 
 let validate_field_not_self cl line_number id =
-  match id != self_var with
+  match id <> self_var with
   | true -> true
   | false ->
     Semantprint.print_location cl.class_filename line_number;

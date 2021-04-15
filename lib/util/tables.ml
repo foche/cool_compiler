@@ -2,32 +2,32 @@
 
 open Helpers
 
-type id_sym = Tbl.handle
-type type_sym = Tbl.handle
-type str_sym = Tbl.handle
-type int_sym = Tbl.handle
+type id_sym = Strtbl.handle
+type type_sym = Strtbl.handle
+type str_sym = Strtbl.handle
+type int_sym = Strtbl.handle
 
-let id_tbl = Tbl.create 128
-let type_tbl = Tbl.create 128
-let str_const_tbl = Tbl.create 128
-let int_const_tbl = Tbl.create 128
+let id_tbl = Strtbl.create 128
+let type_tbl = Strtbl.create 128
+let str_const_tbl = Strtbl.create 128
+let int_const_tbl = Strtbl.create 128
 
 let make_id id =
-  Tbl.add id_tbl id
+  Strtbl.add id_tbl id
 
 let make_type typ =
-  Tbl.add type_tbl typ
+  Strtbl.add type_tbl typ
 
 let make_str str =
-  Tbl.add str_const_tbl str
+  Strtbl.add str_const_tbl str
 
 let make_int str =
-  Tbl.add int_const_tbl str
+  Strtbl.add int_const_tbl str
 
-let find_id = Tbl.find id_tbl
-let find_type = Tbl.find type_tbl
-let find_str = Tbl.find str_const_tbl
-let find_int = Tbl.find int_const_tbl
+let find_id = Strtbl.find id_tbl
+let find_type = Strtbl.find type_tbl
+let find_str = Strtbl.find str_const_tbl
+let find_int = Strtbl.find int_const_tbl
 
 let print_id out id =
   find_id id |> Printf.fprintf out "%s"

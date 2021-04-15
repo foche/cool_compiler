@@ -1,2 +1,3 @@
 (library
+ (instrumentation (backend bisect_ppx))
  (name util))
