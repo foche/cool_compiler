@@ -58,14 +58,12 @@ let check_is_tree ~parents ~out_edges ~root =
 
 let reduce_to_rmq ~out_edges ~euler_tour ~firsts ~depths ~root =
   dfs ~out_edges
-    ~visit_fun:(fun ~parent:_ ~state ~vert ->
-      let (i, depth) = state in
+    ~visit_fun:(fun ~parent:_ ~state:(i, depth) ~vert ->
       euler_tour.(i) <- vert ;
       depths.(i) <- depth ;
       Hashtbl.replace firsts ~key:vert ~data:i ;
       (i + 1, depth + 1) )
-    ~finish_fun:(fun ~parent ~pre_state:_ ~post_state ~vert:_ ->
-      let (i, depth) = post_state in
+    ~finish_fun:(fun ~parent ~pre_state:_ ~post_state:(i, depth) ~vert:_ ->
       euler_tour.(i) <- parent ;
       depths.(i) <- depth - 2 ;
       (i + 1, depth - 1) )
