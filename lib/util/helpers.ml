@@ -15,11 +15,6 @@ let singleton x_opt = map_opt ~f:(fun x -> Some [x]) x_opt
 
 let merge x_opt xs_opt = map_opt2 ~f:(fun x xs -> Some (x :: xs)) x_opt xs_opt
 
-let init_hashtbl n kv_pairs =
-  let tbl = Hashtbl.create n in
-  List.iter (fun (k, v) -> Hashtbl.replace tbl k v) kv_pairs ;
-  tbl
-
 let is_some_opt opt = match opt with Some _ -> true | None -> false
 
 let is_none_opt opt = is_some_opt opt |> not

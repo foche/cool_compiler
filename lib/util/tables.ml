@@ -1,6 +1,7 @@
 (* tables.ml *)
 
 open Helpers
+module Hutil = Hashtblutil
 
 type id_sym = Strtbl.handle
 
@@ -10,13 +11,13 @@ type str_sym = Strtbl.handle
 
 type int_sym = Strtbl.handle
 
-let id_tbl = Strtbl.create 128
+let id_tbl = Strtbl.create 257
 
-let type_tbl = Strtbl.create 128
+let type_tbl = Strtbl.create 61
 
-let str_const_tbl = Strtbl.create 128
+let str_const_tbl = Strtbl.create 131
 
-let int_const_tbl = Strtbl.create 128
+let int_const_tbl = Strtbl.create 61
 
 let make_id id = Strtbl.add id_tbl id
 
@@ -106,7 +107,7 @@ let basic_methods =
     , [(make_id "i", int_type); (make_id "l", int_type)] ) ]
 
 let reserved_classes =
-  init_hashtbl 16
+  Hutil.init 17
     [ (object_type, ())
     ; (io_type, ())
     ; (int_type, ())
@@ -115,7 +116,7 @@ let reserved_classes =
     ; (self_type, ()) ]
 
 let inheritance_blocklist =
-  init_hashtbl 8
+  Hutil.init 11
     [(int_type, ()); (string_type, ()); (bool_type, ()); (self_type, ())]
 
 let primitives = [int_type; string_type; bool_type]

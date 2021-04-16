@@ -1,4 +1,4 @@
-(** strtbltest.ml *)
+(* strtbltest.ml *)
 
 open Util
 
@@ -18,7 +18,7 @@ let%test "remove" =
     false
   with Not_found -> Strtbl.find tbl hndl1 = "asdf"
 
-let%test "negative create" =
+let%test "Negative size in create" =
   let tbl = Strtbl.create (-1) in
   let hndl1 = Strtbl.add tbl "" in
   let hndl2 = Strtbl.add tbl "ave123" in

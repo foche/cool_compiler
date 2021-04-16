@@ -7,6 +7,7 @@
  * Lexer for the Classroom Object-Oriented Language (COOL).
  *)
 
+open StdLabels
 open Util
 module Parse = Coolparser
 module Print = Lexerprint

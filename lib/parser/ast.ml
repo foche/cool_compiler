@@ -118,6 +118,6 @@ let is_subtype graph cl typ1 typ2 =
   | false -> (
     match typ2 = Tables.self_type with
     | true -> false
-    | false -> translate_type cl typ1 |> Tree.is_ancestor graph typ2 )
+    | false -> translate_type cl typ1 |> Tree.is_ancestor graph ~ancestor:typ2 )
 
 let get_exp_type exp_node = (fst exp_node).typ_type

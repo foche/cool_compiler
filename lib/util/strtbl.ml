@@ -1,5 +1,7 @@
 (* strtbl.ml *)
 
+open MoreLabels
+
 type handle = int
 
 type 'a t = (handle, 'a) Hashtbl.t * ('a, handle) Hashtbl.t * handle ref
@@ -11,8 +13,8 @@ let add (handle_to_elem, elem_to_handle, i) x =
   | Some j -> j
   | None ->
       let j = !i in
-      Hashtbl.replace handle_to_elem j x ;
-      Hashtbl.replace elem_to_handle x j ;
+      Hashtbl.replace handle_to_elem ~key:j ~data:x ;
+      Hashtbl.replace elem_to_handle ~key:x ~data:j ;
       i := j + 1 ;
       j
 

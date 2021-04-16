@@ -14,7 +14,7 @@ type context =
   ; filename: str_sym }
 
 let lca graph cl typ1 typ2 =
-  Tree.lca graph (translate_type cl typ1) (translate_type cl typ2)
+  Tree.lca graph ~vert1:(translate_type cl typ1) ~vert2:(translate_type cl typ2)
 
 let all_lca graph cl typs =
   List.map (translate_type cl) typs |> Tree.all_lca graph
@@ -86,7 +86,7 @@ let rec aux ~ctx ((exp, _) as exp_node) =
   | NoExpr -> invalid_arg "Reached empty init expression in typecheck stage"
 
 and aux_var ~ctx ((_, line_num) as exp_node) id =
-  match Symtbl.find_opt ctx.id_env id with
+  match Symtbl.find_opt ctx.id_env ~k:id with
   | Some typ -> add_type exp_node typ
   | None ->
       Semantprint.print_location ctx.filename line_num ;
@@ -100,7 +100,7 @@ and aux_assign ~ctx ((_, line_num) as exp_node) id exp_node' =
       prerr_endline "Cannot assign to 'self'.\n" ;
       exp_node
   | false -> (
-    match Symtbl.find_opt ctx.id_env id with
+    match Symtbl.find_opt ctx.id_env ~k:id with
     | None ->
         Semantprint.print_location ctx.filename line_num ;
         Printf.eprintf "Assignment to undeclared variable %a.\n" print_id id ;
@@ -252,8 +252,8 @@ and aux_let ~ctx ((_, line_num) as exp_node) let_stmt =
 
 and aux_let_helper ~ctx ((_, line_num) as exp_node) let_stmt typed_init =
   Symtbl.enter_scope ctx.id_env
-    ( lazy
-      ( Symtbl.add ctx.id_env let_stmt.let_var let_stmt.let_var_type |> ignore ;
+    ~cont:( lazy
+      ( Symtbl.add ctx.id_env ~k:let_stmt.let_var ~v:let_stmt.let_var_type |> ignore ;
         let typed_body = aux ~ctx let_stmt.let_body in
         match get_exp_type typed_body with
         | None -> exp_node
@@ -395,8 +395,8 @@ and aux_branch ~ctx ((id, typ, body), line_num) =
   | false -> None
   | true ->
       Symtbl.enter_scope ctx.id_env
-        ( lazy
-          ( Symtbl.add ctx.id_env id typ |> ignore ;
+        ~cont:( lazy
+          ( Symtbl.add ctx.id_env ~k:id ~v:typ |> ignore ;
             let typed_body = aux ~ctx body in
             match get_exp_type typed_body with
             | None -> None
