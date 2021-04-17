@@ -1,7 +1,7 @@
 (* parsedriver.ml *)
 
 open Util
-open Helpers
+module Abssyn = Abstractsyntax
 
 let parser_verbose = ref false
 
@@ -23,11 +23,11 @@ let parse_single (acc, empty_count) filename file =
   (cls_opt :: acc, new_count)
 
 let internal_parse filenames =
-  let cls_opts, empty_count =
+  let programs, empty_count =
     List.fold_left (run_on_file parse_single) ([], 0) filenames
   in
   let cls =
-    List.rev_map (get_opt ~default:(Some [])) cls_opts |> List.concat
+    List.rev_map (Optutil.get ~default:[]) programs |> List.concat
   in
   let all_empty = List.compare_length_with filenames empty_count = 0 in
   let empty_cls = List.compare_length_with cls 0 = 0 in
@@ -37,8 +37,8 @@ let internal_parse filenames =
       None
   | false, true -> None
   | false, false ->
-      let _, line_number = List.hd cls in
-      Some (cls, line_number)
+      let cl0 = List.hd cls in
+      Some {Abssyn.elem= cls; startpos= cl0.Abssyn.startpos; endpos= cl0.endpos}
 
 let parse filenames =
   let program_opt = internal_parse filenames in

@@ -1,7 +1,8 @@
 (* astprint.ml *)
 
+open StdLabels
 open Util
-open Ast
+module Abssyn = Abstractsyntax
 
 let error = "\027[31mError:\027[0m"
 
@@ -18,94 +19,96 @@ let dump_string_escaped n handle =
 
 let print_id n handle = Strtbl.find Tables.id_tbl handle |> dump_string n
 
-let print_typ n handle = Strtbl.find Tables.type_tbl handle |> dump_string n
+let print_type n handle = Strtbl.find Tables.type_tbl handle |> dump_string n
 
 let print_int_const n handle =
   Strtbl.find Tables.int_const_tbl handle |> dump_string n
 
 let print_header n line_number name =
-  Printf.sprintf "\027[35m#%d\027[0m" line_number |> dump_string n ;
+  Printf.sprintf "#%d" line_number |> dump_string n ;
   dump_string n name
 
-let print_type n typ_opt =
+let print_typee n typ_opt =
   indent n ;
   print_string ": " ;
   match typ_opt with
   | None -> print_endline "_no_type"
-  | Some handle -> print_typ 0 handle
+  | Some handle -> print_type 0 handle
 
 let get_arith_name op =
   match op with
-  | Add -> "_plus"
-  | Sub -> "_sub"
-  | Mul -> "_mul"
-  | Div -> "_divide"
+  | Abssyn.Plus -> "_plus"
+  | Abssyn.Minus -> "_sub"
+  | Abssyn.Mult -> "_mul"
+  | Abssyn.Div -> "_divide"
 
-let get_comp_name op = match op with Lt -> "_lt" | Le -> "_leq"
+let get_comp_name op = match op with Abssyn.Lt -> "_lt" | Abssyn.Le -> "_leq"
 
-let rec print_case n ((id, typ_opt, exp), line_number) =
-  print_header n line_number "_branch" ;
-  print_id (n + 2) id ;
-  print_typ (n + 2) typ_opt ;
-  print_expr (n + 2) exp
+let rec print_branch n (branch : Abssyn.branch_node) =
+  print_header n branch.startpos.pos_lnum "_branch" ;
+  let ((var, typ), expr) = branch.elem in
+  print_id (n + 2) var ;
+  print_type (n + 2) typ ;
+  print_expr (n + 2) expr
 
-and print_e n line_number exp =
+and print_e n line_number (exp : Abssyn.expr) =
   let print_header_with_name = print_header n line_number in
-  let print_e_list m = List.iter (print_expr m) in
+  let print_e_list m = List.iter ~f:(print_expr m) in
   match exp with
   | Assign (id, exp') ->
       print_header_with_name "_assign" ;
       print_id (n + 2) id ;
       print_expr (n + 2) exp'
-  | DynDispatch dyn ->
+  | DynamicDispatch dyn ->
       print_header_with_name "_dispatch" ;
-      print_expr (n + 2) dyn.dyn_recv ;
-      print_id (n + 2) dyn.dyn_method ;
+      print_expr (n + 2) dyn.recv ;
+      print_id (n + 2) dyn.method_id ;
       dump_string (n + 2) "(" ;
-      print_e_list (n + 2) dyn.dyn_args ;
+      print_e_list (n + 2) dyn.args ;
       dump_string (n + 2) ")"
   | StaticDispatch stat ->
       print_header_with_name "_static_dispatch" ;
-      print_expr (n + 2) stat.stat_recv ;
-      print_typ (n + 2) stat.stat_type ;
-      print_id (n + 2) stat.stat_method ;
+      print_expr (n + 2) stat.recv ;
+      print_type (n + 2) stat.target ;
+      print_id (n + 2) stat.method_id ;
       dump_string (n + 2) "(" ;
-      print_e_list (n + 2) stat.stat_args ;
+      print_e_list (n + 2) stat.args ;
       dump_string (n + 2) ")"
-  | Cond (e1, e2, e3) ->
+  | Cond cond ->
       print_header_with_name "_cond" ;
-      print_e_list (n + 2) [e1; e2; e3]
-  | Loop (e1, e2) ->
+      print_e_list (n + 2) [cond.pred; cond.true_branch; cond.false_branch]
+  | Loop loop ->
       print_header_with_name "_loop" ;
-      print_e_list (n + 2) [e1; e2]
+      print_e_list (n + 2) [loop.pred; loop.body]
   | Block exps ->
       print_header_with_name "_block" ;
       print_e_list (n + 2) exps
   | Let let_stmt ->
       print_header_with_name "_let" ;
-      print_id (n + 2) let_stmt.let_var ;
-      print_typ (n + 2) let_stmt.let_var_type ;
-      print_expr (n + 2) let_stmt.let_init ;
-      print_expr (n + 2) let_stmt.let_body
-  | Case (exp', cases) ->
+      let var, typ = let_stmt.var in
+      print_id (n + 2) var ;
+      print_type (n + 2) typ ;
+      print_expr (n + 2) let_stmt.init ;
+      print_expr (n + 2) let_stmt.body
+  | Case case ->
       print_header_with_name "_typcase" ;
-      print_expr (n + 2) exp' ;
-      List.iter (print_case (n + 2)) cases
-  | New typ_opt ->
+      print_expr (n + 2) case.expr ;
+      List.iter ~f:(print_branch (n + 2)) case.branches
+  | New typ ->
       print_header_with_name "_new" ;
-      print_typ (n + 2) typ_opt
+      print_type (n + 2) typ
   | IsVoid exp' ->
       print_header_with_name "_isvoid" ;
       print_expr (n + 2) exp'
-  | Arith (op, e1, e2) ->
-      get_arith_name op |> print_header_with_name ;
-      print_e_list (n + 2) [e1; e2]
+  | Arith arith ->
+      get_arith_name arith.op |> print_header_with_name ;
+      print_e_list (n + 2) [arith.e1; arith.e2]
   | Neg exp' ->
       print_header_with_name "_neg" ;
       print_expr (n + 2) exp'
-  | Comp (op, e1, e2) ->
-      get_comp_name op |> print_header_with_name ;
-      print_e_list (n + 2) [e1; e2]
+  | Comp comp ->
+      get_comp_name comp.comp |> print_header_with_name ;
+      print_e_list (n + 2) [comp.e1; comp.e2]
   | Eq (e1, e2) ->
       print_header_with_name "_eq" ;
       print_e_list (n + 2) [e1; e2]
@@ -126,45 +129,45 @@ and print_e n line_number exp =
       dump_string (n + 2) (if x then "1" else "0")
   | NoExpr -> print_header_with_name "_no_expr"
 
-and print_expr n (exp, line_number) =
-  print_e n line_number exp.typ_expr ;
-  print_type n exp.typ_type
+and print_expr n expr =
+  print_e n expr.Abssyn.startpos.pos_lnum expr.expr ;
+  print_typee n expr.typ
 
-let print_formal n ((arg, typ_opt), line_number) =
-  print_header n line_number "_formal" ;
-  print_id (n + 2) arg ;
-  print_typ (n + 2) typ_opt
+let print_formal n (formal : Abssyn.formal) =
+  print_header n formal.startpos.pos_lnum "_formal" ;
+  fst formal.elem |> print_id (n + 2) ;
+  snd formal.elem |> print_type (n + 2)
 
 let print_method n line_number mthd =
   print_header n line_number "_method" ;
-  print_id (n + 2) mthd.method_id ;
-  List.iter (print_formal (n + 2)) mthd.method_args ;
-  print_typ (n + 2) mthd.method_ret_type ;
-  print_expr (n + 2) mthd.method_body
+  print_id (n + 2) mthd.Abssyn.method_id ;
+  List.iter ~f:(print_formal (n + 2)) mthd.formals ;
+  print_type (n + 2) mthd.ret_type ;
+  print_expr (n + 2) mthd.body
 
-let print_field n line_number id typ_opt exp =
+let print_field n line_number var exp =
   print_header n line_number "_attr" ;
-  print_id (n + 2) id ;
-  print_typ (n + 2) typ_opt ;
+  fst var |> print_id (n + 2) ;
+  snd var |> print_type (n + 2) ;
   print_expr (n + 2) exp
 
-let print_feature n (feat, line_number) =
-  match feat with
-  | Method mthd -> print_method n line_number mthd
-  | Field (id, t, e) -> print_field n line_number id t e
+let print_feature n feature =
+  match feature.Abssyn.elem with
+  | Abssyn.Method mthd -> print_method n feature.startpos.pos_lnum mthd
+  | Abssyn.Field (var, exp) -> print_field n feature.startpos.pos_lnum var exp
 
-let print_class n (cl, line_number) =
-  print_header n line_number "_class" ;
-  print_typ (n + 2) cl.class_type ;
-  print_typ (n + 2) cl.class_parent ;
-  dump_string_escaped (n + 2) cl.class_filename ;
+let print_class n (cl : Abssyn.class_node) =
+  print_header n cl.startpos.pos_lnum "_class" ;
+  print_type (n + 2) cl.elem.typ ;
+  print_type (n + 2) cl.elem.parent ;
+  String.escaped cl.startpos.pos_fname |> dump_string (n + 2) ;
   dump_string (n + 2) "(" ;
-  List.iter (print_feature (n + 2)) cl.class_features ;
+  List.iter ~f:(print_feature (n + 2)) cl.elem.features ;
   dump_string (n + 2) ")"
 
-let print_ast (classes, line_number) =
-  print_header 0 line_number "_program" ;
-  List.iter (print_class 2) classes
+let print_ast (program : Abssyn.program) =
+  print_header 0 program.startpos.pos_lnum "_program" ;
+  List.iter ~f:(print_class 2) program.elem
 
 let print_syntax_error _ =
   prerr_endline "Compilation halted due to lex and parse errors"

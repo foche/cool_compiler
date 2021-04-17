@@ -1,6 +1,7 @@
 (* tables.ml *)
 
-open Helpers
+open StdLabels
+open MoreLabels
 module Hutil = Hashtblutil
 
 type id_sym = Strtbl.handle
@@ -126,11 +127,11 @@ let basic_classes = io_type :: self_type :: primitives
 let create_basic_labels _ =
   let tbl = Hashtbl.create 32 in
   List.iter
-    (fun (typ, method_id, _, _) ->
-      method_label typ method_id |> Hashtbl.replace tbl (typ, method_id) )
+    ~f:(fun (typ, method_id, _, _) ->
+      Hashtbl.replace tbl ~key:(typ, method_id) ~data:(method_label typ method_id) )
     basic_methods ;
   tbl
 
 let basic_method_labels = create_basic_labels ()
 
-let is_prim typ = List.find_opt (( = ) typ) primitives |> is_some_opt
+let is_prim typ = List.find_opt ~f:(( = ) typ) primitives |> Optutil.is_some

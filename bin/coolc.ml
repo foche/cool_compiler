@@ -7,7 +7,7 @@
 open Parser
 open Semant
 open Util
-open Helpers
+open 
 open Translator
 
 let usage_msg =
@@ -43,7 +43,7 @@ let get_default_out_file file =
 let main _ =
   try
     let program_opt =
-      Parsedriver.parse !input_files |> map_opt ~f:Typecheck.typecheck
+      Parsedriver.parse !input_files |> Optutil.map ~f:Typecheck.typecheck
     in
     match program_opt with
     | None -> ()

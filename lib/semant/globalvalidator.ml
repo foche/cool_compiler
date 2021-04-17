@@ -1,22 +1,20 @@
 (* globalvalidator.ml *)
 
 open Parser
-open Ast
 open Util
-open Tables
 
 type validator_args =
-  { program: program
-  ; reserved_classes: (type_sym, unit) Hashtbl.t
-  ; inheritance_blocklist: (type_sym, unit) Hashtbl.t
-  ; handle_to_class: (type_sym, class_node) Hashtbl.t
+  { program: Abstractsyntax.program
+  ; reserved_classes: (Tables.type_sym, unit) Hashtbl.t
+  ; inheritance_blocklist: (Tables.type_sym, unit) Hashtbl.t
+  ; handle_to_class: (Tables.type_sym, Abstractsyntax.class_node) Hashtbl.t
   ; graph: (Tables.type_sym, Tables.type_sym) Hashtbl.t
   ; sigs: Methodtbl.t }
 
 let main_method_exists = ref false
 
 let validate_method_types graph (cl, _) =
-  let is_valid_type typ = typ = object_type || Hashtbl.mem graph typ in
+  let is_valid_type typ = typ = Tables.object_type || Hashtbl.mem graph typ in
   let check_field_type line_number id typ =
     match is_valid_type typ with
     | true -> true

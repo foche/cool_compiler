@@ -2,7 +2,6 @@
 
 open StdLabels
 open MoreLabels
-open Helpers
 
 type 'a t =
   { out_edges: ('a, 'a) Hashtbl.t
@@ -54,7 +53,7 @@ let check_is_tree ~parents ~out_edges ~root =
   match Hashtbl.length visited = n with
   | true -> IsTree
   | false ->
-      get_opt (Hashtbl.fold ~f:(find_disconnected ~parents ~visited) parents ~init:None)
+      Optutil.get (Hashtbl.fold ~f:(find_disconnected ~parents ~visited) parents ~init:None)
 
 let reduce_to_rmq ~out_edges ~euler_tour ~firsts ~depths ~root =
   dfs ~out_edges
@@ -113,4 +112,4 @@ let is_ancestor tree ~ancestor vert =
   lca tree ~vert1:ancestor ~vert2:vert = ancestor
 
 let is_leaf tree vert =
-  Hashtbl.find_opt tree.out_edges vert |> is_none_opt
+  Hashtbl.find_opt tree.out_edges vert |> Optutil.is_none

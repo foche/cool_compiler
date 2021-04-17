@@ -4,7 +4,7 @@ open Parser
 open Ast
 open Util
 open Tables
-open Helpers
+
 open Intermediaterepr
 module Vv = Varversion
 
@@ -116,7 +116,7 @@ and trans_stat args parent stat =
   let args''' =
     { args'' with
       block=
-        Call (get_opt stat.stat_label, recv :: Array.to_list temps)
+        Call (Optutil.get stat.stat_label, recv :: Array.to_list temps)
         :: args''.block }
   in
   (args''', IReg RetReg)
@@ -154,7 +154,7 @@ and trans_new args typ = typ |> ignore ; (args, zero_val)
 
 and trans_isvoid args parent ((exp, _) as exp_node) =
   let args', temp = assign_exp_to_temp args parent exp_node in
-  match get_opt exp.typ_type |> is_prim with
+  match Optutil.get exp.typ_type |> is_prim with
   | true -> (args', one_val)
   | false -> (args', ICompImm (IEq, temp, zero))
 
@@ -175,7 +175,7 @@ and trans_seq args parent exp_nodes =
   (args', temps)
 
 and trans_default_init args (exp, _) =
-  match get_opt exp.typ_type = string_type with
+  match Optutil.get exp.typ_type = string_type with
   | true -> (args, str_val empty_str)
   | false -> (args, zero_val)
 

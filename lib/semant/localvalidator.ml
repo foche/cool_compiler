@@ -1,19 +1,16 @@
 (* localvalidator.ml *)
 
 open Parser
-open Ast
 open Util
-open Helpers
-open Tables
 
 type validator_args =
-  { ignored_classes: (type_sym, unit) Hashtbl.t
-  ; id_env: (id_sym, type_sym) Symtbl.t
-  ; func_env: (id_sym, mthd) Symtbl.t
-  ; graph: type_sym Tree.t
+  { ignored_classes: (Tables.type_sym, unit) Hashtbl.t
+  ; id_env: (Tables.id_sym, Tables.type_sym) Symtbl.t
+  ; func_env: (Tables.id_sym, Abstractsyntax.mthd) Symtbl.t
+  ; graph: Tables.type_sym Tree.t
   ; sigs: Methodtbl.t
-  ; untyped_classes: (type_sym, class_node) Hashtbl.t
-  ; typed_classes: (type_sym, class_node) Hashtbl.t }
+  ; untyped_classes: (Tables.type_sym, Abstractsyntax.class_node) Hashtbl.t
+  ; typed_classes: (Tables.type_sym, Abstractsyntax.class_node) Hashtbl.t }
 
 let typecheck_field args cl line_number id typ ((init, _) as init_node) =
   match init.typ_expr with
@@ -27,7 +24,7 @@ let typecheck_field args cl line_number id typ ((init, _) as init_node) =
             ; graph= args.graph
             ; cl
             ; filename= cl.class_filename }
-          ~exp_node:init_node
+          ~expr_node:init_node
       in
       match get_exp_type typed_init with
       | None -> None
@@ -63,7 +60,7 @@ let typecheck_method args cl mthd line_number =
               ; graph= args.graph
               ; cl
               ; filename= cl.class_filename }
-            ~exp_node:mthd.method_body )
+            ~expr_node:mthd.method_body )
   in
   let typed_body = Symtbl.enter_scope args.id_env ~cont:lazy_typecheck in
   match get_exp_type typed_body with
@@ -134,7 +131,7 @@ let extract_method func_env filename line_number mthd =
   match is_overridden with
   | false -> true
   | true ->
-      get_opt parent_method_opt
+      Optutil.get parent_method_opt
       |> validate_method_sig filename line_number mthd
 
 let extract_field id_env cl line_number id typ =
@@ -169,7 +166,7 @@ let typecheck_class args typ (cl, line_number) =
   | true -> (
       let typed_feature_opt =
         List.rev_map (typecheck_feature args cl) cl.class_features
-        |> flatten_opt_list
+        |> Optutil.flatten_opt_list
       in
       match typed_feature_opt with
       | None -> false

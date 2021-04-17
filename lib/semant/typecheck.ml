@@ -1,12 +1,7 @@
-;;
-7
-
 (* typecheck.ml *)
 
 open Parser
 open Util
-open Helpers
-open Tables
 
 let semant_verbose = ref false
 
@@ -45,7 +40,7 @@ let internal_typecheck ((classes, line_number) as program) =
          { ignored_classes= reserved_classes
          ; id_env
          ; func_env
-         ; graph= get_opt tree_opt
+         ; graph= Optutil.get tree_opt
          ; sigs
          ; untyped_classes= handle_to_class
          ; typed_classes }

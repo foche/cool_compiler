@@ -4,10 +4,10 @@ open Parser
 open Util
 
 type validator_args =
-  { program: Ast.program
+  { program: Abstractsyntax.program
   ; reserved_classes: (Tables.type_sym, unit) Hashtbl.t
   ; inheritance_blocklist: (Tables.type_sym, unit) Hashtbl.t
-  ; handle_to_class: (Tables.type_sym, Ast.class_node) Hashtbl.t
+  ; handle_to_class: (Tables.type_sym, Abstractsyntax.class_node) Hashtbl.t
   ; graph: (Tables.type_sym, Tables.type_sym) Hashtbl.t
   ; sigs: Methodtbl.t }
 

@@ -1,6 +1,6 @@
 (* astprint.mli *)
 
-val print_ast : Ast.program -> unit
+val print_ast : Abstractsyntax.program -> unit
 (** [print_ast ast] pretty-prints the [ast]. *)
 
 val print_syntax_error : unit -> unit

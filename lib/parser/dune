@@ -7,5 +7,5 @@
 (ocamllex
  (modules coollexer))
 
-(ocamlyacc
+(menhir
  (modules coolparser))
