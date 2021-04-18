@@ -12,9 +12,6 @@ val create : int -> 'a t
 val add : 'a t -> 'a -> handle
 (** [add tbl s] adds string [s] to table [tbl]. Returns the handle for [s]. *)
 
-val remove : 'a t -> handle -> unit
-(** [remove tbl h] removes handle [h] and its associated string. *)
-
 val find : 'a t -> handle -> 'a
 (** [find tbl h] uses handle [h] to look up its associated string. *)
 

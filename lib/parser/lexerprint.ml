@@ -2,6 +2,8 @@
 
 module Parse = Coolparser
 
+[@@@coverage exclude_file]
+
 let print_filename filename = Printf.printf "#name %S\n" filename
 
 let token_string tok =

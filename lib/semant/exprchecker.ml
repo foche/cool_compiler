@@ -10,20 +10,20 @@ module T = Tables
 type context = {
   id_env : (T.id_sym, T.type_sym) Symtbl.t;
   sigs : Methodtbl.t;
-  graph : T.type_sym Tree.t;
-  cl : class_node;
+  inherit_tree : T.type_sym Tree.t;
+  cl_typ : T.type_sym;
 }
 
-let lca ~graph ~cl typ1 typ2 =
+let lca ~inherit_tree ~cl_typ typ1 typ2 =
   match typ1 = typ2 with
   | true -> typ1
   | false ->
-      Tree.lca graph
-        ~vert1:(Ast.translate_type ~cl typ1)
-        ~vert2:(Ast.translate_type ~cl typ2)
+      Tree.lca inherit_tree
+        ~vert1:(Types.translate_type ~cl_typ typ1)
+        ~vert2:(Types.translate_type ~cl_typ typ2)
 
-let all_lca ~graph ~cl ~typs =
-  List.fold_left ~f:(lca ~graph ~cl) ~init:(List.hd typs) (List.tl typs)
+let all_lca ~inherit_tree ~cl_typ ~typs =
+  List.fold_left ~f:(lca ~inherit_tree ~cl_typ) ~init:(List.hd typs) (List.tl typs)
 
 let validate_let_var_not_self ~loc ~id =
   match id <> T.self_var with
@@ -33,8 +33,8 @@ let validate_let_var_not_self ~loc ~id =
       prerr_endline "'self' cannot be bound in a 'let' expression.";
       false
 
-let validate_let_type ~loc ~graph ~id ~var_typ =
-  match Tree.mem graph var_typ with
+let validate_let_type ~loc ~inherit_tree ~id ~var_typ =
+  match Tree.mem inherit_tree var_typ with
   | true -> true
   | false ->
       Semantprint.print_location loc;
@@ -104,7 +104,7 @@ and aux_assign ~ctx ~expr ~id ~sub_expr =
             ~expr ~sub_expr ~super_typ:var_typ)
 
 and aux_new ~ctx ~expr ~typ =
-  match Tree.mem ctx.graph typ with
+  match Tree.mem ctx.inherit_tree typ with
   | true -> Ast.add_type ~typ expr
   | false ->
       Semantprint.print_location expr.expr_loc;
@@ -128,7 +128,9 @@ and aux_cond ~ctx ~expr ~cond_expr =
                  })
             expr
           |> Ast.add_type
-               ~typ:(lca ~graph:ctx.graph ~cl:ctx.cl then_typ else_typ)
+               ~typ:
+                 (lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ then_typ
+                    else_typ)
       | _ -> expr)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_location cond_expr.cond_pred.expr_loc;
@@ -247,7 +249,9 @@ and aux_let ~ctx ~expr ~let_expr =
   let let_init = let_expr.let_init in
   let loc = expr.expr_loc in
   let is_valid_var = validate_let_var_not_self ~loc ~id in
-  let is_valid_type = validate_let_type ~loc ~graph:ctx.graph ~id ~var_typ in
+  let is_valid_type =
+    validate_let_type ~loc ~inherit_tree:ctx.inherit_tree ~id ~var_typ
+  in
   match (is_valid_var && is_valid_type, let_init.expr_expr) with
   | false, _ -> expr
   | true, NoExpr -> aux_let_helper ~ctx ~expr ~let_expr ~typed_init:let_init
@@ -288,7 +292,7 @@ and aux_dyn_dispatch ~ctx ~expr ~dyn =
   aux_dispatch_common ~ctx ~expr ~method_id:dyn.dyn_method_id ~recv:dyn.dyn_recv
     ~args:dyn.dyn_args
     ~recv_type_translator:(fun ~recv_typ ->
-      Some (Ast.translate_type ~cl:ctx.cl recv_typ))
+      Some (Types.translate_type ~cl_typ:ctx.cl_typ recv_typ))
     ~cont:(fun ~typed_recv ~typed_args ~ret_typ ~label:_ ->
       Ast.replace_expr
         ~new_expr:
@@ -299,7 +303,8 @@ and aux_dyn_dispatch ~ctx ~expr ~dyn =
 
 and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
   match
-    Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:recv_typ ~super_typ:target_typ
+    Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:recv_typ
+      ~super_typ:target_typ
   with
   | true -> Some target_typ
   | false ->
@@ -311,7 +316,7 @@ and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
       None
 
 and aux_stat_dispatch ~ctx ~expr ~stat =
-  match Tree.mem ctx.graph stat.stat_target_typ with
+  match Tree.mem ctx.inherit_tree stat.stat_target_typ with
   | false ->
       Semantprint.print_location expr.expr_loc;
       Printf.eprintf "Static dispatch to undefined class %a.\n" T.print_type
@@ -352,8 +357,8 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
       | None -> expr
       | Some trans_recv_typ -> (
           let method_sig_opt =
-            Methodtbl.find_opt ctx.sigs ~graph:ctx.graph ~typ:trans_recv_typ
-              ~method_id
+            Methodtbl.find_opt ctx.sigs ~inherit_tree:ctx.inherit_tree
+              ~typ:trans_recv_typ ~method_id
           in
           match method_sig_opt with
           | None ->
@@ -389,7 +394,8 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
 and validate_arg_types ~ctx ~loc ~method_id arg (id, formal_typ) =
   let arg_typ = Option.get arg.expr_typ in
   match
-    Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:arg_typ ~super_typ:formal_typ
+    Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:arg_typ
+      ~super_typ:formal_typ
   with
   | true -> true
   | false ->
@@ -428,7 +434,9 @@ and aux_case ~ctx ~expr ~case_expr =
           (Case { case_expr = typed_case_expr; case_branches = typed_branches })
         expr
       |> Ast.add_type
-           ~typ:(all_lca ~graph:ctx.graph ~cl:ctx.cl ~typs:branch_types)
+           ~typ:
+             (all_lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ
+                ~typs:branch_types)
 
 and dedup_branches ~typ_tbl acc branch =
   match acc with
@@ -478,7 +486,7 @@ and validate_branch_typ ~ctx ~loc ~id ~var_typ =
         T.print_id id;
       false
   | true -> (
-      match Tree.mem ctx.graph var_typ with
+      match Tree.mem ctx.inherit_tree var_typ with
       | true -> true
       | false ->
           Semantprint.print_location loc;
@@ -492,7 +500,8 @@ and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
   | None -> sub_expr
   | Some sub_expr_typ -> (
       match
-        Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:sub_expr_typ ~super_typ
+        Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:sub_expr_typ
+          ~super_typ
       with
       | true -> cont ~typed_sub_expr sub_expr_typ
       | false ->

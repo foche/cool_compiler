@@ -16,24 +16,24 @@ let init_method_sigs class_count =
     Tables.basic_methods;
   tbl
 
-let init_inherit_graph class_count =
-  let graph = Hashtbl.create ((class_count * 2) - 1) in
+let init_parents class_count =
+  let parents = Hashtbl.create ((class_count * 2) - 1) in
   List.iter
-    ~f:(fun cl -> Hashtbl.replace graph ~key:cl ~data:Tables.object_type)
+    ~f:(fun cl -> Hashtbl.replace parents ~key:cl ~data:Tables.object_type)
     Tables.basic_classes;
-  graph
+  parents
 
 let internal_typecheck program =
   let id_count = Strtbl.length Tables.id_tbl in
   let class_count = List.length program.Abssyn.elem in
   let id_env = Symtbl.create ((id_count * 2) - 1) in
   let func_env = Symtbl.create ((id_count * 2) - 1) in
-  let graph = init_inherit_graph class_count in
+  let parents = init_parents class_count in
   let sigs = init_method_sigs class_count in
   let typed_classes = Hashtbl.create ((class_count * 2) - 1) in
   let handle_to_class = Hashtbl.create ((class_count * 2) - 1) in
   let is_global_valid, tree_opt =
-    Globalvalidator.validate ~args:{ program; handle_to_class; graph; sigs }
+    Globalvalidator.validate ~args:{ program; handle_to_class; parents; sigs }
   in
   let is_valid =
     is_global_valid
@@ -42,7 +42,7 @@ let internal_typecheck program =
            {
              id_env;
              func_env;
-             graph = Option.get tree_opt;
+             inherit_tree = Option.get tree_opt;
              sigs;
              untyped_classes = handle_to_class;
              typed_classes;

@@ -29,12 +29,12 @@ let add sigs ~typ ~method_id ~ret_typ ~formals =
           };
       true
 
-let find_opt sigs ~graph ~typ ~method_id =
+let find_opt sigs ~inherit_tree ~typ ~method_id =
   let rec aux ~typ ~cont =
     match Hashtbl.find_opt sigs (typ, method_id) with
     | Some _ as sig_opt -> cont sig_opt
     | None -> (
-        match Tree.find_parent_opt graph typ with
+        match Tree.find_parent_opt inherit_tree typ with
         | None -> cont None
         | Some parent ->
             aux ~typ:parent ~cont:(fun sig_opt ->

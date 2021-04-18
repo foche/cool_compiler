@@ -10,14 +10,14 @@ module T = Tables
 type validator_args = {
   program : Abssyn.program;
   handle_to_class : (T.type_sym, Abssyn.class_node) Hashtbl.t;
-  graph : (T.type_sym, T.type_sym) Hashtbl.t;
+  parents : (T.type_sym, T.type_sym) Hashtbl.t;
   sigs : Methodtbl.t;
 }
 
 let main_method_exists = ref false
 
-let validate_feature_types ~graph (cl : Abssyn.class_node) =
-  let is_valid_type ~typ = typ = T.object_type || Hashtbl.mem graph typ in
+let validate_feature_types ~parents (cl : Abssyn.class_node) =
+  let is_valid_type ~typ = typ = T.object_type || Hashtbl.mem parents typ in
   let check_field_type ~id ~typ ~loc =
     match is_valid_type ~typ with
     | true -> true
@@ -135,10 +135,10 @@ let validate_feature ~args ~(cl : Abssyn.class_node) feature =
       in
       is_unique && is_valid_main && no_self_args
 
-let add_to_graph ~graph ~(cl : Abssyn.class_node) =
-  match Hashtbl.mem graph cl.elem.cl_typ with
+let add_to_parents ~parents ~(cl : Abssyn.class_node) =
+  match Hashtbl.mem parents cl.elem.cl_typ with
   | false ->
-      Hashtbl.add graph ~key:cl.elem.cl_typ ~data:cl.elem.cl_parent;
+      Hashtbl.add parents ~key:cl.elem.cl_typ ~data:cl.elem.cl_parent;
       true
   | true ->
       Semantprint.print_location cl.loc;
@@ -168,8 +168,8 @@ let validate_class ~args (cl : Abssyn.class_node) =
   Hashtbl.add args.handle_to_class ~key:cl.elem.cl_typ ~data:cl;
   let is_valid_type = is_unreserved ~cl in
   let is_valid_parent = is_valid_inheritance ~cl in
-  let graph = args.graph in
-  let is_unique = is_valid_type && add_to_graph ~graph ~cl in
+  let parents = args.parents in
+  let is_unique = is_valid_type && add_to_parents ~parents ~cl in
   let valid_features =
     List.for_all ~f:(validate_feature ~args ~cl) cl.elem.cl_features
   in
@@ -190,8 +190,8 @@ let validate_main ~handle_to_class =
       prerr_endline "Class Main is not defined.";
       false
 
-let create_tree ~graph ~handle_to_class =
-  match Tree.create ~parents:graph ~root:T.object_type with
+let create_tree ~parents ~handle_to_class =
+  match Tree.create ~parents ~root:T.object_type with
   | Tree.Tree tree -> (true, Some tree)
   | Tree.Disconnected (typ, parent) ->
       let cl = Hashtbl.find handle_to_class typ in
@@ -211,14 +211,14 @@ let validate ~args =
   let classes = args.program.Abssyn.elem in
   let valid_classes = List.for_all ~f:(validate_class ~args) classes in
   let handle_to_class = args.handle_to_class in
-  let graph = args.graph in
+  let parents = args.parents in
   let valid_main = validate_main ~handle_to_class in
   let valid_tree, tree_opt =
     match valid_classes with
     | false -> (false, None)
-    | true -> create_tree ~graph ~handle_to_class
+    | true -> create_tree ~parents ~handle_to_class
   in
   let valid_method_types =
-    List.for_all ~f:(validate_feature_types ~graph) classes
+    List.for_all ~f:(validate_feature_types ~parents) classes
   in
   (valid_classes && valid_tree && valid_method_types && valid_main, tree_opt)

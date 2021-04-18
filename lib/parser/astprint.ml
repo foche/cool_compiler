@@ -4,6 +4,8 @@ open StdLabels
 open Util
 module Abssyn = Abstractsyntax
 
+[@@@coverage exclude_file]
+
 let error = "\027[31mError:\027[0m"
 
 let indent n =

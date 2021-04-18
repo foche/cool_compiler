@@ -1,4 +1,5 @@
 (executable
  (name coolc)
  (modes byte exe)
+ (flags -strict-formats)
  (libraries parser semant))

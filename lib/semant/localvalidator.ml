@@ -10,27 +10,33 @@ module T = Tables
 type validator_args = {
   id_env : (T.id_sym, T.type_sym) Symtbl.t;
   func_env : (T.id_sym, Abssyn.method_def) Symtbl.t;
-  graph : T.type_sym Tree.t;
+  inherit_tree : T.type_sym Tree.t;
   sigs : Methodtbl.t;
   untyped_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
   typed_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
 }
 
-let typecheck_field ~args ~cl ~feature ~id ~typ ~init =
+let typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init =
   match init.Abssyn.expr_expr with
   | NoExpr -> Some feature
   | _ -> (
       let typed_init =
         Exprchecker.typecheck
           ~ctx:
-            { id_env = args.id_env; sigs = args.sigs; graph = args.graph; cl }
+            {
+              id_env = args.id_env;
+              sigs = args.sigs;
+              inherit_tree = args.inherit_tree;
+              cl_typ;
+            }
           ~expr:init
       in
       match typed_init.Abssyn.expr_typ with
       | None -> None
       | Some init_typ -> (
           match
-            Ast.is_subtype args.graph ~cl ~sub_typ:init_typ ~super_typ:typ
+            Types.is_subtype args.inherit_tree ~cl_typ ~sub_typ:init_typ
+              ~super_typ:typ
           with
           | true ->
               Some
@@ -46,7 +52,7 @@ let typecheck_field ~args ~cl ~feature ~id ~typ ~init =
                 T.print_type init_typ T.print_id id T.print_type typ;
               None))
 
-let typecheck_method ~args ~cl ~method_def ~feature =
+let typecheck_method ~args ~cl_typ ~method_def ~feature =
   let add_formal formal =
     let id, typ = formal.Abssyn.elem in
     let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
@@ -65,7 +71,12 @@ let typecheck_method ~args ~cl ~method_def ~feature =
       | true ->
           Exprchecker.typecheck
             ~ctx:
-              { id_env = args.id_env; sigs = args.sigs; graph = args.graph; cl }
+              {
+                id_env = args.id_env;
+                sigs = args.sigs;
+                inherit_tree = args.inherit_tree;
+                cl_typ;
+              }
             ~expr:method_def.method_body)
   in
   let typed_body = Symtbl.enter_scope args.id_env ~cont:lazy_typecheck in
@@ -73,7 +84,7 @@ let typecheck_method ~args ~cl ~method_def ~feature =
   | None -> None
   | Some body_typ -> (
       match
-        Ast.is_subtype args.graph ~cl ~sub_typ:body_typ
+        Types.is_subtype args.inherit_tree ~cl_typ ~sub_typ:body_typ
           ~super_typ:method_def.method_ret_typ
       with
       | true ->
@@ -92,11 +103,11 @@ let typecheck_method ~args ~cl ~method_def ~feature =
             method_def.method_ret_typ;
           None)
 
-let typecheck_feature ~args ~cl feature =
+let typecheck_feature ~args ~cl_typ feature =
   match feature.Abssyn.elem with
   | Abssyn.Field ((id, typ), init) ->
-      typecheck_field ~args ~cl ~feature ~id ~typ ~init
-  | Abssyn.Method method_def -> typecheck_method ~args ~cl ~method_def ~feature
+      typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init
+  | Abssyn.Method method_def -> typecheck_method ~args ~cl_typ ~method_def ~feature
 
 let validate_formal_types ~method_id formal parent_formal =
   let _, typ = formal.Abssyn.elem in
@@ -157,14 +168,14 @@ let extract_method ~func_env ~method_def ~loc =
       Option.get parent_method_opt
       |> validate_overridden_method ~method_def ~loc
 
-let extract_field ~id_env ~(cl : Abssyn.class_node) ~loc ~id ~typ =
+let extract_field ~id_env ~cl_typ ~loc ~id ~typ =
   let is_duplicate, is_shadowed = Symtbl.add id_env ~key:id ~data:typ in
   (match is_duplicate with
   | false -> ()
   | true ->
       Semantprint.print_location loc;
       Printf.eprintf "Attribute %a is multiply defined in class %a.\n"
-        T.print_id id T.print_type cl.elem.cl_typ);
+        T.print_id id T.print_type cl_typ);
   (match is_shadowed with
   | false -> ()
   | true ->
@@ -173,23 +184,25 @@ let extract_field ~id_env ~(cl : Abssyn.class_node) ~loc ~id ~typ =
         T.print_id id);
   (not is_duplicate) && not is_shadowed
 
-let extract_feature ~id_env ~func_env ~cl feature =
+let extract_feature ~id_env ~func_env ~cl_typ feature =
   let loc = feature.Abssyn.loc in
   match feature.elem with
   | Abssyn.Method method_def -> extract_method ~func_env ~method_def ~loc
-  | Abssyn.Field ((id, typ), _) -> extract_field ~id_env ~cl ~loc ~id ~typ
+  | Abssyn.Field ((id, typ), _) -> extract_field ~id_env ~cl_typ ~loc ~id ~typ
 
 let typecheck_class ~args ~typ (cl : Abssyn.class_node) =
+  let cl_typ = cl.elem.cl_typ in
+  let features = cl.elem.cl_features in
   let valid_field_decl =
     List.for_all
-      ~f:(extract_feature ~id_env:args.id_env ~func_env:args.func_env ~cl)
-      cl.elem.cl_features
+      ~f:(extract_feature ~id_env:args.id_env ~func_env:args.func_env ~cl_typ)
+      features
   in
   match valid_field_decl with
   | false -> false
   | true -> (
       let typed_feature_opt =
-        List.rev_map ~f:(typecheck_feature ~args ~cl) cl.elem.cl_features
+        List.rev_map ~f:(typecheck_feature ~args ~cl_typ) features
         |> Optutil.flatten_opt_list
       in
       match typed_feature_opt with
@@ -211,7 +224,7 @@ let rec traverse_class_tree ~args root =
                ((Hashtbl.mem T.reserved_classes root
                 || Hashtbl.find args.untyped_classes root
                    |> typecheck_class ~args ~typ:root)
-               && Tree.find_out_edges args.graph root
+               && Tree.find_out_edges args.inherit_tree root
                   |> List.for_all ~f:(traverse_class_tree ~args)))))
 
 let validate ~args =

@@ -1,5 +1,7 @@
 (* semantprint.ml *)
 
+[@@@coverage exclude_file]
+
 let print_typecheck_error _ =
   prerr_endline "Compilation halted due to static semantic errors."
 

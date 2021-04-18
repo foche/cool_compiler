@@ -20,6 +20,8 @@ grading
 _coverage
 *.output
 .vscode
+semanttest
+*.sh
 
 # ocamlbuild working directory
 _build/

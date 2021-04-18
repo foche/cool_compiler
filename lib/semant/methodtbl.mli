@@ -24,7 +24,7 @@ val add :
 
 val find_opt :
   t ->
-  graph:Tables.type_sym Tree.t ->
+  inherit_tree:Tables.type_sym Tree.t ->
   typ:Tables.type_sym ->
   method_id:Tables.id_sym ->
   method_sig option
