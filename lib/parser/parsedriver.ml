@@ -22,7 +22,7 @@ let parse_single (acc, empty_count) filename file =
   Coollexer.print_filename filename;
   let cls_opt, is_empty =
     try Coolparser.parse Coollexer.get_token buf
-    with Parsing.Parse_error -> (None, false)
+    with Coolparser.Error -> (None, false)
   in
   let new_count = empty_count + if is_empty then 1 else 0 in
   (cls_opt :: acc, new_count)
@@ -41,11 +41,7 @@ let internal_parse filenames =
   | false, true -> None
   | false, false ->
       let cl0 = List.hd cls in
-      Some
-        {
-          Abssyn.elem = cls;
-          loc = cl0.Abssyn.loc;
-        }
+      Some { Abssyn.elem = cls; loc = cl0.Abssyn.loc }
 
 let parse filenames =
   let program_opt = internal_parse filenames in

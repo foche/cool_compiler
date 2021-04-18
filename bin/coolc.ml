@@ -46,17 +46,17 @@ let main _ =
     in
     program_opt |> ignore
     (* match program_opt with
-    | None -> ()
-    | Some program ->
-        let blocks = Instrselector.translate_program program in
-        Irprint.print_ir blocks;
-        let actual_output_file =
-          match !output_file with
-          | "" -> List.rev !input_files |> List.hd |> get_default_out_file
-          | out_file -> out_file
-        in
-        let out_file = open_out actual_output_file in
-        close_out out_file *)
+       | None -> ()
+       | Some program ->
+           let blocks = Instrselector.translate_program program in
+           Irprint.print_ir blocks;
+           let actual_output_file =
+             match !output_file with
+             | "" -> List.rev !input_files |> List.hd |> get_default_out_file
+             | out_file -> out_file
+           in
+           let out_file = open_out actual_output_file in
+           close_out out_file *)
   with Sys_error msg -> prerr_endline msg
 
 let _ =

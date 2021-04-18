@@ -29,11 +29,7 @@ let create_double ~f ~x ~y ~loc =
   Optutil.map2 ~f:(fun x' y' -> create_expr ~expr:(f x' y') loc) x y
 
 let no_expr ~loc =
-  {
-    Abssyn.expr_expr = Abssyn.NoExpr;
-    expr_typ = None;
-    expr_loc = loc;
-  }
+  { Abssyn.expr_expr = Abssyn.NoExpr; expr_typ = None; expr_loc = loc }
 
 let replace_expr ~new_expr expr = { expr with Abssyn.expr_expr = new_expr }
 

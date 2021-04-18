@@ -155,8 +155,7 @@ let print_field n line_number var exp =
 
 let print_feature n feature =
   match feature.Abssyn.elem with
-  | Abssyn.Method method_def ->
-      print_method n feature.loc method_def
+  | Abssyn.Method method_def -> print_method n feature.loc method_def
   | Abssyn.Field (var, exp) -> print_field n feature.loc var exp
 
 let print_class n (cl : Abssyn.class_node) =

@@ -43,11 +43,7 @@ let validate_let_type ~loc ~graph ~id ~var_typ =
       false
 
 let get_arith_op_str op =
-  match op with
-  | Plus -> "+"
-  | Minus -> "-"
-  | Mult -> "*"
-  | Div -> "/"
+  match op with Plus -> "+" | Minus -> "-" | Mult -> "*" | Div -> "/"
 
 let get_comp_op_str op = match op with Lt -> "<" | Le -> "<="
 
@@ -105,9 +101,7 @@ and aux_assign ~ctx ~expr ~id ~sub_expr =
                 "Type %a of assigned expression does not conform to declared \
                  type %a of identifier %a.\n"
                 T.print_type sub_expr_typ T.print_type var_typ T.print_id id)
-            ~expr
-            ~sub_expr
-            ~super_typ:var_typ )
+            ~expr ~sub_expr ~super_typ:var_typ)
 
 and aux_new ~ctx ~expr ~typ =
   match Tree.mem ctx.graph typ with
@@ -124,25 +118,34 @@ and aux_cond ~ctx ~expr ~cond_expr =
       let false_branch = aux ~ctx cond_expr.cond_false in
       match (true_branch.expr_typ, false_branch.expr_typ) with
       | Some then_typ, Some else_typ ->
-        Ast.replace_expr ~new_expr:(Cond {cond_pred = typed_pred; cond_true = true_branch; cond_false = false_branch}) expr
-        |> Ast.add_type ~typ:(lca ~graph:ctx.graph ~cl:ctx.cl then_typ else_typ)
+          Ast.replace_expr
+            ~new_expr:
+              (Cond
+                 {
+                   cond_pred = typed_pred;
+                   cond_true = true_branch;
+                   cond_false = false_branch;
+                 })
+            expr
+          |> Ast.add_type
+               ~typ:(lca ~graph:ctx.graph ~cl:ctx.cl then_typ else_typ)
       | _ -> expr)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_location cond_expr.cond_pred.expr_loc;
       prerr_endline "Predicate of 'if' does not have type Bool.")
-    ~expr
-    ~sub_expr:cond_expr.cond_pred
-    ~super_typ:T.bool_type
+    ~expr ~sub_expr:cond_expr.cond_pred ~super_typ:T.bool_type
 
 and aux_block ~ctx ~expr ~block =
   let typed_block = List.map ~f:(aux ~ctx) block in
   match
-    List.for_all ~f:(fun sub_expr -> Option.is_some sub_expr.expr_typ) typed_block
+    List.for_all
+      ~f:(fun sub_expr -> Option.is_some sub_expr.expr_typ)
+      typed_block
   with
   | true ->
-    let last_expr = List.rev typed_block |> List.hd in
-    Ast.replace_expr ~new_expr:(Block typed_block) expr
-    |> Ast.add_type ~typ:(Option.get last_expr.expr_typ)
+      let last_expr = List.rev typed_block |> List.hd in
+      Ast.replace_expr ~new_expr:(Block typed_block) expr
+      |> Ast.add_type ~typ:(Option.get last_expr.expr_typ)
   | false -> expr
 
 and aux_isvoid ~ctx ~expr ~sub_expr =
@@ -150,8 +153,8 @@ and aux_isvoid ~ctx ~expr ~sub_expr =
   match typed_sub_expr.expr_typ with
   | None -> expr
   | Some _ ->
-    Ast.replace_expr ~new_expr:(IsVoid typed_sub_expr) expr
-    |> Ast.add_type ~typ:T.bool_type
+      Ast.replace_expr ~new_expr:(IsVoid typed_sub_expr) expr
+      |> Ast.add_type ~typ:T.bool_type
 
 and aux_loop ~ctx ~expr ~loop_expr =
   rec_helper ~ctx
@@ -160,14 +163,14 @@ and aux_loop ~ctx ~expr ~loop_expr =
       match typed_body.expr_typ with
       | None -> expr
       | Some _ ->
-        Ast.replace_expr ~new_expr:(Loop {loop_pred = typed_pred; loop_body = typed_body}) expr
-        |> Ast.add_type ~typ:T.object_type)
+          Ast.replace_expr
+            ~new_expr:(Loop { loop_pred = typed_pred; loop_body = typed_body })
+            expr
+          |> Ast.add_type ~typ:T.object_type)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_location loop_expr.loop_pred.expr_loc;
       prerr_endline "Loop condition does not have type Bool.")
-    ~expr
-    ~sub_expr:loop_expr.loop_pred
-    ~super_typ:T.bool_type
+    ~expr ~sub_expr:loop_expr.loop_pred ~super_typ:T.bool_type
 
 and aux_not ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
@@ -178,9 +181,7 @@ and aux_not ~ctx ~expr ~sub_expr =
       Semantprint.print_location sub_expr.expr_loc;
       Printf.eprintf "Argument of 'not' has type %a instead of Bool.\n"
         T.print_type sub_expr_typ)
-    ~expr
-    ~sub_expr
-    ~super_typ:T.bool_type
+    ~expr ~sub_expr ~super_typ:T.bool_type
 
 and aux_neg ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
@@ -191,22 +192,20 @@ and aux_neg ~ctx ~expr ~sub_expr =
       Semantprint.print_location sub_expr.expr_loc;
       Printf.eprintf "Argument of '~' has type %a instead of Bool.\n"
         T.print_type sub_expr_typ)
-    ~expr
-    ~sub_expr
-    ~super_typ:T.int_type
+    ~expr ~sub_expr ~super_typ:T.int_type
 
 and aux_arith ~ctx ~expr ~arith_expr =
   let arith_op = arith_expr.arith_op in
   let op_str = get_arith_op_str arith_op in
   aux_binop ~ctx ~expr ~op_str
-    ~f:(fun e1 e2 -> Arith {arith_op = arith_op; arith_e1 = e1; arith_e2 = e2})
+    ~f:(fun e1 e2 -> Arith { arith_op; arith_e1 = e1; arith_e2 = e2 })
     ~e1:arith_expr.arith_e1 ~e2:arith_expr.arith_e2 ~typ:T.int_type
 
 and aux_comp ~ctx ~expr ~comp_expr =
   let comp_op = comp_expr.comp_op in
   let op_str = get_comp_op_str comp_op in
   aux_binop ~ctx ~expr ~op_str
-    ~f:(fun e1 e2 -> Comp {comp_op; comp_e1 = e1; comp_e2 = e2})
+    ~f:(fun e1 e2 -> Comp { comp_op; comp_e1 = e1; comp_e2 = e2 })
     ~e1:comp_expr.comp_e1 ~e2:comp_expr.comp_e2 ~typ:T.bool_type
 
 and aux_binop ~ctx ~expr ~op_str ~f ~e1 ~e2 ~typ =
@@ -216,12 +215,12 @@ and aux_binop ~ctx ~expr ~op_str ~f ~e1 ~e2 ~typ =
   | Some typ1, Some typ2 -> (
       match typ1 = T.int_type && typ2 = T.int_type with
       | true ->
-        Ast.replace_expr ~new_expr:(f typed_e1 typed_e2) expr
-        |> Ast.add_type ~typ
+          Ast.replace_expr ~new_expr:(f typed_e1 typed_e2) expr
+          |> Ast.add_type ~typ
       | false ->
           Semantprint.print_location expr.expr_loc;
-          Printf.eprintf "non-Int arguments: %a %s %a\n" T.print_type typ1 op_str
-            T.print_type typ2;
+          Printf.eprintf "non-Int arguments: %a %s %a\n" T.print_type typ1
+            op_str T.print_type typ2;
           expr)
   | _ -> expr
 
@@ -235,8 +234,8 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
       let typ2_primitive = List.mem typ2 ~set:primitives in
       match ((not typ1_primitive) && not typ2_primitive) || typ1 = typ2 with
       | true ->
-        Ast.replace_expr ~new_expr:(Eq (typed_e1, typed_e2)) expr
-        |> Ast.add_type ~typ:T.bool_type
+          Ast.replace_expr ~new_expr:(Eq (typed_e1, typed_e2)) expr
+          |> Ast.add_type ~typ:T.bool_type
       | false ->
           Semantprint.print_location expr.expr_loc;
           prerr_endline "Illegal comparison with a basic type.";
@@ -248,55 +247,66 @@ and aux_let ~ctx ~expr ~let_expr =
   let let_init = let_expr.let_init in
   let loc = expr.expr_loc in
   let is_valid_var = validate_let_var_not_self ~loc ~id in
-  let is_valid_type =
-    validate_let_type ~loc ~graph:ctx.graph ~id ~var_typ
-  in
+  let is_valid_type = validate_let_type ~loc ~graph:ctx.graph ~id ~var_typ in
   match (is_valid_var && is_valid_type, let_init.expr_expr) with
   | false, _ -> expr
   | true, NoExpr -> aux_let_helper ~ctx ~expr ~let_expr ~typed_init:let_init
   | true, _ ->
       rec_helper ~ctx
-        ~cont:(fun ~typed_sub_expr:typed_init _ -> aux_let_helper ~ctx ~expr ~let_expr ~typed_init)
+        ~cont:(fun ~typed_sub_expr:typed_init _ ->
+          aux_let_helper ~ctx ~expr ~let_expr ~typed_init)
         ~err_fun:(fun ~sub_expr_typ ->
           Semantprint.print_location let_init.expr_loc;
           Printf.eprintf
             "Inferred type %a of initialization of %a does not conform to \
              identifier's declared type %a.\n"
             T.print_type sub_expr_typ T.print_id id T.print_type var_typ)
-        ~expr
-        ~sub_expr:let_init
-        ~super_typ:var_typ
+        ~expr ~sub_expr:let_init ~super_typ:var_typ
 
 and aux_let_helper ~ctx ~expr ~let_expr ~typed_init =
   Symtbl.enter_scope ctx.id_env
     ~cont:
       (lazy
         (let id, var_typ = let_expr.let_var in
-          Symtbl.add ctx.id_env ~key:id ~data:var_typ
-         |> ignore;
+         Symtbl.add ctx.id_env ~key:id ~data:var_typ |> ignore;
          let typed_body = aux ~ctx let_expr.let_body in
          match typed_body.expr_typ with
          | None -> expr
          | Some body_typ ->
-          Ast.replace_expr ~new_expr:(Let {let_expr with let_init = typed_init; let_body = typed_body}) expr
-          |> Ast.add_type ~typ:body_typ))
+             Ast.replace_expr
+               ~new_expr:
+                 (Let
+                    {
+                      let_expr with
+                      let_init = typed_init;
+                      let_body = typed_body;
+                    })
+               expr
+             |> Ast.add_type ~typ:body_typ))
 
 and aux_dyn_dispatch ~ctx ~expr ~dyn =
   aux_dispatch_common ~ctx ~expr ~method_id:dyn.dyn_method_id ~recv:dyn.dyn_recv
     ~args:dyn.dyn_args
-    ~recv_type_translator:(fun ~recv_typ -> Some (Ast.translate_type ~cl:ctx.cl recv_typ))
+    ~recv_type_translator:(fun ~recv_typ ->
+      Some (Ast.translate_type ~cl:ctx.cl recv_typ))
     ~cont:(fun ~typed_recv ~typed_args ~ret_typ ~label:_ ->
-      Ast.replace_expr ~new_expr:(DynamicDispatch {dyn with dyn_recv = typed_recv; dyn_args = typed_args}) expr
+      Ast.replace_expr
+        ~new_expr:
+          (DynamicDispatch
+             { dyn with dyn_recv = typed_recv; dyn_args = typed_args })
+        expr
       |> Ast.add_type ~typ:ret_typ)
 
 and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
-  match Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:recv_typ ~super_typ:target_typ with
+  match
+    Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:recv_typ ~super_typ:target_typ
+  with
   | true -> Some target_typ
   | false ->
       Semantprint.print_location loc;
       Printf.eprintf
-        "Expression type %a does not conform to declared static \
-        dispatch type %a.\n"
+        "Expression type %a does not conform to declared static dispatch type \
+         %a.\n"
         T.print_type recv_typ T.print_type target_typ;
       None
 
@@ -310,12 +320,20 @@ and aux_stat_dispatch ~ctx ~expr ~stat =
   | true ->
       aux_dispatch_common ~ctx ~expr ~method_id:stat.stat_method_id
         ~recv:stat.stat_recv ~args:stat.stat_args
-        ~recv_type_translator:(validate_stat_recv_type ~ctx ~loc:expr.expr_loc ~target_typ:stat.stat_target_typ)
+        ~recv_type_translator:
+          (validate_stat_recv_type ~ctx ~loc:expr.expr_loc
+             ~target_typ:stat.stat_target_typ)
         ~cont:(fun ~typed_recv ~typed_args ~ret_typ ~label ->
-          Ast.replace_expr ~new_expr:(StaticDispatch {stat with stat_recv = typed_recv;
-          stat_args = typed_args;
-          stat_label = Some label;
-          }) expr
+          Ast.replace_expr
+            ~new_expr:
+              (StaticDispatch
+                 {
+                   stat with
+                   stat_recv = typed_recv;
+                   stat_args = typed_args;
+                   stat_label = Some label;
+                 })
+            expr
           |> Ast.add_type ~typ:ret_typ)
 
 and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
@@ -348,7 +366,8 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
               | 0 -> (
                   let formal_ret_typ = method_sig.ret_typ in
                   let ret_typ =
-                    if formal_ret_typ = T.self_type then recv_typ else formal_ret_typ
+                    if formal_ret_typ = T.self_type then recv_typ
+                    else formal_ret_typ
                   in
                   let valid_arg_types =
                     List.for_all2
@@ -357,7 +376,9 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
                   in
                   match valid_arg_types with
                   | false -> expr
-                  | true -> cont ~typed_recv ~typed_args ~ret_typ ~label:method_sig.label)
+                  | true ->
+                      cont ~typed_recv ~typed_args ~ret_typ
+                        ~label:method_sig.label)
               | _ ->
                   Semantprint.print_location expr.expr_loc;
                   Printf.eprintf
@@ -386,14 +407,11 @@ and aux_case ~ctx ~expr ~case_expr =
   let typed_branches_opt =
     List.rev_map ~f:(aux_branch ~ctx) branches |> Optutil.flatten_opt_list
   in
-  let typ_tbl = Hashtbl.create (List.length branches * 2 - 1) in
+  let typ_tbl = Hashtbl.create ((List.length branches * 2) - 1) in
   let branches_unique =
     List.fold_left ~f:(dedup_branches ~typ_tbl) ~init:true branches
   in
-  let is_valid =
-    branches_unique
-    && Option.is_some typed_case_expr.expr_typ
-  in
+  let is_valid = branches_unique && Option.is_some typed_case_expr.expr_typ in
   match (is_valid, typed_branches_opt) with
   | false, _ -> expr
   | true, None -> expr
@@ -401,18 +419,22 @@ and aux_case ~ctx ~expr ~case_expr =
       let branch_types =
         List.map
           ~f:(fun branch ->
-            let (_, typed_body) = branch.elem in
+            let _, typed_body = branch.elem in
             Option.get typed_body.expr_typ)
           typed_branches
       in
-      Ast.replace_expr ~new_expr:(Case {case_expr = typed_case_expr; case_branches = typed_branches}) expr
-      |> Ast.add_type ~typ:(all_lca ~graph:ctx.graph ~cl:ctx.cl ~typs:branch_types)
+      Ast.replace_expr
+        ~new_expr:
+          (Case { case_expr = typed_case_expr; case_branches = typed_branches })
+        expr
+      |> Ast.add_type
+           ~typ:(all_lca ~graph:ctx.graph ~cl:ctx.cl ~typs:branch_types)
 
 and dedup_branches ~typ_tbl acc branch =
   match acc with
   | false -> false
   | true -> (
-      let ((_, var_typ), _) = branch.elem in
+      let (_, var_typ), _ = branch.elem in
       match Hashtbl.mem typ_tbl var_typ with
       | false ->
           Hashtbl.replace typ_tbl ~key:var_typ ~data:();
@@ -424,7 +446,7 @@ and dedup_branches ~typ_tbl acc branch =
           false)
 
 and aux_branch ~ctx branch =
-  let ((id, var_typ), body) = branch.elem in
+  let (id, var_typ), body = branch.elem in
   let is_valid_id = validate_branch_id ~loc:branch.loc ~id in
   let is_valid_typ = validate_branch_typ ~ctx ~loc:branch.loc ~id ~var_typ in
   match is_valid_id && is_valid_typ with
@@ -437,7 +459,7 @@ and aux_branch ~ctx branch =
              let typed_body = aux ~ctx body in
              match typed_body.expr_typ with
              | None -> None
-             | Some _ -> Some {branch with elem = ((id, var_typ), typed_body)}))
+             | Some _ -> Some { branch with elem = ((id, var_typ), typed_body) }))
 
 and validate_branch_id ~loc ~id =
   match id <> T.self_var with
@@ -461,7 +483,7 @@ and validate_branch_typ ~ctx ~loc ~id ~var_typ =
       | false ->
           Semantprint.print_location loc;
           Printf.eprintf "Class %a of case branch is undefined.\n" T.print_type
-          var_typ;
+            var_typ;
           false)
 
 and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
@@ -469,7 +491,9 @@ and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
   match typed_sub_expr.expr_typ with
   | None -> sub_expr
   | Some sub_expr_typ -> (
-      match Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:sub_expr_typ ~super_typ with
+      match
+        Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:sub_expr_typ ~super_typ
+      with
       | true -> cont ~typed_sub_expr sub_expr_typ
       | false ->
           err_fun ~sub_expr_typ;

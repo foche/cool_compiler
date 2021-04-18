@@ -2,10 +2,7 @@
 
 open Util
 
-type 'a with_pos = {
-  elem : 'a;
-  loc : Lexing.position * Lexing.position;
-}
+type 'a with_pos = { elem : 'a; loc : Lexing.position * Lexing.position }
 
 type arith_op = Plus | Minus | Mult | Div
 
@@ -49,11 +46,19 @@ and cond_expr = {
 
 and loop_expr = { loop_pred : expr_node; loop_body : expr_node }
 
-and let_expr = { let_var : var_decl; let_init : expr_node; let_body : expr_node }
+and let_expr = {
+  let_var : var_decl;
+  let_init : expr_node;
+  let_body : expr_node;
+}
 
 and case_expr = { case_expr : expr_node; case_branches : branch_node list }
 
-and arith_expr = { arith_op : arith_op; arith_e1 : expr_node; arith_e2 : expr_node }
+and arith_expr = {
+  arith_op : arith_op;
+  arith_e1 : expr_node;
+  arith_e2 : expr_node;
+}
 
 and comp_expr = { comp_op : comp; comp_e1 : expr_node; comp_e2 : expr_node }
 
