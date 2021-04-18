@@ -12,8 +12,8 @@ val enter_scope : ('a, 'b) t -> cont:'c Lazy.t -> 'c
   in this scope automatically. Finally, [enter_scope] returns the result of [f].
  *)
 
-val add : ('a, 'b) t -> k:'a -> v:'b -> bool * bool
+val add : ('a, 'b) t -> key:'a -> data:'b -> bool * bool
 
-val find : ('a, 'b) t -> k:'a -> 'b
+val find : ('a, 'b) t -> 'a -> 'b
 
-val find_opt : ('a, 'b) t -> k:'a -> 'b option
+val find_opt : ('a, 'b) t -> 'a -> 'b option

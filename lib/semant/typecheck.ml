@@ -1,61 +1,66 @@
 (* typecheck.ml *)
 
+open StdLabels
+open MoreLabels
 open Parser
 open Util
+module Abssyn = Abstractsyntax
 
 let semant_verbose = ref false
 
-let init_method_sigs _ =
-  let tbl = Methodtbl.create 64 in
+let init_method_sigs class_count =
+  let tbl = Methodtbl.create ((class_count * 8) - 1) in
   List.iter
-    (fun (clazz, method_id, return_type, formals) ->
-      Methodtbl.add ~tbl ~clazz ~method_id ~return_type ~formals |> ignore )
-    basic_methods ;
+    ~f:(fun (typ, method_id, ret_typ, formals) ->
+      Methodtbl.add tbl ~typ ~method_id ~ret_typ ~formals |> ignore)
+    Tables.basic_methods;
   tbl
 
-let init_inherit_graph _ =
-  let graph = Hashtbl.create 32 in
-  List.iter (fun cl -> Hashtbl.replace graph cl object_type) basic_classes ;
+let init_inherit_graph class_count =
+  let graph = Hashtbl.create ((class_count * 2) - 1) in
+  List.iter
+    ~f:(fun cl -> Hashtbl.replace graph ~key:cl ~data:Tables.object_type)
+    Tables.basic_classes;
   graph
 
-let internal_typecheck ((classes, line_number) as program) =
-  let id_env = Symtbl.create 32 in
-  let func_env = Symtbl.create 32 in
-  let graph = init_inherit_graph () in
-  let sigs = init_method_sigs () in
-  let typed_classes = Hashtbl.create 32 in
-  let handle_to_class = Hashtbl.create 32 in
+let internal_typecheck program =
+  let id_count = Strtbl.length Tables.id_tbl in
+  let class_count = List.length program.Abssyn.elem in
+  let id_env = Symtbl.create ((id_count * 2) - 1) in
+  let func_env = Symtbl.create ((id_count * 2) - 1) in
+  let graph = init_inherit_graph class_count in
+  let sigs = init_method_sigs class_count in
+  let typed_classes = Hashtbl.create ((class_count * 2) - 1) in
+  let handle_to_class = Hashtbl.create ((class_count * 2) - 1) in
   let is_global_valid, tree_opt =
-    Globalvalidator.validate
-      { program
-      ; reserved_classes
-      ; inheritance_blocklist
-      ; handle_to_class
-      ; graph
-      ; sigs }
+    Globalvalidator.validate ~args:{ program; handle_to_class; graph; sigs }
   in
-  let is_local_valid =
+  let is_valid =
     is_global_valid
     && Localvalidator.validate
-         { ignored_classes= reserved_classes
-         ; id_env
-         ; func_env
-         ; graph= Optutil.get tree_opt
-         ; sigs
-         ; untyped_classes= handle_to_class
-         ; typed_classes }
+         ~args:
+           {
+             id_env;
+             func_env;
+             graph = Option.get tree_opt;
+             sigs;
+             untyped_classes = handle_to_class;
+             typed_classes;
+           }
   in
-  let replace_class (cl, _) = Hashtbl.find typed_classes cl.Ast.class_type in
-  let replace_classes _ =
-    let typed_classes = List.map replace_class classes in
-    Some (typed_classes, line_number)
+  let replace_class (cl : Abssyn.class_node) =
+    Hashtbl.find typed_classes cl.elem.cl_typ
   in
-  match is_local_valid with false -> None | true -> replace_classes ()
+  match is_valid with
+  | false -> None
+  | true ->
+      let typed_classes = List.map ~f:replace_class program.elem in
+      Some { program with Abssyn.elem = typed_classes }
 
 let typecheck program =
   let program_opt = internal_typecheck program in
-  ( match (program_opt, !semant_verbose) with
+  (match (program_opt, !semant_verbose) with
   | None, _ -> Semantprint.print_typecheck_error ()
   | Some typed_program, true -> Astprint.print_ast typed_program
-  | Some _, false -> () ) ;
+  | Some _, false -> ());
   program_opt

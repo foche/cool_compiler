@@ -3,31 +3,46 @@
 open Parser
 open Util
 
-type method_sig =
-  { return_type: Tables.type_sym
-  ; formals: Abstractsyntax.formal list
-  ; impl_class: Tables.type_sym
-  ; label: Tables.id_sym }
+type method_sig = {
+  ret_typ : Tables.type_sym;
+  formals : Abstractsyntax.var_decl list;
+  impl_class : Tables.type_sym;
+  label : Tables.id_sym;
+}
 
 type t
 
 val create : int -> t
 
 val add :
-     tbl:t
-  -> cl:Tables.type_sym
-  -> method_id:Tables.id_sym
-  -> return_type:Tables.type_sym
-  -> formals:Abstractsyntax.formal list
-  -> bool
+  t ->
+  typ:Tables.type_sym ->
+  method_id:Tables.id_sym ->
+  ret_typ:Tables.type_sym ->
+  formals:Abstractsyntax.var_decl list ->
+  bool
 
 val find_opt :
-     tbl:t
-  -> graph:Tables.type_sym Tree.t
-  -> cl:Tables.type_sym
-  -> method_id:Tables.id_sym
-  -> method_sig option
+  t ->
+  graph:Tables.type_sym Tree.t ->
+  typ:Tables.type_sym ->
+  method_id:Tables.id_sym ->
+  method_sig option
 
-val iter : f:(Tables.type_sym -> Tables.id_sym -> method_sig -> unit) -> tbl:t -> unit
+val iter :
+  f:
+    (typ:Tables.type_sym ->
+    method_id:Tables.id_sym ->
+    method_sig:method_sig ->
+    unit) ->
+  t ->
+  unit
 
-val for_all : f:(Tables.type_sym -> Tables.id_sym -> method_sig -> bool) -> tbl:t -> bool
+val for_all :
+  f:
+    (typ:Tables.type_sym ->
+    method_id:Tables.id_sym ->
+    method_sig:method_sig ->
+    bool) ->
+  t ->
+  bool

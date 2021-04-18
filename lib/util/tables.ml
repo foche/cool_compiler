@@ -93,34 +93,38 @@ let str_concat = make_id "concat"
 let str_substr = make_id "substr"
 
 let basic_methods =
-  [ (object_type, obj_abort, object_type, [])
-  ; (object_type, obj_type_name, string_type, [])
-  ; (object_type, obj_copy, self_type, [])
-  ; (io_type, io_out_str, self_type, [(make_id "x", string_type)])
-  ; (io_type, io_out_int, self_type, [(make_id "x", int_type)])
-  ; (io_type, io_in_str, string_type, [])
-  ; (io_type, io_in_int, int_type, [])
-  ; (string_type, str_len, int_type, [])
-  ; (string_type, str_concat, string_type, [(make_id "s", string_type)])
-  ; ( string_type
-    , str_substr
-    , string_type
-    , [(make_id "i", int_type); (make_id "l", int_type)] ) ]
+  [
+    (object_type, obj_abort, object_type, []);
+    (object_type, obj_type_name, string_type, []);
+    (object_type, obj_copy, self_type, []);
+    (io_type, io_out_str, self_type, [ (make_id "x", string_type) ]);
+    (io_type, io_out_int, self_type, [ (make_id "x", int_type) ]);
+    (io_type, io_in_str, string_type, []);
+    (io_type, io_in_int, int_type, []);
+    (string_type, str_len, int_type, []);
+    (string_type, str_concat, string_type, [ (make_id "s", string_type) ]);
+    ( string_type,
+      str_substr,
+      string_type,
+      [ (make_id "i", int_type); (make_id "l", int_type) ] );
+  ]
 
 let reserved_classes =
   Hutil.init 17
-    [ (object_type, ())
-    ; (io_type, ())
-    ; (int_type, ())
-    ; (string_type, ())
-    ; (bool_type, ())
-    ; (self_type, ()) ]
+    [
+      (object_type, ());
+      (io_type, ());
+      (int_type, ());
+      (string_type, ());
+      (bool_type, ());
+      (self_type, ());
+    ]
 
 let inheritance_blocklist =
   Hutil.init 11
-    [(int_type, ()); (string_type, ()); (bool_type, ()); (self_type, ())]
+    [ (int_type, ()); (string_type, ()); (bool_type, ()); (self_type, ()) ]
 
-let primitives = [int_type; string_type; bool_type]
+let primitives = [ int_type; string_type; bool_type ]
 
 let basic_classes = io_type :: self_type :: primitives
 
@@ -128,10 +132,11 @@ let create_basic_labels _ =
   let tbl = Hashtbl.create 32 in
   List.iter
     ~f:(fun (typ, method_id, _, _) ->
-      Hashtbl.replace tbl ~key:(typ, method_id) ~data:(method_label typ method_id) )
-    basic_methods ;
+      Hashtbl.replace tbl ~key:(typ, method_id)
+        ~data:(method_label typ method_id))
+    basic_methods;
   tbl
 
 let basic_method_labels = create_basic_labels ()
 
-let is_prim typ = List.find_opt ~f:(( = ) typ) primitives |> Optutil.is_some
+let is_prim typ = List.find_opt ~f:(( = ) typ) primitives |> Option.is_some

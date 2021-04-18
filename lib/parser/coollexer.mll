@@ -8,7 +8,6 @@
  *)
 
 open StdLabels
-open Util
 module Parse = Coolparser
 module Print = Lexerprint
 
@@ -47,7 +46,7 @@ let process_word s =
   | _ -> if is_lowercase then Parse.OBJECTID s else Parse.TYPEID s
 
 let print_filename filename =
-  if !lexer_debug then Tables.make_str filename |> Print.print_filename
+  if !lexer_debug then Print.print_filename filename
 }
 
 (* rules *)

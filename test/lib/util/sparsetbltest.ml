@@ -4,26 +4,27 @@ open Util
 
 let data =
   [|
-     196
-   ; -932
-   ; -728
-   ; -614
-   ; -339
-   ; -139
-   ; 104
-   ; -225
-   ; -874
-   ; 417
-   ; 273
-   ; -21
-   ; 490
-   ; 981
-   ; 468
-   ; 779
-   ; -509
-   ; -298
-   ; 921
-   ; 931 |]
+    196;
+    -932;
+    -728;
+    -614;
+    -339;
+    -139;
+    104;
+    -225;
+    -874;
+    417;
+    273;
+    -21;
+    490;
+    981;
+    468;
+    779;
+    -509;
+    -298;
+    921;
+    931;
+  |]
 
 let tbl = Sparsetbl.create ~data
 
@@ -47,24 +48,24 @@ let%test _ = Sparsetbl.range_min tbl ~left:9 ~right:16 = (16, -509)
 
 let%test "Negative left" =
   try
-    Sparsetbl.range_min tbl ~left:(-1) ~right:1 |> ignore ;
+    Sparsetbl.range_min tbl ~left:(-1) ~right:1 |> ignore;
     false
   with Invalid_argument _ -> true
 
 let%test "Out of bounds right" =
   try
-    Sparsetbl.range_min tbl ~left:0 ~right:20 |> ignore ;
+    Sparsetbl.range_min tbl ~left:0 ~right:20 |> ignore;
     false
   with Invalid_argument _ -> true
 
 let%test "Negative right" =
   try
-    Sparsetbl.range_min tbl ~left:3 ~right:(-1) |> ignore ;
+    Sparsetbl.range_min tbl ~left:3 ~right:(-1) |> ignore;
     false
   with Invalid_argument _ -> true
 
-  let%test "Out of bounds left" =
-    try
-      Sparsetbl.range_min tbl ~left:20 ~right:0 |> ignore ;
-      false
-    with Invalid_argument _ -> true
+let%test "Out of bounds left" =
+  try
+    Sparsetbl.range_min tbl ~left:20 ~right:0 |> ignore;
+    false
+  with Invalid_argument _ -> true

@@ -1,436 +1,478 @@
 (* exprchecker.ml *)
 
+open StdLabels
+open MoreLabels
 open Parser
 open Util
+open Abstractsyntax
 module T = Tables
 
-type context =
-  { id_env: (T.id_sym, T.type_sym) Symtbl.t
-  ; sigs: Methodtbl.t
-  ; graph: T.type_sym Tree.t
-  ; cl: Abstractsyntax.class_def
-  ; filename: T.str_sym }
+type context = {
+  id_env : (T.id_sym, T.type_sym) Symtbl.t;
+  sigs : Methodtbl.t;
+  graph : T.type_sym Tree.t;
+  cl : class_node;
+}
 
-let lca graph cl typ1 typ2 =
-  Tree.lca graph ~vert1:(Ast.translate_type cl typ1) ~vert2:(Ast.translate_type cl typ2)
+let lca ~graph ~cl typ1 typ2 =
+  match typ1 = typ2 with
+  | true -> typ1
+  | false ->
+      Tree.lca graph
+        ~vert1:(Ast.translate_type ~cl typ1)
+        ~vert2:(Ast.translate_type ~cl typ2)
 
-let all_lca graph cl typs =
-  List.map (Ast.translate_type cl) typs |> Tree.all_lca graph
+let all_lca ~graph ~cl ~typs =
+  List.fold_left ~f:(lca ~graph ~cl) ~init:(List.hd typs) (List.tl typs)
 
-let validate_let_var_not_self filename line_num id =
+let validate_let_var_not_self ~loc ~id =
   match id <> T.self_var with
   | true -> true
   | false ->
-      Semantprint.print_location filename line_num ;
-      prerr_endline "'self' cannot be bound in a 'let' expression." ;
+      Semantprint.print_location loc;
+      prerr_endline "'self' cannot be bound in a 'let' expression.";
       false
 
-let validate_let_type filename line_num graph id typ =
-  match Tree.mem graph typ with
+let validate_let_type ~loc ~graph ~id ~var_typ =
+  match Tree.mem graph var_typ with
   | true -> true
   | false ->
-      Semantprint.print_location filename line_num ;
+      Semantprint.print_location loc;
       Printf.eprintf "Class %a of let-bound identifier %a is undefined.\n"
-        T.print_type typ T.print_id id ;
-      false
-
-let validate_arg_types_match ctx method_id (arg, line_num) (id, formal_typ) =
-  let arg_typ = Optutil.get arg.typ_type in
-  match is_subtype ctx.graph ctx.cl arg_typ formal_typ with
-  | true -> true
-  | false ->
-      Semantprint.print_location ctx.filename line_num ;
-      Printf.eprintf
-        "In call of method %a, type %a of parameter %a does not conform to \
-         declared type %a.\n"
-        T.print_id method_id T.print_type arg_typ T.print_id id T.print_type formal_typ ;
+        T.print_type var_typ T.print_id id;
       false
 
 let get_arith_op_str op =
-  match op with Add -> "+" | Sub -> "-" | Mul -> "*" | Div -> "/"
+  match op with
+  | Plus -> "+"
+  | Minus -> "-"
+  | Mult -> "*"
+  | Div -> "/"
 
 let get_comp_op_str op = match op with Lt -> "<" | Le -> "<="
 
-let rec aux ~ctx ((exp, _) as exp_node) =
-  match exp.typ_expr with
-  | IntConst _ -> add_type exp_node int_type
-  | StrConst _ -> add_type exp_node string_type
-  | BoolConst _ -> add_type exp_node bool_type
-  | Variable id -> aux_var ~ctx exp_node id
-  | Assign (id, exp_node') -> aux_assign ~ctx exp_node id exp_node'
-  | New typ -> aux_new ~ctx exp_node typ
-  | Cond (if_node, then_node, else_node) ->
-      aux_cond ~ctx exp_node if_node then_node else_node
-  | Block exp_nodes -> aux_block ~ctx exp_node exp_nodes
-  | IsVoid exp_node' -> aux_isvoid ~ctx exp_node exp_node'
-  | Loop (pred_node, body_node) -> aux_loop ~ctx exp_node pred_node body_node
-  | Not exp_node' -> aux_not ~ctx exp_node exp_node'
-  | Neg exp_node' -> aux_neg ~ctx exp_node exp_node'
-  | Arith (op, e1, e2) ->
-      let op_str = get_arith_op_str op in
-      aux_binop ~ctx exp_node op_str
-        (fun e1' e2' -> Arith (op, e1', e2'))
-        e1 e2 int_type
-  | Comp (op, e1, e2) ->
-      let op_str = get_comp_op_str op in
-      aux_binop ~ctx exp_node op_str
-        (fun e1' e2' -> Comp (op, e1', e2'))
-        e1 e2 bool_type
-  | Eq (e1, e2) -> aux_eq ~ctx exp_node e1 e2
-  | Let let_stmt -> aux_let ~ctx exp_node let_stmt
-  | DynDispatch dyn -> aux_dyn_dispatch ~ctx exp_node dyn
-  | StaticDispatch stat -> aux_stat_dispatch ~ctx exp_node stat
-  | Case (exp_node', branches) -> aux_case ~ctx exp_node exp_node' branches
+let rec aux ~ctx expr =
+  match expr.expr_expr with
+  | IntConst _ -> Ast.add_type ~typ:T.int_type expr
+  | StrConst _ -> Ast.add_type ~typ:T.string_type expr
+  | BoolConst _ -> Ast.add_type ~typ:T.bool_type expr
+  | Variable id -> aux_var ~ctx ~expr ~id
+  | Assign (id, sub_expr) -> aux_assign ~ctx ~expr ~id ~sub_expr
+  | New typ -> aux_new ~ctx ~expr ~typ
+  | Cond cond_expr -> aux_cond ~ctx ~expr ~cond_expr
+  | Block block -> aux_block ~ctx ~expr ~block
+  | IsVoid sub_expr -> aux_isvoid ~ctx ~expr ~sub_expr
+  | Loop loop_expr -> aux_loop ~ctx ~expr ~loop_expr
+  | Not sub_expr -> aux_not ~ctx ~expr ~sub_expr
+  | Neg sub_expr -> aux_neg ~ctx ~expr ~sub_expr
+  | Arith arith_expr -> aux_arith ~ctx ~expr ~arith_expr
+  | Comp comp_expr -> aux_comp ~ctx ~expr ~comp_expr
+  | Eq (e1, e2) -> aux_eq ~ctx ~expr ~e1 ~e2
+  | Let let_expr -> aux_let ~ctx ~expr ~let_expr
+  | DynamicDispatch dyn -> aux_dyn_dispatch ~ctx ~expr ~dyn
+  | StaticDispatch stat -> aux_stat_dispatch ~ctx ~expr ~stat
+  | Case case_expr -> aux_case ~ctx ~expr ~case_expr
   | NoExpr -> invalid_arg "Reached empty init expression in typecheck stage"
 
-and aux_var ~ctx ((_, line_num) as exp_node) id =
-  match Symtbl.find_opt ctx.id_env ~k:id with
-  | Some typ -> add_type exp_node typ
+and aux_var ~ctx ~expr ~id =
+  match Symtbl.find_opt ctx.id_env id with
+  | Some typ -> Ast.add_type ~typ expr
   | None ->
-      Semantprint.print_location ctx.filename line_num ;
-      Printf.eprintf "Undeclared identifier %a.\n" print_id id ;
-      exp_node
+      Semantprint.print_location expr.expr_loc;
+      Printf.eprintf "Undeclared identifier %a.\n" T.print_id id;
+      expr
 
-and aux_assign ~ctx ((_, line_num) as exp_node) id exp_node' =
-  match id = self_var with
+and aux_assign ~ctx ~expr ~id ~sub_expr =
+  match id = T.self_var with
   | true ->
-      Semantprint.print_location ctx.filename line_num ;
-      prerr_endline "Cannot assign to 'self'.\n" ;
-      exp_node
+      Semantprint.print_location expr.expr_loc;
+      prerr_endline "Cannot assign to 'self'.\n";
+      expr
   | false -> (
-    match Symtbl.find_opt ctx.id_env ~k:id with
-    | None ->
-        Semantprint.print_location ctx.filename line_num ;
-        Printf.eprintf "Assignment to undeclared variable %a.\n" print_id id ;
-        exp_node
-    | Some typ ->
-        rec_helper ~ctx
-          ~cont:(fun typed_exp_node' typ' ->
-            ( {typ_expr= Assign (id, typed_exp_node'); typ_type= Some typ'}
-            , line_num ) )
-          ~err_fun:(fun typ' ->
-            Semantprint.print_location ctx.filename line_num ;
-            Printf.eprintf
-              "Type %a of assigned expression does not conform to declared \
-               type %a of identifier %a.\n"
-              T.print_type typ' T.print_type typ T.print_id id )
-          (exp_node', typ) )
+      match Symtbl.find_opt ctx.id_env id with
+      | None ->
+          Semantprint.print_location expr.expr_loc;
+          Printf.eprintf "Assignment to undeclared variable %a.\n" T.print_id id;
+          expr
+      | Some var_typ ->
+          rec_helper ~ctx
+            ~cont:(fun ~typed_sub_expr sub_expr_typ ->
+              Ast.replace_expr ~new_expr:(Assign (id, typed_sub_expr)) expr
+              |> Ast.add_type ~typ:sub_expr_typ)
+            ~err_fun:(fun ~sub_expr_typ ->
+              Semantprint.print_location expr.expr_loc;
+              Printf.eprintf
+                "Type %a of assigned expression does not conform to declared \
+                 type %a of identifier %a.\n"
+                T.print_type sub_expr_typ T.print_type var_typ T.print_id id)
+            ~expr
+            ~sub_expr
+            ~super_typ:var_typ )
 
-and aux_new ~ctx ((_, line_num) as exp_node) typ =
+and aux_new ~ctx ~expr ~typ =
   match Tree.mem ctx.graph typ with
-  | true -> add_type exp_node typ
+  | true -> Ast.add_type ~typ expr
   | false ->
-      Semantprint.print_location ctx.filename line_num ;
-      Printf.eprintf "'new' used with undefined class %a.\n" T.print_type typ ;
-      exp_node
+      Semantprint.print_location expr.expr_loc;
+      Printf.eprintf "'new' used with undefined class %a.\n" T.print_type typ;
+      expr
 
-and aux_cond ~ctx ((_, line_num) as exp_node) if_node then_node else_node =
+and aux_cond ~ctx ~expr ~cond_expr =
   rec_helper ~ctx
-    ~cont:(fun if_node' _ ->
-      let exp_nodes' = Array.map (aux ~ctx) [|then_node; else_node|] in
-      match (get_exp_type exp_nodes'.(0), get_exp_type exp_nodes'.(1)) with
+    ~cont:(fun ~typed_sub_expr:typed_pred _ ->
+      let true_branch = aux ~ctx cond_expr.cond_true in
+      let false_branch = aux ~ctx cond_expr.cond_false in
+      match (true_branch.expr_typ, false_branch.expr_typ) with
       | Some then_typ, Some else_typ ->
-          ( { typ_expr= Cond (if_node', exp_nodes'.(0), exp_nodes'.(1))
-            ; typ_type= Some (lca ctx.graph ctx.cl then_typ else_typ) }
-          , line_num )
-      | _ -> exp_node )
-    ~err_fun:(fun _ ->
-      Semantprint.print_location ctx.filename line_num ;
-      prerr_endline "Predicate of 'if' does not have type Bool." )
-    (if_node, bool_type)
+        Ast.replace_expr ~new_expr:(Cond {cond_pred = typed_pred; cond_true = true_branch; cond_false = false_branch}) expr
+        |> Ast.add_type ~typ:(lca ~graph:ctx.graph ~cl:ctx.cl then_typ else_typ)
+      | _ -> expr)
+    ~err_fun:(fun ~sub_expr_typ:_ ->
+      Semantprint.print_location cond_expr.cond_pred.expr_loc;
+      prerr_endline "Predicate of 'if' does not have type Bool.")
+    ~expr
+    ~sub_expr:cond_expr.cond_pred
+    ~super_typ:T.bool_type
 
-and aux_block ~ctx ((_, line_num) as exp_node) exp_nodes =
-  let exp_nodes' = List.map (aux ~ctx) exp_nodes in
+and aux_block ~ctx ~expr ~block =
+  let typed_block = List.map ~f:(aux ~ctx) block in
   match
-    List.for_all (fun (exp', _) -> Optutil.is_some exp'.typ_type) exp_nodes'
+    List.for_all ~f:(fun sub_expr -> Option.is_some sub_expr.expr_typ) typed_block
   with
   | true ->
-      ( { typ_expr= Block exp_nodes'
-        ; typ_type= List.rev exp_nodes' |> List.hd |> get_exp_type }
-      , line_num )
-  | false -> exp_node
+    let last_expr = List.rev typed_block |> List.hd in
+    Ast.replace_expr ~new_expr:(Block typed_block) expr
+    |> Ast.add_type ~typ:(Option.get last_expr.expr_typ)
+  | false -> expr
 
-and aux_isvoid ~ctx ((_, line_num) as exp_node) exp_node' =
-  let typed_exp_node' = aux ~ctx exp_node' in
-  match get_exp_type typed_exp_node' with
-  | None -> exp_node
+and aux_isvoid ~ctx ~expr ~sub_expr =
+  let typed_sub_expr = aux ~ctx sub_expr in
+  match typed_sub_expr.expr_typ with
+  | None -> expr
   | Some _ ->
-      ({typ_expr= IsVoid typed_exp_node'; typ_type= Some bool_type}, line_num)
+    Ast.replace_expr ~new_expr:(IsVoid typed_sub_expr) expr
+    |> Ast.add_type ~typ:T.bool_type
 
-and aux_loop ~ctx ((_, line_num) as exp_node) pred_node body_node =
+and aux_loop ~ctx ~expr ~loop_expr =
   rec_helper ~ctx
-    ~cont:(fun pred_node' _ ->
-      let body_node' = aux ~ctx body_node in
-      match get_exp_type body_node' with
-      | None -> exp_node
+    ~cont:(fun ~typed_sub_expr:typed_pred _ ->
+      let typed_body = aux ~ctx loop_expr.loop_body in
+      match typed_body.expr_typ with
+      | None -> expr
       | Some _ ->
-          ( { typ_expr= Loop (pred_node', body_node')
-            ; typ_type= Some object_type }
-          , line_num ) )
-    ~err_fun:(fun _ ->
-      Semantprint.print_location ctx.filename line_num ;
-      prerr_endline "Loop condition does not have type Bool." )
-    (pred_node, bool_type)
+        Ast.replace_expr ~new_expr:(Loop {loop_pred = typed_pred; loop_body = typed_body}) expr
+        |> Ast.add_type ~typ:T.object_type)
+    ~err_fun:(fun ~sub_expr_typ:_ ->
+      Semantprint.print_location loop_expr.loop_pred.expr_loc;
+      prerr_endline "Loop condition does not have type Bool.")
+    ~expr
+    ~sub_expr:loop_expr.loop_pred
+    ~super_typ:T.bool_type
 
-and aux_not ~ctx (_, line_num) exp_node' =
+and aux_not ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
-    ~cont:(fun typed_node _ ->
-      ({typ_expr= Not typed_node; typ_type= Some bool_type}, line_num) )
-    ~err_fun:(fun typ' ->
-      Semantprint.print_location ctx.filename line_num ;
+    ~cont:(fun ~typed_sub_expr _ ->
+      Ast.replace_expr ~new_expr:(Not typed_sub_expr) expr
+      |> Ast.add_type ~typ:T.bool_type)
+    ~err_fun:(fun ~sub_expr_typ ->
+      Semantprint.print_location sub_expr.expr_loc;
       Printf.eprintf "Argument of 'not' has type %a instead of Bool.\n"
-        T.print_type typ' )
-    (exp_node', bool_type)
+        T.print_type sub_expr_typ)
+    ~expr
+    ~sub_expr
+    ~super_typ:T.bool_type
 
-and aux_neg ~ctx (_, line_num) exp_node' =
+and aux_neg ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
-    ~cont:(fun typed_node _ ->
-      ({typ_expr= Neg typed_node; typ_type= Some int_type}, line_num) )
-    ~err_fun:(fun typ' ->
-      Semantprint.print_location ctx.filename line_num ;
+    ~cont:(fun ~typed_sub_expr _ ->
+      Ast.replace_expr ~new_expr:(Neg typed_sub_expr) expr
+      |> Ast.add_type ~typ:T.int_type)
+    ~err_fun:(fun ~sub_expr_typ ->
+      Semantprint.print_location sub_expr.expr_loc;
       Printf.eprintf "Argument of '~' has type %a instead of Bool.\n"
-        T.print_type typ' )
-    (exp_node', int_type)
+        T.print_type sub_expr_typ)
+    ~expr
+    ~sub_expr
+    ~super_typ:T.int_type
 
-and aux_binop ~ctx ((_, line_num) as exp_node) op_str f e1 e2 exp_typ =
-  let exp_nodes' = Array.map (aux ~ctx) [|e1; e2|] in
-  match (get_exp_type exp_nodes'.(0), get_exp_type exp_nodes'.(1)) with
-  | Some typ1, Some typ2 -> (
-    match typ1 = int_type && typ2 = int_type with
-    | true ->
-        ( {typ_expr= f exp_nodes'.(0) exp_nodes'.(1); typ_type= Some exp_typ}
-        , line_num )
-    | false ->
-        Semantprint.print_location ctx.filename line_num ;
-        Printf.eprintf "non-Int arguments: %a %s %a\n" print_type typ1 op_str
-          T.print_type typ2 ;
-        exp_node )
-  | _ -> exp_node
+and aux_arith ~ctx ~expr ~arith_expr =
+  let arith_op = arith_expr.arith_op in
+  let op_str = get_arith_op_str arith_op in
+  aux_binop ~ctx ~expr ~op_str
+    ~f:(fun e1 e2 -> Arith {arith_op = arith_op; arith_e1 = e1; arith_e2 = e2})
+    ~e1:arith_expr.arith_e1 ~e2:arith_expr.arith_e2 ~typ:T.int_type
 
-and aux_eq ~ctx ((_, line_num) as exp_node) e1 e2 =
-  let exp_nodes' = Array.map (aux ~ctx) [|e1; e2|] in
-  match (get_exp_type exp_nodes'.(0), get_exp_type exp_nodes'.(1)) with
+and aux_comp ~ctx ~expr ~comp_expr =
+  let comp_op = comp_expr.comp_op in
+  let op_str = get_comp_op_str comp_op in
+  aux_binop ~ctx ~expr ~op_str
+    ~f:(fun e1 e2 -> Comp {comp_op; comp_e1 = e1; comp_e2 = e2})
+    ~e1:comp_expr.comp_e1 ~e2:comp_expr.comp_e2 ~typ:T.bool_type
+
+and aux_binop ~ctx ~expr ~op_str ~f ~e1 ~e2 ~typ =
+  let typed_e1 = aux ~ctx e1 in
+  let typed_e2 = aux ~ctx e2 in
+  match (typed_e1.expr_typ, typed_e2.expr_typ) with
   | Some typ1, Some typ2 -> (
-      let primitives = [int_type; string_type; bool_type] in
-      let typ1_primitive = List.mem typ1 primitives in
-      let typ2_primitive = List.mem typ2 primitives in
+      match typ1 = T.int_type && typ2 = T.int_type with
+      | true ->
+        Ast.replace_expr ~new_expr:(f typed_e1 typed_e2) expr
+        |> Ast.add_type ~typ
+      | false ->
+          Semantprint.print_location expr.expr_loc;
+          Printf.eprintf "non-Int arguments: %a %s %a\n" T.print_type typ1 op_str
+            T.print_type typ2;
+          expr)
+  | _ -> expr
+
+and aux_eq ~ctx ~expr ~e1 ~e2 =
+  let typed_e1 = aux ~ctx e1 in
+  let typed_e2 = aux ~ctx e2 in
+  match (typed_e1.expr_typ, typed_e2.expr_typ) with
+  | Some typ1, Some typ2 -> (
+      let primitives = [ T.int_type; T.string_type; T.bool_type ] in
+      let typ1_primitive = List.mem typ1 ~set:primitives in
+      let typ2_primitive = List.mem typ2 ~set:primitives in
       match ((not typ1_primitive) && not typ2_primitive) || typ1 = typ2 with
       | true ->
-          ( { typ_expr= Eq (exp_nodes'.(0), exp_nodes'.(1))
-            ; typ_type= Some bool_type }
-          , line_num )
+        Ast.replace_expr ~new_expr:(Eq (typed_e1, typed_e2)) expr
+        |> Ast.add_type ~typ:T.bool_type
       | false ->
-          Semantprint.print_location ctx.filename line_num ;
-          prerr_endline "Illegal comparison with a basic type." ;
-          exp_node )
-  | _ -> exp_node
+          Semantprint.print_location expr.expr_loc;
+          prerr_endline "Illegal comparison with a basic type.";
+          expr)
+  | _ -> expr
 
-and aux_let ~ctx ((_, line_num) as exp_node) let_stmt =
-  let id = let_stmt.let_var in
-  let typ = let_stmt.let_var_type in
-  let init = let_stmt.let_init in
-  let is_valid_var = validate_let_var_not_self ctx.filename line_num id in
+and aux_let ~ctx ~expr ~let_expr =
+  let id, var_typ = let_expr.let_var in
+  let let_init = let_expr.let_init in
+  let loc = expr.expr_loc in
+  let is_valid_var = validate_let_var_not_self ~loc ~id in
   let is_valid_type =
-    validate_let_type ctx.filename line_num ctx.graph id typ
+    validate_let_type ~loc ~graph:ctx.graph ~id ~var_typ
   in
-  match (is_valid_var && is_valid_type, (fst init).typ_expr) with
-  | false, _ -> exp_node
-  | true, NoExpr -> aux_let_helper ~ctx exp_node let_stmt init
+  match (is_valid_var && is_valid_type, let_init.expr_expr) with
+  | false, _ -> expr
+  | true, NoExpr -> aux_let_helper ~ctx ~expr ~let_expr ~typed_init:let_init
   | true, _ ->
       rec_helper ~ctx
-        ~cont:(fun typed_init _ ->
-          aux_let_helper ~ctx exp_node let_stmt typed_init )
-        ~err_fun:(fun typ' ->
-          Semantprint.print_location ctx.filename line_num ;
+        ~cont:(fun ~typed_sub_expr:typed_init _ -> aux_let_helper ~ctx ~expr ~let_expr ~typed_init)
+        ~err_fun:(fun ~sub_expr_typ ->
+          Semantprint.print_location let_init.expr_loc;
           Printf.eprintf
             "Inferred type %a of initialization of %a does not conform to \
              identifier's declared type %a.\n"
-            T.print_type typ' T.print_id id T.print_type typ )
-        (init, typ)
+            T.print_type sub_expr_typ T.print_id id T.print_type var_typ)
+        ~expr
+        ~sub_expr:let_init
+        ~super_typ:var_typ
 
-and aux_let_helper ~ctx ((_, line_num) as exp_node) let_stmt typed_init =
+and aux_let_helper ~ctx ~expr ~let_expr ~typed_init =
   Symtbl.enter_scope ctx.id_env
-    ~cont:( lazy
-      ( Symtbl.add ctx.id_env ~k:let_stmt.let_var ~v:let_stmt.let_var_type |> ignore ;
-        let typed_body = aux ~ctx let_stmt.let_body in
-        match get_exp_type typed_body with
-        | None -> exp_node
-        | Some body_typ ->
-            ( { typ_expr=
-                  Let {let_stmt with let_init= typed_init; let_body= typed_body}
-              ; typ_type= Some body_typ }
-            , line_num ) ) )
+    ~cont:
+      (lazy
+        (let id, var_typ = let_expr.let_var in
+          Symtbl.add ctx.id_env ~key:id ~data:var_typ
+         |> ignore;
+         let typed_body = aux ~ctx let_expr.let_body in
+         match typed_body.expr_typ with
+         | None -> expr
+         | Some body_typ ->
+          Ast.replace_expr ~new_expr:(Let {let_expr with let_init = typed_init; let_body = typed_body}) expr
+          |> Ast.add_type ~typ:body_typ))
 
-and aux_dyn_dispatch ~ctx ((_, line_num) as exp_node) dyn =
-  aux_dispatch_common ~ctx ~exp_node ~method_id:dyn.dyn_method
-    ~recv:dyn.dyn_recv ~args:dyn.dyn_args
-    ~validate_recv_type:(fun recv_typ -> Some (translate_type ctx.cl recv_typ))
-    ~cont:(fun recv args ret_type _ ->
-      ( { typ_expr= DynDispatch {dyn with dyn_recv= recv; dyn_args= args}
-        ; typ_type= Some ret_type }
-      , line_num ) )
+and aux_dyn_dispatch ~ctx ~expr ~dyn =
+  aux_dispatch_common ~ctx ~expr ~method_id:dyn.dyn_method_id ~recv:dyn.dyn_recv
+    ~args:dyn.dyn_args
+    ~recv_type_translator:(fun ~recv_typ -> Some (Ast.translate_type ~cl:ctx.cl recv_typ))
+    ~cont:(fun ~typed_recv ~typed_args ~ret_typ ~label:_ ->
+      Ast.replace_expr ~new_expr:(DynamicDispatch {dyn with dyn_recv = typed_recv; dyn_args = typed_args}) expr
+      |> Ast.add_type ~typ:ret_typ)
 
-and aux_stat_dispatch ~ctx ((_, line_num) as exp_node) stat =
-  match Tree.mem ctx.graph stat.stat_type with
+and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
+  match Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:recv_typ ~super_typ:target_typ with
+  | true -> Some target_typ
   | false ->
-      Semantprint.print_location ctx.filename line_num ;
-      Printf.eprintf "Static dispatch to undefined class %a.\n" T.print_type
-        stat.stat_type ;
-      exp_node
-  | true ->
-      aux_dispatch_common ~ctx ~exp_node ~method_id:stat.stat_method
-        ~recv:stat.stat_recv ~args:stat.stat_args
-        ~validate_recv_type:(fun recv_typ ->
-          match is_subtype ctx.graph ctx.cl recv_typ stat.stat_type with
-          | true -> Some stat.stat_type
-          | false ->
-              Semantprint.print_location ctx.filename line_num ;
-              Printf.eprintf
-                "Expression type %a does not conform to declared static \
-                 dispatch type %a.\n"
-                T.print_type recv_typ T.print_type stat.stat_type ;
-              None )
-        ~cont:(fun recv args ret_type label ->
-          ( { typ_expr=
-                StaticDispatch
-                  { stat with
-                    stat_recv= recv; stat_args= args; stat_label= Some label }
-            ; typ_type= Some ret_type }
-          , line_num ) )
+      Semantprint.print_location loc;
+      Printf.eprintf
+        "Expression type %a does not conform to declared static \
+        dispatch type %a.\n"
+        T.print_type recv_typ T.print_type target_typ;
+      None
 
-and aux_dispatch_common ~ctx ~exp_node ~method_id ~recv ~args
-    ~validate_recv_type ~cont =
-  let recv' = aux ~ctx recv in
-  let args' = List.map (aux ~ctx) args in
-  let arg_types_exist =
-    List.for_all (fun arg -> get_exp_type arg |> Optutil.is_some) args'
+and aux_stat_dispatch ~ctx ~expr ~stat =
+  match Tree.mem ctx.graph stat.stat_target_typ with
+  | false ->
+      Semantprint.print_location expr.expr_loc;
+      Printf.eprintf "Static dispatch to undefined class %a.\n" T.print_type
+        stat.stat_target_typ;
+      expr
+  | true ->
+      aux_dispatch_common ~ctx ~expr ~method_id:stat.stat_method_id
+        ~recv:stat.stat_recv ~args:stat.stat_args
+        ~recv_type_translator:(validate_stat_recv_type ~ctx ~loc:expr.expr_loc ~target_typ:stat.stat_target_typ)
+        ~cont:(fun ~typed_recv ~typed_args ~ret_typ ~label ->
+          Ast.replace_expr ~new_expr:(StaticDispatch {stat with stat_recv = typed_recv;
+          stat_args = typed_args;
+          stat_label = Some label;
+          }) expr
+          |> Ast.add_type ~typ:ret_typ)
+
+and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
+    ~cont =
+  let typed_recv = aux ~ctx recv in
+  let typed_args = List.map ~f:(aux ~ctx) args in
+  let all_types_exist =
+    Option.is_some typed_recv.expr_typ
+    && List.for_all ~f:(fun arg -> Option.is_some arg.expr_typ) typed_args
   in
-  let all_types_exist = arg_types_exist && get_exp_type recv' |> Optutil.is_some in
   match all_types_exist with
-  | false -> exp_node
+  | false -> expr
   | true -> (
-      let recv_type = Optutil.get (get_exp_type recv') in
-      match validate_recv_type recv_type with
-      | None -> exp_node
-      | Some recv_type' -> (
+      let recv_typ = Option.get typed_recv.expr_typ in
+      match recv_type_translator ~recv_typ with
+      | None -> expr
+      | Some trans_recv_typ -> (
           let method_sig_opt =
-            Methodtbl.find_opt ~tbl:ctx.sigs ~graph:ctx.graph ~clazz:recv_type'
+            Methodtbl.find_opt ctx.sigs ~graph:ctx.graph ~typ:trans_recv_typ
               ~method_id
           in
           match method_sig_opt with
           | None ->
-              Semantprint.print_location ctx.filename (snd exp_node) ;
+              Semantprint.print_location expr.expr_loc;
               Printf.eprintf "Dispatch to undefined method %a.\n" T.print_id
-                method_id ;
-              exp_node
+                method_id;
+              expr
           | Some method_sig -> (
-              let ret_type = method_sig.return_type in
-              let ret_type' =
-                if ret_type = self_type then recv_type else ret_type
-              in
-              match List.compare_lengths args' method_sig.formals with
+              match List.compare_lengths typed_args method_sig.formals with
               | 0 -> (
+                  let formal_ret_typ = method_sig.ret_typ in
+                  let ret_typ =
+                    if formal_ret_typ = T.self_type then recv_typ else formal_ret_typ
+                  in
                   let valid_arg_types =
                     List.for_all2
-                      (validate_arg_types_match ctx method_id)
-                      args' method_sig.formals
+                      ~f:(validate_arg_types ~ctx ~loc:expr.expr_loc ~method_id)
+                      typed_args method_sig.formals
                   in
                   match valid_arg_types with
-                  | false -> exp_node
-                  | true -> cont recv' args' ret_type' method_sig.label )
+                  | false -> expr
+                  | true -> cont ~typed_recv ~typed_args ~ret_typ ~label:method_sig.label)
               | _ ->
-                  Semantprint.print_location ctx.filename (snd exp_node) ;
+                  Semantprint.print_location expr.expr_loc;
                   Printf.eprintf
                     "Method %a called with wrong number of arguments.\n"
-                    T.print_id method_id ;
-                  exp_node ) ) )
+                    T.print_id method_id;
+                  expr)))
 
-and aux_case ~ctx ((_, line_num) as exp_node) exp_node' branches =
-  let typed_exp_node' = aux ~ctx exp_node' in
+and validate_arg_types ~ctx ~loc ~method_id arg (id, formal_typ) =
+  let arg_typ = Option.get arg.expr_typ in
+  match
+    Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:arg_typ ~super_typ:formal_typ
+  with
+  | true -> true
+  | false ->
+      Semantprint.print_location loc;
+      Printf.eprintf
+        "In call of method %a, type %a of parameter %a does not conform to \
+         declared type %a.\n"
+        T.print_id method_id T.print_type arg_typ T.print_id id T.print_type
+        formal_typ;
+      false
+
+and aux_case ~ctx ~expr ~case_expr =
+  let typed_case_expr = aux ~ctx case_expr.case_expr in
+  let branches = case_expr.case_branches in
   let typed_branches_opt =
-    List.rev_map (aux_branch ~ctx) branches |> Optutil.flatten_opt_list
+    List.rev_map ~f:(aux_branch ~ctx) branches |> Optutil.flatten_opt_list
   in
-  let typ_tbl = Hashtbl.create 16 in
+  let typ_tbl = Hashtbl.create (List.length branches * 2 - 1) in
   let branches_unique =
-    List.fold_left (dedup_branches typ_tbl ctx.filename) true branches
+    List.fold_left ~f:(dedup_branches ~typ_tbl) ~init:true branches
   in
   let is_valid =
     branches_unique
-    && get_exp_type typed_exp_node' |> Optutil.is_some
-    && Optutil.is_some typed_branches_opt
+    && Option.is_some typed_case_expr.expr_typ
   in
-  match is_valid with
-  | false -> exp_node
-  | true ->
-      let typed_branches = Optutil.get typed_branches_opt in
+  match (is_valid, typed_branches_opt) with
+  | false, _ -> expr
+  | true, None -> expr
+  | true, Some typed_branches ->
       let branch_types =
         List.map
-          (fun ((_, _, typed_body), _) -> Optutil.get (get_exp_type typed_body))
+          ~f:(fun branch ->
+            let (_, typed_body) = branch.elem in
+            Option.get typed_body.expr_typ)
           typed_branches
       in
-      ( { typ_expr= Case (typed_exp_node', typed_branches)
-        ; typ_type= Some (all_lca ctx.graph ctx.cl branch_types) }
-      , line_num )
+      Ast.replace_expr ~new_expr:(Case {case_expr = typed_case_expr; case_branches = typed_branches}) expr
+      |> Ast.add_type ~typ:(all_lca ~graph:ctx.graph ~cl:ctx.cl ~typs:branch_types)
 
-and dedup_branches typ_tbl filename acc ((_, typ, _), line_num) =
+and dedup_branches ~typ_tbl acc branch =
   match acc with
   | false -> false
   | true -> (
-    match Hashtbl.mem typ_tbl typ with
-    | false ->
-        Hashtbl.replace typ_tbl typ () ;
-        true
-    | true ->
-        Semantprint.print_location filename line_num ;
-        Printf.eprintf "Duplicate branch %a in case statement.\n" T.print_type
-          typ ;
-        false )
+      let ((_, var_typ), _) = branch.elem in
+      match Hashtbl.mem typ_tbl var_typ with
+      | false ->
+          Hashtbl.replace typ_tbl ~key:var_typ ~data:();
+          true
+      | true ->
+          Semantprint.print_location branch.loc;
+          Printf.eprintf "Duplicate branch %a in case statement.\n" T.print_type
+            var_typ;
+          false)
 
-and aux_branch ~ctx ((id, typ, body), line_num) =
-  let is_valid_id = validate_branch_id ~ctx line_num id in
-  let is_valid_typ = validate_branch_typ ~ctx line_num id typ in
+and aux_branch ~ctx branch =
+  let ((id, var_typ), body) = branch.elem in
+  let is_valid_id = validate_branch_id ~loc:branch.loc ~id in
+  let is_valid_typ = validate_branch_typ ~ctx ~loc:branch.loc ~id ~var_typ in
   match is_valid_id && is_valid_typ with
   | false -> None
   | true ->
       Symtbl.enter_scope ctx.id_env
-        ~cont:( lazy
-          ( Symtbl.add ctx.id_env ~k:id ~v:typ |> ignore ;
-            let typed_body = aux ~ctx body in
-            match get_exp_type typed_body with
-            | None -> None
-            | Some _ -> Some ((id, typ, typed_body), line_num) ) )
+        ~cont:
+          (lazy
+            (Symtbl.add ctx.id_env ~key:id ~data:var_typ |> ignore;
+             let typed_body = aux ~ctx body in
+             match typed_body.expr_typ with
+             | None -> None
+             | Some _ -> Some {branch with elem = ((id, var_typ), typed_body)}))
 
-and validate_branch_id ~ctx line_num id =
-  match id <> self_var with
+and validate_branch_id ~loc ~id =
+  match id <> T.self_var with
   | true -> true
   | false ->
-      Semantprint.print_location ctx.filename line_num ;
-      prerr_endline "'self' bound in 'case'." ;
+      Semantprint.print_location loc;
+      prerr_endline "'self' bound in 'case'.";
       false
 
-and validate_branch_typ ~ctx line_num id typ =
-  match typ <> self_type with
+and validate_branch_typ ~ctx ~loc ~id ~var_typ =
+  match var_typ <> T.self_type with
   | false ->
-      Semantprint.print_location ctx.filename line_num ;
+      Semantprint.print_location loc;
       Printf.eprintf
-        "Identifier %a declared with type SELF_TYPE in case branch.\n" T.print_id
-        id ;
+        "Identifier %a declared with type SELF_TYPE in case branch.\n"
+        T.print_id id;
       false
   | true -> (
-    match Tree.mem ctx.graph typ with
-    | true -> true
-    | false ->
-        Semantprint.print_location ctx.filename line_num ;
-        Printf.eprintf "Class %a of case branch is undefined.\n" T.print_type typ ;
-        false )
+      match Tree.mem ctx.graph var_typ with
+      | true -> true
+      | false ->
+          Semantprint.print_location loc;
+          Printf.eprintf "Class %a of case branch is undefined.\n" T.print_type
+          var_typ;
+          false)
 
-and rec_helper ~ctx ~cont ~err_fun (exp_node, expected_typ) =
-  let typed_exp_node = aux ~ctx exp_node in
-  match get_exp_type typed_exp_node with
-  | None -> exp_node
-  | Some typ -> (
-    match is_subtype ctx.graph ctx.cl typ expected_typ with
-    | false -> err_fun typ ; exp_node
-    | true -> cont typed_exp_node typ )
+and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
+  let typed_sub_expr = aux ~ctx sub_expr in
+  match typed_sub_expr.expr_typ with
+  | None -> sub_expr
+  | Some sub_expr_typ -> (
+      match Ast.is_subtype ctx.graph ~cl:ctx.cl ~sub_typ:sub_expr_typ ~super_typ with
+      | true -> cont ~typed_sub_expr sub_expr_typ
+      | false ->
+          err_fun ~sub_expr_typ;
+          expr)
 
-let typecheck ~ctx ~expr_node = aux ~ctx expr_node
+let typecheck ~ctx ~expr = aux ~ctx expr

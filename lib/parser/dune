@@ -8,4 +8,5 @@
  (modules coollexer))
 
 (menhir
+ (flags --comment --no-dollars -v --strict --unused-token ERR)
  (modules coolparser))

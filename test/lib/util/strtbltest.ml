@@ -12,9 +12,9 @@ let%test "remove" =
   let tbl = Strtbl.create 32 in
   let hndl1 = Strtbl.add tbl "asdf" in
   let hndl2 = Strtbl.add tbl "213" in
-  Strtbl.remove tbl hndl2 ;
+  Strtbl.remove tbl hndl2;
   try
-    Strtbl.find tbl hndl2 |> ignore ;
+    Strtbl.find tbl hndl2 |> ignore;
     false
   with Not_found -> Strtbl.find tbl hndl1 = "asdf"
 

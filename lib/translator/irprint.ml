@@ -35,8 +35,8 @@ let print_value out value =
   | IReg reg -> print_reg out reg
   | IConst const -> print_const out const
   | IArith (op, r1, r2) ->
-      Printf.fprintf out "%a %s %a" print_reg r1 (get_arith_op_str op)
-        print_reg r2
+      Printf.fprintf out "%a %s %a" print_reg r1 (get_arith_op_str op) print_reg
+        r2
   | IArithImm (op, r, c) ->
       Printf.fprintf out "%a %s %a" print_reg r (get_arith_op_str op)
         print_const c
@@ -61,8 +61,8 @@ let print_stmt stmt =
     match args with
     | [] -> ()
     | arg :: args' ->
-        if not is_first then print_string ", " ;
-        print_reg stdout arg ;
+        if not is_first then print_string ", ";
+        print_reg stdout arg;
         print_args false args'
   in
   match stmt with
@@ -76,15 +76,17 @@ let print_stmt stmt =
   | BrNonZero (reg, block_id) ->
       Printf.printf "brnz %a, %d" print_reg reg block_id
   | Call (target, args) ->
-      Printf.printf "call %a(" print_id target ;
-      print_args true args ;
+      Printf.printf "call %a(" print_id target;
+      print_args true args;
       print_endline ")"
   | IndirectCall (addr_reg, args) ->
-      Printf.printf "icall *%a(" print_reg addr_reg ;
-      print_args true args ;
+      Printf.printf "icall *%a(" print_reg addr_reg;
+      print_args true args;
       print_endline ")"
   | Return -> print_endline "ret"
 
-let print_block _ block = List.iter print_stmt block ; print_endline ""
+let print_block _ block =
+  List.iter print_stmt block;
+  print_endline ""
 
 let print_ir blocks = Hashtbl.iter print_block blocks

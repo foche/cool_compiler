@@ -4,12 +4,15 @@ open Parser
 open Ast
 open Util
 open Tables
-
 open Intermediaterepr
 module Vv = Varversion
 
-type trans_args =
-  {block_id: int; var_versions: Vv.t; temp: temp; block: basic_block}
+type trans_args = {
+  block_id : int;
+  var_versions : Vv.t;
+  temp : temp;
+  block : basic_block;
+}
 
 let translator_verbose = ref false
 
@@ -25,7 +28,7 @@ let one_val = IConst one
 
 let new_temp args =
   let fresh_temp = ITemp args.temp in
-  ({args with temp= args.temp + 1}, fresh_temp)
+  ({ args with temp = args.temp + 1 }, fresh_temp)
 
 let interpret_int ~default str_repr =
   let const = try Int32.of_string str_repr with Failure _ -> default in
@@ -40,7 +43,7 @@ let interpret_neg_int handle =
 let str_val handle = IConst (IStrConst handle)
 
 let prepend_block args dest rhs =
-  {args with block= IAssign (dest, rhs) :: args.block}
+  { args with block = IAssign (dest, rhs) :: args.block }
 
 let make_var args id is_read =
   IVar (id, (if is_read then Vv.find else Vv.add) args.var_versions id)
@@ -107,33 +110,35 @@ and trans_not args parent exp_node =
 and trans_dyn args parent dyn =
   let args', temps = trans_seq args parent dyn.dyn_args in
   let args'', recv = assign_exp_to_temp args' parent dyn.dyn_recv in
-  (recv, temps) |> ignore ;
+  (recv, temps) |> ignore;
   (args'', zero_val)
 
 and trans_stat args parent stat =
   let args', temps = trans_seq args parent stat.stat_args in
   let args'', recv = assign_exp_to_temp args' parent stat.stat_recv in
   let args''' =
-    { args'' with
-      block=
+    {
+      args'' with
+      block =
         Call (Optutil.get stat.stat_label, recv :: Array.to_list temps)
-        :: args''.block }
+        :: args''.block;
+    }
   in
   (args''', IReg RetReg)
 
 (* TODO *)
 and trans_cond args parent if_node then_node else_node =
-  if_node |> ignore ;
-  then_node |> ignore ;
-  else_node |> ignore ;
-  parent |> ignore ;
+  if_node |> ignore;
+  then_node |> ignore;
+  else_node |> ignore;
+  parent |> ignore;
   (args, zero_val)
 
 (* TODO *)
 and trans_loop args parent pred_node body_node =
-  pred_node |> ignore ;
-  body_node |> ignore ;
-  parent |> ignore ;
+  pred_node |> ignore;
+  body_node |> ignore;
+  parent |> ignore;
   (args, zero_val)
 
 and trans_block args parent exp_nodes =
@@ -143,14 +148,21 @@ and trans_block args parent exp_nodes =
 (* TODO *)
 and trans_let args parent let_stmt =
   (* let args', temp = assign_exp_to_temp args parent let_stmt.let_init *)
-  let_stmt |> ignore ; parent |> ignore ; (args, zero_val)
+  let_stmt |> ignore;
+  parent |> ignore;
+  (args, zero_val)
 
 (* TODO *)
 and trans_case args parent exp_node branches =
-  exp_node |> ignore ; parent |> ignore ; branches |> ignore ; (args, zero_val)
+  exp_node |> ignore;
+  parent |> ignore;
+  branches |> ignore;
+  (args, zero_val)
 
 (* TODO *)
-and trans_new args typ = typ |> ignore ; (args, zero_val)
+and trans_new args typ =
+  typ |> ignore;
+  (args, zero_val)
 
 and trans_isvoid args parent ((exp, _) as exp_node) =
   let args', temp = assign_exp_to_temp args parent exp_node in
@@ -159,7 +171,7 @@ and trans_isvoid args parent ((exp, _) as exp_node) =
   | false -> (args', ICompImm (IEq, temp, zero))
 
 and trans_binop args parent e1 e2 op_fun =
-  let args', temps = trans_seq args parent [e1; e2] in
+  let args', temps = trans_seq args parent [ e1; e2 ] in
   (args', op_fun temps.(0) temps.(1))
 
 and trans_seq args parent exp_nodes =
@@ -168,8 +180,8 @@ and trans_seq args parent exp_nodes =
     List.fold_left
       (fun (args', i) exp_node ->
         let args'', temp = new_temp args' in
-        temps.(i) <- temp ;
-        (trans_exp args'' temp parent exp_node, i + 1) )
+        temps.(i) <- temp;
+        (trans_exp args'' temp parent exp_node, i + 1))
       (args, 0) exp_nodes
   in
   (args', temps)
@@ -188,9 +200,11 @@ and assign_exp_to_temp args parent exp_node =
   (trans_exp args' temp parent exp_node, temp)
 
 let translate_method blocks typ mthd =
-  let args = {block_id= 0; var_versions= Vv.create 64; temp= 0; block= []} in
+  let args =
+    { block_id = 0; var_versions = Vv.create 64; temp = 0; block = [] }
+  in
   let args' = trans_exp args RetReg no_expr mthd.method_body in
-  let args'' = {args' with block= Return :: args'.block} in
+  let args'' = { args' with block = Return :: args'.block } in
   List.rev args''.block |> Hashtbl.add blocks (typ, mthd.method_id)
 
 let translate_feature blocks typ (feat, _) =
@@ -203,5 +217,5 @@ let translate_class blocks (clazz, _) =
 
 let translate_program (classes, _) =
   let blocks = Hashtbl.create 64 in
-  List.iter (translate_class blocks) classes ;
+  List.iter (translate_class blocks) classes;
   blocks

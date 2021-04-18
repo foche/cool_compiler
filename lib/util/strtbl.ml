@@ -13,14 +13,16 @@ let add (handle_to_elem, elem_to_handle, i) x =
   | Some j -> j
   | None ->
       let j = !i in
-      Hashtbl.replace handle_to_elem ~key:j ~data:x ;
-      Hashtbl.replace elem_to_handle ~key:x ~data:j ;
-      i := j + 1 ;
+      Hashtbl.replace handle_to_elem ~key:j ~data:x;
+      Hashtbl.replace elem_to_handle ~key:x ~data:j;
+      i := j + 1;
       j
 
 let remove (handle_to_elem, elem_to_handle, _) handle =
   let x = Hashtbl.find handle_to_elem handle in
-  Hashtbl.remove handle_to_elem handle ;
+  Hashtbl.remove handle_to_elem handle;
   Hashtbl.remove elem_to_handle x
 
 let find (handle_to_elem, _, _) = Hashtbl.find handle_to_elem
+
+let length (_, _, i) = !i

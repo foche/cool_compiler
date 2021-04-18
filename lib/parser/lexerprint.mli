@@ -1,10 +1,8 @@
 (* lexerprint.mli *)
 
-open Util
-
 val token_string : Coolparser.token -> string
 
-val print_filename : Tables.str_sym -> unit
+val print_filename : string -> unit
 (** [print_filename filename] prints the name of the file [filename]. *)
 
 val print_token : Coolparser.token -> int -> unit

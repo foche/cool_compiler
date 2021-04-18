@@ -1,10 +1,10 @@
 (* strtbl.mli *)
 
-(** A [handle] that identifies a string. Can be used to retrieve the original string. *)
 type handle
+(** A [handle] that identifies a string. Can be used to retrieve the original string. *)
 
-(** The type of string tables. *)
 type 'a t
+(** The type of string tables. *)
 
 val create : int -> 'a t
 (** [create n] creates a string table with an initial size [n]. *)
@@ -17,3 +17,5 @@ val remove : 'a t -> handle -> unit
 
 val find : 'a t -> handle -> 'a
 (** [find tbl h] uses handle [h] to look up its associated string. *)
+
+val length : 'a t -> int

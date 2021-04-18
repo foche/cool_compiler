@@ -9,37 +9,36 @@ let root = "Object"
 
 let create_tree_parents _ =
   Hutil.init 31
-    [ ("Int", root)
-    ; ("IO", root)
-    ; ("String", root)
-    ; ("Bool", root)
-    ; ("Main", "IO")
-    ; ("A", root)
-    ; ("B", "A")
-    ; ("C", "B")
-    ; ("D", "C")
-    ; ("E", "B")
-    ; ("F", "C")
-    ; ("G", "F") ]
+    [
+      ("Int", root);
+      ("IO", root);
+      ("String", root);
+      ("Bool", root);
+      ("Main", "IO");
+      ("A", root);
+      ("B", "A");
+      ("C", "B");
+      ("D", "C");
+      ("E", "B");
+      ("F", "C");
+      ("G", "F");
+    ]
 
 let tree =
   let parents = create_tree_parents () in
   match Tree.create ~parents ~root with
   | Tree tree ->
-      Hashtbl.add parents ~key:root ~data:root ; (* should not affect anything *)
+      Hashtbl.add parents ~key:root ~data:root;
+      (* should not affect anything *)
       tree
   | _ -> failwith "Could not create tree"
 
 let%test "Cycle" =
   let parents = create_tree_parents () in
   let cycle =
-    Hutil.init 17
-      [ ("H", "I")
-      ; ("I", "J")
-      ; ("J", "K")
-      ; ("K", "H") ]
+    Hutil.init 17 [ ("H", "I"); ("I", "J"); ("J", "K"); ("K", "H") ]
   in
-  Hutil.add_all parents cycle ;
+  Hutil.add_all parents cycle;
   match Tree.create ~parents ~root with
   | Cycle vert -> Hashtbl.mem cycle vert
   | _ -> false
@@ -47,27 +46,20 @@ let%test "Cycle" =
 let%test "Disconnected" =
   let parents = create_tree_parents () in
   let disconnected =
-    Hutil.init 17
-      [ ("H", "I")
-      ; ("I", "J")
-      ; ("J", "K")
-      ; ("K", "L") ]
+    Hutil.init 17 [ ("H", "I"); ("I", "J"); ("J", "K"); ("K", "L") ]
   in
-  Hutil.add_all parents disconnected ;
+  Hutil.add_all parents disconnected;
   match Tree.create ~parents ~root with
   | Disconnected (vert, parent) -> vert = "K" && parent = "L"
   | _ -> false
 
 let%test "is_leaf" =
-  Tree.is_leaf tree "Int"
-  && Tree.is_leaf tree "D"
+  Tree.is_leaf tree "Int" && Tree.is_leaf tree "D"
   && Tree.is_leaf tree root |> not
   && Tree.is_leaf tree "F" |> not
 
 let%test "mem" =
-  Tree.mem tree "Int"
-  && Tree.mem tree "G"
-  && Tree.mem tree "A"
+  Tree.mem tree "Int" && Tree.mem tree "G" && Tree.mem tree "A"
   && Tree.mem tree root
   && Tree.mem tree "Foo" |> not
   && Tree.mem tree "Bar" |> not
@@ -94,16 +86,18 @@ let%test "lca" =
   && Tree.lca tree ~vert1:"Main" ~vert2:"Main" = "Main"
 
 let%test "all_lca" =
-  Tree.all_lca tree ["A"] = "A"
-  && Tree.all_lca tree ["G"; "D"; "F"] = "C"
-  && Tree.all_lca tree ["G"; "B"; "D"; "F"] = "B"
-  && Tree.all_lca tree ["G"; "B"; "Int"; "D"; "F"] = root
+  Tree.all_lca tree [ "A" ] = "A"
+  && Tree.all_lca tree [ "G"; "D"; "F" ] = "C"
+  && Tree.all_lca tree [ "G"; "B"; "D"; "F" ] = "B"
+  && Tree.all_lca tree [ "G"; "B"; "Int"; "D"; "F" ] = root
 
 let%test "find_out_edges" =
   let root_edges = Tree.find_out_edges tree root in
-  let expected_edges = Hutil.set_from_list ["Int"; "IO"; "String"; "Bool"; "A"] in
+  let expected_edges =
+    Hutil.set_from_list [ "Int"; "IO"; "String"; "Bool"; "A" ]
+  in
   List.for_all ~f:(Hashtbl.mem expected_edges) root_edges
-  && Tree.find_out_edges tree "F" = ["G"]
+  && Tree.find_out_edges tree "F" = [ "G" ]
   && Tree.find_out_edges tree "E" = []
 
 let%test "is_ancestor" =

@@ -2,7 +2,7 @@
 
 open StdLabels
 
-type t = {tbl: int array array; data: int array; log2: int array}
+type t = { tbl : int array array; data : int array; log2 : int array }
 
 let fill_log2 log2 n =
   for i = 2 to n - 1 do
@@ -18,7 +18,7 @@ let fill_tbl tbl ~dimx ~dimy ~data =
   (* dimy = len data *)
   for y = 0 to dimy - 1 do
     tbl.(0).(y) <- y (* argmin data [y, y] is y *)
-  done ;
+  done;
   for x = 1 to dimx - 1 do
     for y = 0 to dimy - (1 lsl x) do
       (* y2 = y + 2^(x - 1) *)
@@ -36,11 +36,11 @@ let fill_tbl tbl ~dimx ~dimy ~data =
 let create ~data =
   let dimy = Array.length data in
   let log2 = Array.make (dimy + 1) 0 in
-  fill_log2 log2 (dimy + 1) ;
+  fill_log2 log2 (dimy + 1);
   let dimx = log2.(dimy) + 1 in
   let tbl = Array.make_matrix ~dimx ~dimy 0 in
-  fill_tbl tbl ~dimx ~dimy ~data ;
-  {tbl; data= Array.copy data; log2}
+  fill_tbl tbl ~dimx ~dimy ~data;
+  { tbl; data = Array.copy data; log2 }
 
 let rec range_min tbl ~left ~right =
   match (left <= right, left >= 0 && right < Array.length tbl.data) with

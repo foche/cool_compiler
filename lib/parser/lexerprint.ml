@@ -1,10 +1,8 @@
 (* lexerprint.ml *)
 
-open Util
 module Parse = Coolparser
 
-let print_filename filename =
-  filename |> Strtbl.find Tables.str_const_tbl |> Printf.printf "#name %S\n"
+let print_filename filename = Printf.printf "#name %S\n" filename
 
 let token_string tok =
   match tok with
