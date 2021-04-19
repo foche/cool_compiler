@@ -46,15 +46,3 @@ let find_opt sigs ~inherit_tree ~typ ~method_id =
                 cont sig_opt))
   in
   aux ~typ ~cont:Fun.id
-
-let iter ~f sigs =
-  Hashtbl.iter
-    ~f:(fun ~key:(typ, method_id) ~data:method_sig ->
-      f ~typ ~method_id ~method_sig)
-    sigs
-
-let for_all ~f sigs =
-  Hashtbl.fold
-    ~f:(fun ~key:(typ, method_id) ~data:method_sig acc ->
-      acc && f ~typ ~method_id ~method_sig)
-    sigs ~init:true

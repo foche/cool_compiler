@@ -1,6 +1,6 @@
 (library
  (name semanttest)
- (libraries semant)
+ (libraries semant testutil)
  (inline_tests)
  (preprocess
   (pps ppx_inline_test)))

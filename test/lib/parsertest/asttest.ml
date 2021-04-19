@@ -9,6 +9,8 @@ let x = Tables.make_id "x"
 
 let y = Tables.make_id "y"
 
+let cl_a = Tables.make_type "A"
+
 let startpos =
   { Lexing.pos_fname = "test.cl"; pos_lnum = 15; pos_bol = 3; pos_cnum = 54 }
 
@@ -88,4 +90,14 @@ let%test "create_let" =
           };
       expr_typ = None;
       expr_loc = loc2;
+    }
+
+let%test "create_var_decl" = Ast.create_var_decl ~id:"x" ~typ:"A" = (x, cl_a)
+
+let%test "self_var_expr" =
+  Ast.self_var_expr ~loc
+  = {
+      Abssyn.expr_expr = Abssyn.Variable Tables.self_var;
+      expr_typ = None;
+      expr_loc = loc;
     }

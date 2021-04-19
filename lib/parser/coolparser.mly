@@ -3,12 +3,6 @@
 %{
 open Util
 module Abssyn = Abstractsyntax
-
-let create_var_decl ~id ~typ =
-  (Tables.make_id id, Tables.make_type typ)
-
-let self_recv ~loc =
-  Ast.create_expr ~expr:(Abssyn.Variable Tables.self_var) loc
 %}
 
 (* tokens *)
@@ -108,7 +102,7 @@ let feature :=
 | id = OBJECTID; COLON; typ = TYPEID; ~ = init; SEMI;
     {
         {
-            Abssyn.elem = Abssyn.Field (create_var_decl ~id ~typ, init);
+            Abssyn.elem = Abssyn.Field (Ast.create_var_decl ~id ~typ, init);
             loc = $loc;
         }
     }
@@ -137,7 +131,7 @@ let formal :=
 | id = OBJECTID; COLON; typ = TYPEID;
     {
         {
-            Abssyn.elem = create_var_decl ~id ~typ;
+            Abssyn.elem = Ast.create_var_decl ~id ~typ;
             loc = $loc;
         }
     }
@@ -151,7 +145,7 @@ let expr :=
 | method_id = OBJECTID; dyn_args = args;
     {
         Ast.create_expr ~expr:(Abssyn.DynamicDispatch {
-            dyn_recv = self_recv ~loc:$loc(method_id);
+            dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
             dyn_method_id = Tables.make_id method_id;
             dyn_args;
         })
@@ -246,7 +240,7 @@ let branch :=
 | id = OBJECTID; COLON; typ = TYPEID; DARROW; body = expr; SEMI;
     {
         {
-            Abssyn.elem = (create_var_decl ~id ~typ, body);
+            Abssyn.elem = (Ast.create_var_decl ~id ~typ, body);
             loc = $loc;
         }
     }

@@ -28,21 +28,3 @@ val find_opt :
   typ:Tables.type_sym ->
   method_id:Tables.id_sym ->
   method_sig option
-
-val iter :
-  f:
-    (typ:Tables.type_sym ->
-    method_id:Tables.id_sym ->
-    method_sig:method_sig ->
-    unit) ->
-  t ->
-  unit
-
-val for_all :
-  f:
-    (typ:Tables.type_sym ->
-    method_id:Tables.id_sym ->
-    method_sig:method_sig ->
-    bool) ->
-  t ->
-  bool
