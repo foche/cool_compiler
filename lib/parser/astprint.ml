@@ -8,10 +8,7 @@ module Abssyn = Abstractsyntax
 
 let error = "\027[31mError:\027[0m"
 
-let indent n =
-  for _ = 1 to n do
-    print_char ' '
-  done
+let indent n = String.make n ' ' |> print_string
 
 let dump_string n s =
   indent n;

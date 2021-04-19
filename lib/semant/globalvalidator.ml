@@ -19,33 +19,30 @@ let main_method_exists = ref false
 let is_valid_type ~parents ~typ = typ = T.object_type || Hashtbl.mem parents typ
 
 let check_field_type ~parents ~id ~typ ~loc =
-  match is_valid_type ~parents ~typ with
-  | true -> true
-  | false ->
-      Semantprint.print_location loc;
-      Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type typ
-        T.print_id id;
-      false
+  let is_valid_field_type = is_valid_type ~parents ~typ in
+  if not is_valid_field_type then (
+    Semantprint.print_location loc;
+    Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type typ
+      T.print_id id);
+  is_valid_field_type
 
 let check_formal ~parents formal =
   let id, typ = formal.Abssyn.elem in
-  match is_valid_type ~parents ~typ with
-  | true -> true
-  | false ->
-      Semantprint.print_location formal.loc;
-      Printf.eprintf "Class %a of formal parameter %a is undefined.\n"
-        T.print_type typ T.print_id id;
-      false
+  let is_valid_formal_type = is_valid_type ~parents ~typ in
+  if not is_valid_formal_type then (
+    Semantprint.print_location formal.loc;
+    Printf.eprintf "Class %a of formal parameter %a is undefined.\n"
+      T.print_type typ T.print_id id);
+  is_valid_formal_type
 
 let check_ret_type ~parents ~method_def ~loc =
   let ret_typ = method_def.Abssyn.method_ret_typ in
-  match is_valid_type ~parents ~typ:ret_typ with
-  | true -> true
-  | false ->
-      Semantprint.print_location loc;
-      Printf.eprintf "Undefined return type %a in method %a.\n" T.print_type
-        ret_typ T.print_id method_def.method_id;
-      false
+  let is_valid_ret_type = is_valid_type ~parents ~typ:ret_typ in
+  if not is_valid_ret_type then (
+    Semantprint.print_location loc;
+    Printf.eprintf "Undefined return type %a in method %a.\n" T.print_type
+      ret_typ T.print_id method_def.method_id);
+  is_valid_ret_type
 
 let check_method ~parents ~method_def ~loc =
   let valid_ret_typ = check_ret_type ~parents ~method_def ~loc in
@@ -65,38 +62,29 @@ let validate_feature_types ~parents (cl : Abssyn.class_node) =
 
 let validate_formal_not_self formal =
   let id, typ = formal.Abssyn.elem in
-  let is_valid_id =
-    match id <> T.self_var with
-    | true -> true
-    | false ->
-        Semantprint.print_location formal.loc;
-        prerr_endline "'self' cannot be the name of a formal parameter.";
-        false
-  in
-  let is_valid_type =
-    match typ <> T.self_type with
-    | true -> true
-    | false ->
-        Semantprint.print_location formal.loc;
-        Printf.eprintf "Formal parameter %a cannot have type SELF_TYPE.\n"
-          T.print_id id;
-        false
-  in
+  let is_valid_id = id <> T.self_var in
+  if not is_valid_id then (
+    Semantprint.print_location formal.loc;
+    prerr_endline "'self' cannot be the name of a formal parameter.");
+  let is_valid_type = typ <> T.self_type in
+  if not is_valid_type then (
+    Semantprint.print_location formal.loc;
+    Printf.eprintf "Formal parameter %a cannot have type SELF_TYPE.\n"
+      T.print_id id);
   is_valid_id && is_valid_type
 
 let validate_main_method ~typ ~method_def ~loc =
   let method_id = method_def.Abssyn.method_id in
   let is_main_method = typ = T.main_type && method_id = T.main_method in
-  match is_main_method with
-  | false -> true
-  | true -> (
-      main_method_exists := true;
-      match List.compare_length_with method_def.method_formals ~len:0 with
-      | 0 -> true
-      | _ ->
-          Semantprint.print_location loc;
-          prerr_endline "'main' method in class Main should have no arguments.";
-          false)
+  if is_main_method then (
+    main_method_exists := true;
+    match List.compare_length_with method_def.method_formals ~len:0 with
+    | 0 -> true
+    | _ ->
+        Semantprint.print_location loc;
+        prerr_endline "'main' method in class Main should have no arguments.";
+        false)
+  else true
 
 let add_to_sigs sigs ~typ ~method_def ~loc =
   let formals =
@@ -107,21 +95,18 @@ let add_to_sigs sigs ~typ ~method_def ~loc =
   let method_id = method_def.method_id in
   let ret_typ = method_def.method_ret_typ in
   let is_unique = Methodtbl.add sigs ~typ ~method_id ~ret_typ ~formals in
-  (match is_unique with
-  | true -> ()
-  | false ->
-      Semantprint.print_location loc;
-      Printf.eprintf "Method %a is multiply defined.\n" T.print_id
-        method_def.method_id);
+  if not is_unique then (
+    Semantprint.print_location loc;
+    Printf.eprintf "Method %a is multiply defined.\n" T.print_id
+      method_def.method_id);
   is_unique
 
 let validate_field_not_self ~loc ~id =
-  match id <> T.self_var with
-  | true -> true
-  | false ->
-      Semantprint.print_location loc;
-      prerr_endline "'self' cannot be the name of an attribute.";
-      false
+  let is_valid_id = id <> T.self_var in
+  if not is_valid_id then (
+    Semantprint.print_location loc;
+    prerr_endline "'self' cannot be the name of an attribute.");
+  is_valid_id
 
 let validate_feature ~args ~(cl : Abssyn.class_node) feature =
   let loc = feature.Abssyn.loc in
@@ -138,33 +123,29 @@ let validate_feature ~args ~(cl : Abssyn.class_node) feature =
       is_unique && is_valid_main && no_self_args
 
 let add_to_parents ~parents ~(cl : Abssyn.class_node) =
-  match Hashtbl.mem parents cl.elem.cl_typ with
-  | false ->
-      Hashtbl.add parents ~key:cl.elem.cl_typ ~data:cl.elem.cl_parent;
-      true
-  | true ->
-      Semantprint.print_location cl.loc;
-      Printf.eprintf "Class %a was previously defined.\n" T.print_type
-        cl.elem.cl_typ;
-      false
+  let is_duplicate = Hashtbl.mem parents cl.elem.cl_typ in
+  if is_duplicate then (
+    Semantprint.print_location cl.loc;
+    Printf.eprintf "Class %a was previously defined.\n" T.print_type
+      cl.elem.cl_typ)
+  else Hashtbl.add parents ~key:cl.elem.cl_typ ~data:cl.elem.cl_parent;
+  not is_duplicate
 
 let is_valid_inheritance ~(cl : Abssyn.class_node) =
-  match Hashtbl.mem T.inheritance_blocklist cl.elem.cl_parent with
-  | false -> true
-  | true ->
-      Semantprint.print_location cl.loc;
-      Printf.eprintf "Class %a cannot inherit class %a.\n" T.print_type
-        cl.elem.cl_typ T.print_type cl.elem.cl_parent;
-      false
+  let is_blocked = Hashtbl.mem T.inheritance_blocklist cl.elem.cl_parent in
+  if is_blocked then (
+    Semantprint.print_location cl.loc;
+    Printf.eprintf "Class %a cannot inherit class %a.\n" T.print_type
+      cl.elem.cl_typ T.print_type cl.elem.cl_parent);
+  not is_blocked
 
 let is_unreserved ~(cl : Abssyn.class_node) =
-  match Hashtbl.mem T.reserved_classes cl.elem.cl_typ with
-  | false -> true
-  | true ->
-      Semantprint.print_location cl.loc;
-      Printf.eprintf "Redefinition of basic class %a.\n" T.print_type
-        cl.elem.cl_typ;
-      false
+  let is_reserved = Hashtbl.mem T.reserved_classes cl.elem.cl_typ in
+  if is_reserved then (
+    Semantprint.print_location cl.loc;
+    Printf.eprintf "Redefinition of basic class %a.\n" T.print_type
+      cl.elem.cl_typ);
+  not is_reserved
 
 let validate_class ~args (cl : Abssyn.class_node) =
   Hashtbl.add args.handle_to_class ~key:cl.elem.cl_typ ~data:cl;
@@ -178,12 +159,10 @@ let validate_class ~args (cl : Abssyn.class_node) =
   is_valid_type && is_valid_parent && is_unique && valid_features
 
 let validate_main_method_exists ~loc =
-  match !main_method_exists with
-  | true -> true
-  | false ->
-      Semantprint.print_location loc;
-      prerr_endline "No 'main' method in class Main.";
-      false
+  if not !main_method_exists then (
+    Semantprint.print_location loc;
+    prerr_endline "No 'main' method in class Main.");
+  !main_method_exists
 
 let validate_main ~handle_to_class =
   match Hashtbl.find_opt handle_to_class T.main_type with
@@ -216,9 +195,8 @@ let validate ~args =
   let parents = args.parents in
   let valid_main = validate_main ~handle_to_class in
   let valid_tree, tree_opt =
-    match valid_classes with
-    | false -> (false, None)
-    | true -> create_tree ~parents ~handle_to_class
+    if valid_classes then create_tree ~parents ~handle_to_class
+    else (false, None)
   in
   let valid_method_types =
     List.for_all ~f:(validate_feature_types ~parents) classes

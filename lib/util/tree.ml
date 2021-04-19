@@ -28,21 +28,20 @@ let dfs ~out_edges ~visit_fun ~finish_fun ~init ~root =
   aux ~parent:root init root
 
 let rec find_root ~parents ~origin ~vert ~parent =
-  match parent = origin with
-  | true -> IsCycle origin
-  | false -> (
-      match Hashtbl.find_opt parents parent with
-      | None -> IsDisconnected (vert, parent)
-      | Some grandparent ->
-          find_root ~parents ~origin ~vert:parent ~parent:grandparent)
+  let found_cycle = parent = origin in
+  if found_cycle then IsCycle origin
+  else
+    match Hashtbl.find_opt parents parent with
+    | None -> IsDisconnected (vert, parent)
+    | Some grandparent ->
+        find_root ~parents ~origin ~vert:parent ~parent:grandparent
 
 let find_disconnected ~parents ~visited ~key:vert ~data:parent acc =
   match acc with
   | Some _ -> acc
-  | None -> (
-      match Hashtbl.mem visited vert with
-      | true -> None
-      | false -> Some (find_root ~parents ~origin:vert ~vert ~parent))
+  | None ->
+      if Hashtbl.mem visited vert then None
+      else Some (find_root ~parents ~origin:vert ~vert ~parent)
 
 let check_is_tree ~parents ~out_edges ~root =
   let n = Hashtbl.length parents + 1 in
@@ -53,11 +52,10 @@ let check_is_tree ~parents ~out_edges ~root =
     ~finish_fun:(fun ~parent:_ ~pre_state:_ ~post_state:_ ~vert:_ -> ())
     ~init:() ~root
   |> ignore;
-  match Hashtbl.length visited = n with
-  | true -> IsTree
-  | false ->
-      Hashtbl.fold ~f:(find_disconnected ~parents ~visited) parents ~init:None
-      |> Option.get
+  if Hashtbl.length visited = n then IsTree
+  else
+    Hashtbl.fold ~f:(find_disconnected ~parents ~visited) parents ~init:None
+    |> Option.get
 
 let reduce_to_rmq ~out_edges ~euler_tour ~firsts ~depths ~root =
   dfs ~out_edges
@@ -104,18 +102,12 @@ let mem tree vert = tree.root = vert || Hashtbl.mem tree.parents vert
 let find_parent_opt tree = Hashtbl.find_opt tree.parents
 
 let lca tree ~vert1 ~vert2 =
-  match vert1 = vert2 with
-  | true -> vert1
-  | false ->
-      let i = Hashtbl.find tree.firsts vert1 in
-      let j = Hashtbl.find tree.firsts vert2 in
-      let lca_index, _ = Sparsetbl.range_min tree.tbl ~left:i ~right:j in
-      tree.euler_tour.(lca_index)
-
-let all_lca tree verts =
-  List.fold_left
-    ~f:(fun vert1 vert2 -> lca tree ~vert1 ~vert2)
-    ~init:(List.hd verts) (List.tl verts)
+  if vert1 = vert2 then vert1
+  else
+    let i = Hashtbl.find tree.firsts vert1 in
+    let j = Hashtbl.find tree.firsts vert2 in
+    let lca_index, _ = Sparsetbl.range_min tree.tbl ~left:i ~right:j in
+    tree.euler_tour.(lca_index)
 
 let is_ancestor tree ~ancestor vert =
   lca tree ~vert1:ancestor ~vert2:vert = ancestor

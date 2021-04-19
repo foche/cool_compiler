@@ -16,8 +16,6 @@ val is_ancestor : 'a t -> ancestor:'a -> 'a -> bool
 
 val lca : 'a t -> vert1:'a -> vert2:'a -> 'a
 
-val all_lca : 'a t -> 'a list -> 'a
-
 val find_parent_opt : 'a t -> 'a -> 'a option
 
 val is_leaf : 'a t -> 'a -> bool

@@ -85,12 +85,6 @@ let%test "lca" =
   && Tree.lca tree ~vert1:"Main" ~vert2:"D" = root
   && Tree.lca tree ~vert1:"Main" ~vert2:"Main" = "Main"
 
-let%test "all_lca" =
-  Tree.all_lca tree [ "A" ] = "A"
-  && Tree.all_lca tree [ "G"; "D"; "F" ] = "C"
-  && Tree.all_lca tree [ "G"; "B"; "D"; "F" ] = "B"
-  && Tree.all_lca tree [ "G"; "B"; "Int"; "D"; "F" ] = root
-
 let%test "find_out_edges" =
   let root_edges = Tree.find_out_edges tree root in
   let expected_edges =

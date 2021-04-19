@@ -51,11 +51,10 @@ let internal_typecheck program =
   let replace_class (cl : Abssyn.class_node) =
     Hashtbl.find typed_classes cl.elem.cl_typ
   in
-  match is_valid with
-  | false -> None
-  | true ->
-      let typed_classes = List.map ~f:replace_class program.elem in
-      Some { program with Abssyn.elem = typed_classes }
+  if is_valid then
+    let typed_classes = List.map ~f:replace_class program.elem in
+    Some { program with Abssyn.elem = typed_classes }
+  else None
 
 let typecheck program =
   let program_opt = internal_typecheck program in
