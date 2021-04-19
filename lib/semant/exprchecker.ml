@@ -23,7 +23,9 @@ let lca ~inherit_tree ~cl_typ typ1 typ2 =
         ~vert2:(Types.translate_type ~cl_typ typ2)
 
 let all_lca ~inherit_tree ~cl_typ ~typs =
-  List.fold_left ~f:(lca ~inherit_tree ~cl_typ) ~init:(List.hd typs) (List.tl typs)
+  List.fold_left
+    ~f:(lca ~inherit_tree ~cl_typ)
+    ~init:(List.hd typs) (List.tl typs)
 
 let validate_let_var_not_self ~loc ~id =
   match id <> T.self_var with
@@ -500,8 +502,8 @@ and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
   | None -> sub_expr
   | Some sub_expr_typ -> (
       match
-        Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:sub_expr_typ
-          ~super_typ
+        Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ
+          ~sub_typ:sub_expr_typ ~super_typ
       with
       | true -> cont ~typed_sub_expr sub_expr_typ
       | false ->

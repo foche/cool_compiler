@@ -107,7 +107,8 @@ let typecheck_feature ~args ~cl_typ feature =
   match feature.Abssyn.elem with
   | Abssyn.Field ((id, typ), init) ->
       typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init
-  | Abssyn.Method method_def -> typecheck_method ~args ~cl_typ ~method_def ~feature
+  | Abssyn.Method method_def ->
+      typecheck_method ~args ~cl_typ ~method_def ~feature
 
 let validate_formal_types ~method_id formal parent_formal =
   let _, typ = formal.Abssyn.elem in

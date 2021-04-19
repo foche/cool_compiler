@@ -16,50 +16,52 @@ type validator_args = {
 
 let main_method_exists = ref false
 
+let is_valid_type ~parents ~typ = typ = T.object_type || Hashtbl.mem parents typ
+
+let check_field_type ~parents ~id ~typ ~loc =
+  match is_valid_type ~parents ~typ with
+  | true -> true
+  | false ->
+      Semantprint.print_location loc;
+      Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type typ
+        T.print_id id;
+      false
+
+let check_formal ~parents formal =
+  let id, typ = formal.Abssyn.elem in
+  match is_valid_type ~parents ~typ with
+  | true -> true
+  | false ->
+      Semantprint.print_location formal.loc;
+      Printf.eprintf "Class %a of formal parameter %a is undefined.\n"
+        T.print_type typ T.print_id id;
+      false
+
+let check_ret_type ~parents ~method_def ~loc =
+  let ret_typ = method_def.Abssyn.method_ret_typ in
+  match is_valid_type ~parents ~typ:ret_typ with
+  | true -> true
+  | false ->
+      Semantprint.print_location loc;
+      Printf.eprintf "Undefined return type %a in method %a.\n" T.print_type
+        ret_typ T.print_id method_def.method_id;
+      false
+
+let check_method ~parents ~method_def ~loc =
+  let valid_ret_typ = check_ret_type ~parents ~method_def ~loc in
+  let valid_formals =
+    List.for_all ~f:(check_formal ~parents) method_def.Abssyn.method_formals
+  in
+  valid_ret_typ && valid_formals
+
+let check_feature ~parents feature =
+  let loc = feature.Abssyn.loc in
+  match feature.elem with
+  | Abssyn.Method method_def -> check_method ~parents ~method_def ~loc
+  | Abssyn.Field ((id, typ), _) -> check_field_type ~parents ~id ~typ ~loc
+
 let validate_feature_types ~parents (cl : Abssyn.class_node) =
-  let is_valid_type ~typ = typ = T.object_type || Hashtbl.mem parents typ in
-  let check_field_type ~id ~typ ~loc =
-    match is_valid_type ~typ with
-    | true -> true
-    | false ->
-        Semantprint.print_location loc;
-        Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type
-          typ T.print_id id;
-        false
-  in
-  let check_formal formal =
-    let id, typ = formal.Abssyn.elem in
-    match is_valid_type ~typ with
-    | true -> true
-    | false ->
-        Semantprint.print_location formal.loc;
-        Printf.eprintf "Class %a of formal parameter %a is undefined.\n"
-          T.print_type typ T.print_id id;
-        false
-  in
-  let check_ret_type ~method_def ~loc =
-    match is_valid_type ~typ:method_def.Abssyn.method_ret_typ with
-    | true -> true
-    | false ->
-        Semantprint.print_location loc;
-        Printf.eprintf "Undefined return type %a in method %a.\n" T.print_type
-          method_def.method_ret_typ T.print_id method_def.method_id;
-        false
-  in
-  let check_method ~method_def ~loc =
-    let valid_ret_typ = check_ret_type ~method_def ~loc in
-    let valid_formals =
-      List.for_all ~f:check_formal method_def.Abssyn.method_formals
-    in
-    valid_ret_typ && valid_formals
-  in
-  let check_feature feature =
-    let loc = feature.Abssyn.loc in
-    match feature.elem with
-    | Abssyn.Method method_def -> check_method ~method_def ~loc
-    | Abssyn.Field ((id, typ), _) -> check_field_type ~id ~typ ~loc
-  in
-  List.for_all ~f:check_feature cl.elem.cl_features
+  List.for_all ~f:(check_feature ~parents) cl.elem.cl_features
 
 let validate_formal_not_self formal =
   let id, typ = formal.Abssyn.elem in
