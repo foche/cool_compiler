@@ -26,21 +26,6 @@ let all_lca ~inherit_tree ~cl_typ ~typs =
     ~f:(lca ~inherit_tree ~cl_typ)
     ~init:(List.hd typs) (List.tl typs)
 
-let validate_let_var_not_self ~loc ~id =
-  let is_self_var = id = T.self_var in
-  if is_self_var then (
-    Semantprint.print_location loc;
-    prerr_endline "'self' cannot be bound in a 'let' expression.");
-  not is_self_var
-
-let validate_let_type ~loc ~inherit_tree ~id ~var_typ =
-  let is_defined = Tree.mem inherit_tree var_typ in
-  if not is_defined then (
-    Semantprint.print_location loc;
-    Printf.eprintf "Class %a of let-bound identifier %a is undefined.\n"
-      T.print_type var_typ T.print_id id);
-  is_defined
-
 let get_arith_op_str op =
   match op with Plus -> "+" | Minus -> "-" | Mult -> "*" | Div -> "/"
 
@@ -242,6 +227,21 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
         prerr_endline "Illegal comparison with a basic type.";
         expr)
   | _ -> expr
+
+and validate_let_var_not_self ~loc ~id =
+  let is_self_var = id = T.self_var in
+  if is_self_var then (
+    Semantprint.print_location loc;
+    prerr_endline "'self' cannot be bound in a 'let' expression.");
+  not is_self_var
+
+and validate_let_type ~loc ~inherit_tree ~id ~var_typ =
+  let is_defined = Tree.mem inherit_tree var_typ in
+  if not is_defined then (
+    Semantprint.print_location loc;
+    Printf.eprintf "Class %a of let-bound identifier %a is undefined.\n"
+      T.print_type var_typ T.print_id id);
+  is_defined
 
 and aux_let ~ctx ~expr ~let_expr =
   let id, var_typ = let_expr.let_var in
