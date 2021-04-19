@@ -437,7 +437,7 @@ and dedup_branches ~typ_tbl branch =
     Semantprint.print_location branch.loc;
     Printf.eprintf "Duplicate branch %a in case statement.\n" T.print_type
       var_typ)
-  else Hashtbl.replace typ_tbl ~key:var_typ ~data:();
+  else Hashtbl.add typ_tbl ~key:var_typ ~data:();
   not is_duplicate
 
 and aux_branch ~ctx branch =

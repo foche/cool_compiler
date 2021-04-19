@@ -202,7 +202,7 @@ let typecheck_class ~args ~typ (cl : Abssyn.class_node) =
       let typed_class =
         { cl with elem = { cl.elem with cl_features = typed_features } }
       in
-      Hashtbl.replace args.typed_classes ~key:typ ~data:typed_class;
+      Hashtbl.add args.typed_classes ~key:typ ~data:typed_class;
       true
 
 (* traverse the class tree in depth-first order from "Object" *)

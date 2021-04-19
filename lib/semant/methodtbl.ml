@@ -19,7 +19,7 @@ let add sigs ~typ ~method_id ~ret_typ ~formals =
   match Hashtbl.find_opt sigs (typ, method_id) with
   | Some _ -> false
   | None ->
-      Hashtbl.replace sigs ~key:(typ, method_id)
+      Hashtbl.add sigs ~key:(typ, method_id)
         ~data:
           {
             ret_typ;
@@ -41,7 +41,7 @@ let find_opt sigs ~inherit_tree ~typ ~method_id =
                 Option.iter
                   (fun method_sig ->
                     (* perform lazy path compression like in union-find *)
-                    Hashtbl.replace sigs ~key:(typ, method_id) ~data:method_sig)
+                    Hashtbl.add sigs ~key:(typ, method_id) ~data:method_sig)
                   sig_opt;
                 cont sig_opt))
   in

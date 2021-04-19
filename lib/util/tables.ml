@@ -132,8 +132,7 @@ let create_basic_labels _ =
   let tbl = Hashtbl.create 32 in
   List.iter
     ~f:(fun (typ, method_id, _, _) ->
-      Hashtbl.replace tbl ~key:(typ, method_id)
-        ~data:(method_label typ method_id))
+      Hashtbl.add tbl ~key:(typ, method_id) ~data:(method_label typ method_id))
     basic_methods;
   tbl
 

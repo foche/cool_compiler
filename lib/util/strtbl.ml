@@ -13,8 +13,8 @@ let add (handle_to_elem, elem_to_handle, i) x =
   | Some j -> j
   | None ->
       let j = !i in
-      Hashtbl.replace handle_to_elem ~key:j ~data:x;
-      Hashtbl.replace elem_to_handle ~key:x ~data:j;
+      Hashtbl.add handle_to_elem ~key:j ~data:x;
+      Hashtbl.add elem_to_handle ~key:x ~data:j;
       i := j + 1;
       j
 

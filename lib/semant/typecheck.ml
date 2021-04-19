@@ -19,7 +19,7 @@ let init_method_sigs class_count =
 let init_parents class_count =
   let parents = Hashtbl.create ((class_count * 2) - 1) in
   List.iter
-    ~f:(fun cl -> Hashtbl.replace parents ~key:cl ~data:Tables.object_type)
+    ~f:(fun cl -> Hashtbl.add parents ~key:cl ~data:Tables.object_type)
     Tables.basic_classes;
   parents
 

@@ -175,24 +175,3 @@ let print_syntax_error _ =
 
 let print_eof_error filename =
   Printf.eprintf "%s %S, line 0: syntax error at or near EOF\n" error filename
-
-let err_unclosed tok pos_start pos_end =
-  Printf.eprintf "File %S, line %d, characters %d-%d:\n%s Unclosed %S\n"
-    pos_start.Lexing.pos_fname pos_start.Lexing.pos_lnum
-    (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
-    (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
-    error tok
-
-let err_expected msg pos_start pos_end =
-  Printf.eprintf "File %S, line %d, characters %d-%d:\n%s Expected %s\n"
-    pos_start.Lexing.pos_fname pos_start.Lexing.pos_lnum
-    (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
-    (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
-    error msg
-
-let err_syntax pos_start pos_end =
-  Printf.eprintf "File %S, line %d, characters %d-%d:\n%s Syntax error\n"
-    pos_start.Lexing.pos_fname pos_start.Lexing.pos_lnum
-    (pos_start.Lexing.pos_cnum - pos_start.Lexing.pos_bol + 1)
-    (pos_end.Lexing.pos_cnum - pos_end.Lexing.pos_bol + 1)
-    error
