@@ -20,6 +20,21 @@ let cl_f = T.make_type "F"
 
 let cl_g = T.make_type "G"
 
+(*
+  Inheritance tree:
+
+    Object ------------------
+      |  \                   \
+      A  [Int; String; Bool] IO
+      |                       \
+      B                      Main
+     / \
+    C   E
+   / \
+  D   F
+       \
+        G
+ *)
 let create_tree_parents _ =
   Hashtblutil.init 31
     [

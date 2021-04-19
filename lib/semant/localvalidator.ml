@@ -205,7 +205,7 @@ let typecheck_class ~args ~typ (cl : Abssyn.class_node) =
       Hashtbl.replace args.typed_classes ~key:typ ~data:typed_class;
       true
 
-(* traverse the class tree in DFS order from "Object" *)
+(* traverse the class tree in depth-first order from "Object" *)
 let rec traverse_class_tree ~args root =
   let lazy_typecheck =
     lazy
@@ -215,6 +215,7 @@ let rec traverse_class_tree ~args root =
       && Tree.find_out_edges args.inherit_tree root
          |> List.for_all ~f:(traverse_class_tree ~args))
   in
+  (* allocate new identifier and method scopes when typechecking a new class *)
   Symtbl.enter_scope args.id_env
     ~cont:(lazy (Symtbl.enter_scope args.func_env ~cont:lazy_typecheck))
 

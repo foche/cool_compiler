@@ -144,31 +144,34 @@ let expr :=
     }
 | method_id = OBJECTID; dyn_args = args;
     {
-        Ast.create_expr ~expr:(Abssyn.DynamicDispatch {
-            dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
-            dyn_method_id = Tables.make_id method_id;
-            dyn_args;
-        })
+        Ast.create_expr ~expr:(
+            Abssyn.DynamicDispatch {
+                dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
+                dyn_method_id = Tables.make_id method_id;
+                dyn_args;
+            })
         $loc
     }
 | dyn_recv = expr; DOT; method_id = OBJECTID; dyn_args = args;
     {
-        Ast.create_expr ~expr:(Abssyn.DynamicDispatch {
-            dyn_recv;
-            dyn_method_id = Tables.make_id method_id;
-            dyn_args;
-        })
+        Ast.create_expr ~expr:(
+            Abssyn.DynamicDispatch {
+                dyn_recv;
+                dyn_method_id = Tables.make_id method_id;
+                dyn_args;
+            })
         $loc
     }
-| stat_recv = expr; AT; target_typ = TYPEID; DOT; method_id = OBJECTID; ~ = args;
+| stat_recv = expr; AT; target_typ = TYPEID; DOT; method_id = OBJECTID; stat_args = args;
     {
-        Ast.create_expr ~expr:(Abssyn.StaticDispatch {
-            stat_recv;
-            stat_target_typ = Tables.make_type target_typ;
-            stat_method_id = Tables.make_id method_id;
-            stat_args = args;
-            stat_label = None;
-        })
+        Ast.create_expr ~expr:(
+            Abssyn.StaticDispatch {
+                stat_recv;
+                stat_target_typ = Tables.make_type target_typ;
+                stat_method_id = Tables.make_id method_id;
+                stat_args;
+                stat_label = None;
+            })
         $loc
     }
 | IF; cond_pred = expr; THEN; cond_true = expr; ELSE; cond_false = expr; FI;
@@ -192,7 +195,7 @@ let expr :=
     { Ast.create_expr ~expr:(Abssyn.Comp {comp_op; comp_e1; comp_e2}) $loc }
 | e1 = expr; EQ; e2 = expr;
     { Ast.create_expr ~expr:(Abssyn.Eq (e1, e2)) $loc }
-| op = unary; e = expr;
+| op = unary_op; e = expr;
     { Ast.create_expr ~expr:(op e) $loc }
 | LPAREN; ~ = expr; RPAREN;
     <>
@@ -224,7 +227,7 @@ let comp_op ==
     { Abssyn.Le }
 
 (* same as above *)
-let unary ==
+let unary_op ==
 | NEG;
     { (fun e -> Abssyn.Neg e) }
 | NOT;
