@@ -183,7 +183,7 @@ let expr :=
     { Ast.create_expr ~expr:(Abssyn.Loop {loop_pred; loop_body}) $loc }
 | LBRACE; block = terminated(expr, SEMI)+; RBRACE;
     { Ast.create_expr ~expr:(Abssyn.Block block) $loc }
-| LET; bindings = separated_nonempty_list(COMMA, binding); IN; body = expr;
+| LET; bindings = rev(separated_nonempty_list(COMMA, binding)); IN; body = expr;
     { Ast.create_let ~bindings ~body } %prec let_prec
 | CASE; case_expr = expr; OF; case_branches = branch+; ESAC;
     { Ast.create_expr ~expr:(Abssyn.Case {case_expr; case_branches}) $loc }

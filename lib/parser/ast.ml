@@ -21,8 +21,7 @@ let create_let ~bindings ~body =
   in
   List.tl bindings |> List.fold_left ~f ~init:last_binding
 
-let no_expr ~loc =
-  { Abssyn.expr_expr = Abssyn.NoExpr; expr_typ = None; expr_loc = loc }
+let no_expr ~loc = create_expr ~expr:Abssyn.NoExpr loc
 
 let replace_expr ~new_expr expr = { expr with Abssyn.expr_expr = new_expr }
 
