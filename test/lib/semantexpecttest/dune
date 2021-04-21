@@ -1,0 +1,313 @@
+(executable
+ (name semantexpecttest)
+ (libraries semant parser))
+
+(rule
+ (with-stderr-to
+  anattributenamedself.test.out
+  (run ./semantexpecttest.exe %{dep:anattributenamedself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff anattributenamedself.test.exp anattributenamedself.test.out)))
+
+(rule
+ (with-stdout-to
+  assignment.test.out
+  (run ./semantexpecttest.exe %{dep:assignment.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff assignment.test.exp assignment.test.out)))
+
+(rule
+ (with-stdout-to
+  basic.test.out
+  (run ./semantexpecttest.exe %{dep:basic.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff basic.test.exp basic.test.out)))
+
+(rule
+ (with-stdout-to
+  basicclassestree.test.out
+  (run ./semantexpecttest.exe %{dep:basicclassestree.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff basicclassestree.test.exp basicclassestree.test.out)))
+
+(rule
+ (with-stdout-to
+  classes.test.out
+  (run ./semantexpecttest.exe %{dep:classes.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff classes.test.exp classes.test.out)))
+
+(rule
+ (with-stdout-to
+  compare.test.out
+  (run ./semantexpecttest.exe %{dep:compare.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff compare.test.exp compare.test.out)))
+
+(rule
+ (with-stdout-to
+  comparisons.test.out
+  (run ./semantexpecttest.exe %{dep:comparisons.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff comparisons.test.exp comparisons.test.out)))
+
+(rule
+ (with-stdout-to
+  cycleinmethods.test.out
+  (run ./semantexpecttest.exe %{dep:cycleinmethods.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff cycleinmethods.test.exp cycleinmethods.test.out)))
+
+(rule
+ (with-stdout-to
+  cells.cl.test.out
+  (run ./semantexpecttest.exe %{dep:cells.cl.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff cells.cl.test.exp cells.cl.test.out)))
+
+(rule
+ (with-stdout-to
+  dispatch.test.out
+  (run ./semantexpecttest.exe %{dep:dispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dispatch.test.exp dispatch.test.out)))
+
+(rule
+ (with-stdout-to
+  expressionblock.test.out
+  (run ./semantexpecttest.exe %{dep:expressionblock.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff expressionblock.test.exp expressionblock.test.out)))
+
+(rule
+ (with-stdout-to
+  forwardinherits.test.out
+  (run ./semantexpecttest.exe %{dep:forwardinherits.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff forwardinherits.test.exp forwardinherits.test.out)))
+
+(rule
+ (with-stdout-to
+  hairyscary.cl.test.out
+  (run ./semantexpecttest.exe %{dep:hairyscary.cl.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff hairyscary.cl.test.exp hairyscary.cl.test.out)))
+
+(rule
+ (with-stdout-to
+  if.test.out
+  (run ./semantexpecttest.exe %{dep:if.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff if.test.exp if.test.out)))
+
+(rule
+ (with-stdout-to
+  inheritsObject.test.out
+  (run ./semantexpecttest.exe %{dep:inheritsObject.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff inheritsObject.test.exp inheritsObject.test.out)))
+
+(rule
+ (with-stdout-to
+  initwithself.test.out
+  (run ./semantexpecttest.exe %{dep:initwithself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff initwithself.test.exp initwithself.test.out)))
+
+(rule
+ (with-stdout-to
+  io.test.out
+  (run ./semantexpecttest.exe %{dep:io.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff io.test.exp io.test.out)))
+
+(rule
+ (with-stdout-to
+  isvoid.test.out
+  (run ./semantexpecttest.exe %{dep:isvoid.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff isvoid.test.exp isvoid.test.out)))
+
+(rule
+ (with-stdout-to
+  letinit.test.out
+  (run ./semantexpecttest.exe %{dep:letinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letinit.test.exp letinit.test.out)))
+
+(rule
+ (with-stdout-to
+  letnoinit.test.out
+  (run ./semantexpecttest.exe %{dep:letnoinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letnoinit.test.exp letnoinit.test.out)))
+
+(rule
+ (with-stdout-to
+  letselftype.test.out
+  (run ./semantexpecttest.exe %{dep:letselftype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letselftype.test.exp letselftype.test.out)))
+
+(rule
+ (with-stdout-to
+  letshadows.test.out
+  (run ./semantexpecttest.exe %{dep:letshadows.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letshadows.test.exp letshadows.test.out)))
+
+(rule
+ (with-stdout-to
+  list.cl.test.out
+  (run ./semantexpecttest.exe %{dep:list.cl.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff methodcallsitself.test.exp methodcallsitself.test.out)))
+
+(rule
+ (with-stdout-to
+  methodcallsitself.test.out
+  (run ./semantexpecttest.exe %{dep:methodcallsitself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff list.cl.test.exp list.cl.test.out)))
+
+(rule
+ (with-stdout-to
+  methodnameclash.test.out
+  (run ./semantexpecttest.exe %{dep:methodnameclash.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff methodnameclash.test.exp methodnameclash.test.out)))
+
+(rule
+ (with-stdout-to
+  neg.test.out
+  (run ./semantexpecttest.exe %{dep:neg.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff neg.test.exp neg.test.out)))
+
+(rule
+ (with-stdout-to
+  newselftype.test.out
+  (run ./semantexpecttest.exe %{dep:newselftype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff newselftype.test.exp newselftype.test.out)))
+
+(rule
+ (with-stdout-to
+  simplearith.test.out
+  (run ./semantexpecttest.exe %{dep:simplearith.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff simplearith.test.exp simplearith.test.out)))
+
+(rule
+ (with-stdout-to
+  simplecase.test.out
+  (run ./semantexpecttest.exe %{dep:simplecase.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff simplecase.test.exp simplecase.test.out)))
+
+(rule
+ (with-stdout-to
+  trickyatdispatch.test.out
+  (run ./semantexpecttest.exe %{dep:trickyatdispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff trickyatdispatch.test.exp trickyatdispatch.test.out)))
+
+(rule
+ (with-stderr-to
+  trickyatdispatch2.test.out
+  (run ./semantexpecttest.exe %{dep:trickyatdispatch2.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff trickyatdispatch2.test.exp trickyatdispatch2.test.out)))

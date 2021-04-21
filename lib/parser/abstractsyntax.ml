@@ -16,7 +16,7 @@ type expr =
   | StaticDispatch of static_dispatch_expr
   | Cond of cond_expr
   | Loop of loop_expr
-  | Block of expr_node list
+  | Block of expr_node list * expr_node
   | Let of let_expr
   | Case of case_expr
   | New of Tables.type_sym

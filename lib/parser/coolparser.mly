@@ -178,8 +178,8 @@ let expr :=
     { Ast.create_expr ~expr:(Abssyn.Cond {cond_pred; cond_true; cond_false}) $loc }
 | WHILE; loop_pred = expr; LOOP; loop_body = expr; POOL;
     { Ast.create_expr ~expr:(Abssyn.Loop {loop_pred; loop_body}) $loc }
-| LBRACE; block = terminated(expr, SEMI)+; RBRACE;
-    { Ast.create_expr ~expr:(Abssyn.Block block) $loc }
+| LBRACE; exprs = rev(terminated(expr, SEMI)+); RBRACE;
+    { Ast.create_expr ~expr:(Abssyn.Block (List.tl exprs |> List.rev, List.hd exprs)) $loc }
 | LET; bindings = rev(separated_nonempty_list(COMMA, binding)); IN; body = expr;
     { Ast.create_let ~bindings ~body } %prec let_prec
 | CASE; case_expr = expr; OF; case_branches = branch+; ESAC;

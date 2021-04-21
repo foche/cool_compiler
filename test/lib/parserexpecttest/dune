@@ -72,7 +72,6 @@
  (action
   (diff casemultiplebranch.test.exp casemultiplebranch.test.out)))
 
-
 (rule
  (with-stdout-to
   dispatcharglist.test.out
@@ -82,7 +81,6 @@
  (alias runtest)
  (action
   (diff dispatcharglist.test.exp dispatcharglist.test.out)))
-
 
 (rule
  (with-stdout-to
@@ -94,13 +92,12 @@
  (action
   (diff dispatchnoargs.test.exp dispatchnoargs.test.out)))
 
-
 (rule
  (with-stdout-to
-  dispatchnoarg.test.out
-  (run ./parserexpecttest.exe %{dep:dispatchnoarg.test})))
+  dispatchonearg.test.out
+  (run ./parserexpecttest.exe %{dep:dispatchonearg.test})))
 
 (rule
  (alias runtest)
  (action
-  (diff dispatchnoarg.test.exp dispatchnoarg.test.out)))
+  (diff dispatchonearg.test.exp dispatchonearg.test.out)))

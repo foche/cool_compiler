@@ -17,12 +17,14 @@ type t = {
 
 let word_size = 4
 
+let obj_header_size = 3 * word_size
+
 let create ~typ =
   {
     typ;
     field_offsets = Hashtbl.create 31;
     method_info = Hashtbl.create 31;
-    curr_field_offset = ref (3 * word_size);
+    curr_field_offset = ref obj_header_size;
     curr_method_offset = ref 0;
   }
 

@@ -50,14 +50,14 @@ let rec print_branch n (branch : Abssyn.branch_node) =
   print_type (n + 2) typ;
   print_expr (n + 2) expr
 
-and print_e n line_number (exp : Abssyn.expr) =
+and print_e n line_number (expr : Abssyn.expr) =
   let print_header_with_name = print_header n line_number in
   let print_e_list m = List.iter ~f:(print_expr m) in
-  match exp with
-  | Assign (id, exp') ->
+  match expr with
+  | Assign (id, expr') ->
       print_header_with_name "_assign";
       print_id (n + 2) id;
-      print_expr (n + 2) exp'
+      print_expr (n + 2) expr'
   | DynamicDispatch dyn ->
       print_header_with_name "_dispatch";
       print_expr (n + 2) dyn.dyn_recv;
@@ -79,9 +79,10 @@ and print_e n line_number (exp : Abssyn.expr) =
   | Loop loop ->
       print_header_with_name "_loop";
       print_e_list (n + 2) [ loop.loop_pred; loop.loop_body ]
-  | Block exps ->
+  | Block (stmts, expr) ->
       print_header_with_name "_block";
-      print_e_list (n + 2) exps
+      print_e_list (n + 2) stmts;
+      print_expr (n + 2) expr
   | Let let_stmt ->
       print_header_with_name "_let";
       let var, typ = let_stmt.let_var in
@@ -96,24 +97,24 @@ and print_e n line_number (exp : Abssyn.expr) =
   | New typ ->
       print_header_with_name "_new";
       print_type (n + 2) typ
-  | IsVoid exp' ->
+  | IsVoid expr' ->
       print_header_with_name "_isvoid";
-      print_expr (n + 2) exp'
+      print_expr (n + 2) expr'
   | Arith arith ->
       get_arith_name arith.arith_op |> print_header_with_name;
       print_e_list (n + 2) [ arith.arith_e1; arith.arith_e2 ]
-  | Neg exp' ->
+  | Neg expr' ->
       print_header_with_name "_neg";
-      print_expr (n + 2) exp'
+      print_expr (n + 2) expr'
   | Comp comp ->
       get_comp_name comp.comp_op |> print_header_with_name;
       print_e_list (n + 2) [ comp.comp_e1; comp.comp_e2 ]
   | Eq (e1, e2) ->
       print_header_with_name "_eq";
       print_e_list (n + 2) [ e1; e2 ]
-  | Not exp' ->
+  | Not expr' ->
       print_header_with_name "_comp";
-      print_expr (n + 2) exp'
+      print_expr (n + 2) expr'
   | Variable handle ->
       print_header_with_name "_object";
       print_id (n + 2) handle
@@ -144,16 +145,16 @@ let print_method n line_number method_def =
   print_type (n + 2) method_def.method_ret_typ;
   print_expr (n + 2) method_def.method_body
 
-let print_field n line_number var exp =
+let print_field n line_number var expr =
   print_header n line_number "_attr";
   fst var |> print_id (n + 2);
   snd var |> print_type (n + 2);
-  print_expr (n + 2) exp
+  print_expr (n + 2) expr
 
 let print_feature n feature =
   match feature.Abssyn.elem with
   | Abssyn.Method method_def -> print_method n feature.loc method_def
-  | Abssyn.Field (var, exp) -> print_field n feature.loc var exp
+  | Abssyn.Field (var, expr) -> print_field n feature.loc var expr
 
 let print_class n (cl : Abssyn.class_node) =
   print_header n cl.loc "_class";

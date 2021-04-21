@@ -1,4 +1,4 @@
-(* lexerexpecttest.ml *)
+(* parserexpecttest.ml *)
 
 open Parser
 

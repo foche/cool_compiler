@@ -43,7 +43,7 @@ let rec aux ~ctx expr =
   | Assign (id, sub_expr) -> aux_assign ~ctx ~expr ~id ~sub_expr
   | New typ -> aux_new ~ctx ~expr ~typ
   | Cond cond_expr -> aux_cond ~ctx ~expr ~cond_expr
-  | Block block -> aux_block ~ctx ~expr ~block
+  | Block (stmts, sub_expr) -> aux_block ~ctx ~expr ~stmts ~sub_expr
   | IsVoid sub_expr -> aux_isvoid ~ctx ~expr ~sub_expr
   | Loop loop_expr -> aux_loop ~ctx ~expr ~loop_expr
   | Not sub_expr -> aux_not ~ctx ~expr ~sub_expr
@@ -122,18 +122,19 @@ and aux_cond ~ctx ~expr ~cond_expr =
       prerr_endline "Predicate of 'if' does not have type Bool.")
     ~expr ~sub_expr:cond_expr.cond_pred ~super_typ:T.bool_type
 
-and aux_block ~ctx ~expr ~block =
-  let typed_block = List.map ~f:(aux ~ctx) block in
-  let valid_sub_exprs =
+and aux_block ~ctx ~expr ~stmts ~sub_expr =
+  let typed_stmts = List.map ~f:(aux ~ctx) stmts in
+  let typed_sub_expr = aux ~ctx sub_expr in
+  let valid_stmts =
     List.for_all
       ~f:(fun sub_expr -> Option.is_some sub_expr.expr_typ)
-      typed_block
+      typed_stmts
   in
-  if valid_sub_exprs then
-    let last_expr = List.rev typed_block |> List.hd in
-    Ast.replace_expr ~new_expr:(Block typed_block) expr
-    |> Ast.add_type ~typ:(Option.get last_expr.expr_typ)
-  else expr
+  match (valid_stmts, typed_sub_expr.expr_typ) with
+  | true, Some sub_expr_typ ->
+      Ast.replace_expr ~new_expr:(Block (typed_stmts, typed_sub_expr)) expr
+      |> Ast.add_type ~typ:sub_expr_typ
+  | _ -> expr
 
 and aux_isvoid ~ctx ~expr ~sub_expr =
   let typed_sub_expr = aux ~ctx sub_expr in
