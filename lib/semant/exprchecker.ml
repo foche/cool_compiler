@@ -26,10 +26,13 @@ let all_lca ~inherit_tree ~cl_typ ~typs =
     ~f:(lca ~inherit_tree ~cl_typ)
     ~init:(List.hd typs) (List.tl typs)
 
-let get_arith_op_str op =
-  match op with Plus -> "+" | Minus -> "-" | Mult -> "*" | Div -> "/"
+let get_arith_op_str = function
+  | Plus -> "+"
+  | Minus -> "-"
+  | Mult -> "*"
+  | Div -> "/"
 
-let get_comp_op_str op = match op with Lt -> "<" | Le -> "<="
+let get_comp_op_str = function Lt -> "<" | Le -> "<="
 
 let rec aux ~ctx expr =
   match expr.expr_expr with
@@ -213,11 +216,9 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
   let typed_e2 = aux ~ctx e2 in
   match (typed_e1.expr_typ, typed_e2.expr_typ) with
   | Some typ1, Some typ2 ->
-      let primitives = [ T.int_type; T.string_type; T.bool_type ] in
-      let typ1_primitive = List.mem typ1 ~set:primitives in
-      let typ2_primitive = List.mem typ2 ~set:primitives in
       let is_valid_comp =
-        ((not typ1_primitive) && not typ2_primitive) || typ1 = typ2
+        ((not (Tables.is_primitive typ1)) && not (Tables.is_primitive typ2))
+        || typ1 = typ2
       in
       if is_valid_comp then
         Ast.replace_expr ~new_expr:(Eq (typed_e1, typed_e2)) expr
@@ -363,28 +364,27 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
             Printf.eprintf "Dispatch to undefined method %a.\n" T.print_id
               method_id;
             expr
-        | Some method_sig -> (
-            match List.compare_lengths typed_args method_sig.formals with
-            | 0 ->
-                let formal_ret_typ = method_sig.ret_typ in
-                let ret_typ =
-                  if formal_ret_typ = T.self_type then recv_typ
-                  else formal_ret_typ
-                in
-                let valid_arg_types =
-                  List.for_all2
-                    ~f:(validate_arg_type ~ctx ~loc:expr.expr_loc ~method_id)
-                    typed_args method_sig.formals
-                in
-                if valid_arg_types then
-                  cont ~typed_recv ~typed_args ~ret_typ ~label:method_sig.label
-                else expr
-            | _ ->
-                Semantprint.print_location expr.expr_loc;
-                Printf.eprintf
-                  "Method %a called with wrong number of arguments.\n"
-                  T.print_id method_id;
-                expr))
+        | Some method_sig ->
+            if List.compare_lengths typed_args method_sig.formals <> 0 then (
+              Semantprint.print_location expr.expr_loc;
+              Printf.eprintf
+                "Method %a called with wrong number of arguments.\n" T.print_id
+                method_id;
+              expr)
+            else
+              let formal_ret_typ = method_sig.ret_typ in
+              let ret_typ =
+                if formal_ret_typ = T.self_type then recv_typ
+                else formal_ret_typ
+              in
+              let valid_arg_types =
+                List.for_all2
+                  ~f:(validate_arg_type ~ctx ~loc:expr.expr_loc ~method_id)
+                  typed_args method_sig.formals
+              in
+              if valid_arg_types then
+                cont ~typed_recv ~typed_args ~ret_typ ~label:method_sig.label
+              else expr)
 
 and validate_arg_type ~ctx ~loc ~method_id arg (id, formal_typ) =
   let arg_typ = Option.get arg.expr_typ in

@@ -138,4 +138,4 @@ let create_basic_labels _ =
 
 let basic_method_labels = create_basic_labels ()
 
-let is_prim typ = List.find_opt ~f:(( = ) typ) primitives |> Option.is_some
+let is_primitive = List.mem ~set:primitives

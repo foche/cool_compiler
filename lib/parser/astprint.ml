@@ -4,8 +4,6 @@ open StdLabels
 open Util
 module Abssyn = Abstractsyntax
 
-[@@@coverage exclude_file]
-
 let error = "\027[31mError:\027[0m"
 
 let indent n = String.make n ' ' |> print_string
@@ -173,5 +171,5 @@ let print_ast (program : Abssyn.program) =
 let print_syntax_error _ =
   prerr_endline "Compilation halted due to lex and parse errors"
 
-let print_eof_error filename =
-  Printf.eprintf "%s %S, line 0: syntax error at or near EOF\n" error filename
+let print_eof_error =
+  Printf.eprintf "%s %S, line 0: syntax error at or near EOF\n" error

@@ -1,0 +1,106 @@
+(executable
+ (name parserexpecttest)
+ (libraries parser))
+
+(rule
+ (with-stdout-to
+  atoi.test.out
+  (run ./parserexpecttest.exe %{dep:atoi.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff atoi.test.exp atoi.test.out)))
+
+(rule
+ (with-stdout-to
+  complex.test.out
+  (run ./parserexpecttest.exe %{dep:complex.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff complex.test.exp complex.test.out)))
+
+(rule
+ (with-stdout-to
+  addedlet.test.out
+  (run ./parserexpecttest.exe %{dep:addedlet.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff addedlet.test.exp addedlet.test.out)))
+
+(rule
+ (with-stdout-to
+  arithprecedence.test.out
+  (run ./parserexpecttest.exe %{dep:arithprecedence.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff arithprecedence.test.exp arithprecedence.test.out)))
+
+(rule
+ (with-stdout-to
+  assignment.test.out
+  (run ./parserexpecttest.exe %{dep:assignment.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff assignment.test.exp assignment.test.out)))
+
+(rule
+ (with-stdout-to
+  assignseq.test.out
+  (run ./parserexpecttest.exe %{dep:assignseq.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff assignseq.test.exp assignseq.test.out)))
+
+(rule
+ (with-stdout-to
+  casemultiplebranch.test.out
+  (run ./parserexpecttest.exe %{dep:casemultiplebranch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff casemultiplebranch.test.exp casemultiplebranch.test.out)))
+
+
+(rule
+ (with-stdout-to
+  dispatcharglist.test.out
+  (run ./parserexpecttest.exe %{dep:dispatcharglist.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dispatcharglist.test.exp dispatcharglist.test.out)))
+
+
+(rule
+ (with-stdout-to
+  dispatchnoargs.test.out
+  (run ./parserexpecttest.exe %{dep:dispatchnoargs.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dispatchnoargs.test.exp dispatchnoargs.test.out)))
+
+
+(rule
+ (with-stdout-to
+  dispatchnoarg.test.out
+  (run ./parserexpecttest.exe %{dep:dispatchnoarg.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dispatchnoarg.test.exp dispatchnoarg.test.out)))

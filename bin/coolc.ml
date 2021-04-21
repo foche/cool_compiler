@@ -7,6 +7,7 @@
 open StdLabels
 open Parser
 open Semant
+open Layout
 
 let usage_msg =
   Printf.sprintf "Usage: %s [-lpPS] [-o out_file] file [files]" Sys.argv.(0)
@@ -44,23 +45,23 @@ let main _ =
     let program_opt =
       Parsedriver.parse !input_files |> Option.map Typecheck.typecheck
     in
-    program_opt |> ignore
-    (* match program_opt with
-       | None -> ()
-       | Some program ->
-           let blocks = Instrselector.translate_program program in
-           Irprint.print_ir blocks;
-           let actual_output_file =
-             match !output_file with
-             | "" -> List.rev !input_files |> List.hd |> get_default_out_file
-             | out_file -> out_file
-           in
-           let out_file = open_out actual_output_file in
-           close_out out_file *)
-  with Sys_error msg -> prerr_endline msg
+    Temp.create_temp () |> ignore;
+    match program_opt with None -> exit 1 | Some program -> program |> ignore
+    (* let blocks = Instrselector.translate_program program in
+       Irprint.print_ir blocks;
+       let actual_output_file =
+         match !output_file with
+         | "" -> List.rev !input_files |> List.hd |> get_default_out_file
+         | out_file -> out_file
+       in
+       let out_file = open_out actual_output_file in
+       close_out out_file *)
+  with Sys_error msg ->
+    prerr_endline msg;
+    exit 1
 
 let _ =
   Arg.parse spec_list parse_input usage_msg;
-  match List.compare_length_with !input_files ~len:0 with
-  | 0 -> Arg.usage spec_list usage_msg
-  | _ -> main ()
+  if List.compare_length_with !input_files ~len:0 = 0 then
+    Arg.usage spec_list usage_msg
+  else main ()

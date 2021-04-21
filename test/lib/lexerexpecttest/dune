@@ -1,0 +1,23 @@
+(executable
+ (name lexerexpecttest)
+ (libraries parser))
+
+(rule
+ (with-stdout-to
+  arith.cool.out
+  (run ./lexerexpecttest.exe %{dep:arith.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff arith.cool.exp arith.cool.out)))
+
+(rule
+ (with-stdout-to
+  atoi.cool.out
+  (run ./lexerexpecttest.exe %{dep:atoi.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff atoi.cool.exp atoi.cool.out)))

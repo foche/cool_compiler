@@ -1,3 +1,5 @@
 (library
  (name layout)
+ (instrumentation
+  (backend bisect_ppx))
  (libraries util))

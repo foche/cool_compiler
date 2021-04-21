@@ -76,15 +76,16 @@ let validate_formal_not_self formal =
 let validate_main_method ~typ ~method_def ~loc =
   let method_id = method_def.Abssyn.method_id in
   let is_main_method = typ = T.main_type && method_id = T.main_method in
-  if is_main_method then (
-    main_method_exists := true;
-    match List.compare_length_with method_def.method_formals ~len:0 with
-    | 0 -> true
-    | _ ->
-        Semantprint.print_location loc;
-        prerr_endline "'main' method in class Main should have no arguments.";
-        false)
-  else true
+  (not is_main_method)
+  ||
+  let no_arg_main =
+    List.compare_length_with method_def.method_formals ~len:0 = 0
+  in
+  main_method_exists := true;
+  if not no_arg_main then (
+    Semantprint.print_location loc;
+    prerr_endline "'main' method in class Main should have no arguments.");
+  no_arg_main
 
 let add_to_sigs sigs ~typ ~method_def ~loc =
   let formals =

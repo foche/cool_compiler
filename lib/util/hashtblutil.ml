@@ -8,8 +8,7 @@ let init n kv_pairs =
   List.iter ~f:(fun (key, data) -> Hashtbl.add tbl ~key ~data) kv_pairs;
   tbl
 
-let add_all tbl1 tbl2 =
-  Hashtbl.iter ~f:(fun ~key ~data -> Hashtbl.add tbl1 ~key ~data) tbl2
+let add_all tbl1 tbl2 = Hashtbl.iter ~f:(Hashtbl.add tbl1) tbl2
 
 let set_from_list elems =
   let set = Hashtbl.create ((List.length elems * 2) - 1) in

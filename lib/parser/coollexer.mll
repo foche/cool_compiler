@@ -14,14 +14,14 @@ module Print = Lexerprint
 let lexer_debug = ref false
 let max_str_len = 1024
 
+let is_lowercase ch = Char.lowercase_ascii ch = ch
+
+let make_bool_const s x =
+  if s.[0] = (if x then 't' else 'f')
+  then Parse.BOOL_CONST x
+  else Parse.TYPEID s
+
 let process_word s =
-  let is_lowercase = Char.lowercase_ascii s.[0] = s.[0] in
-
-  let make_bool_const x =
-    if s.[0] = (if x then 't' else 'f')
-    then Parse.BOOL_CONST x
-    else Parse.TYPEID s in
-
   (* try to match with keywords *)
   match String.lowercase_ascii s with
   | "class" -> Parse.CLASS
@@ -41,9 +41,9 @@ let process_word s =
   | "new" -> Parse.NEW
   | "isvoid" -> Parse.ISVOID
   | "not" -> Parse.NOT
-  | "true" -> make_bool_const true
-  | "false" -> make_bool_const false
-  | _ -> if is_lowercase then Parse.OBJECTID s else Parse.TYPEID s
+  | "true" -> make_bool_const s true
+  | "false" -> make_bool_const s false
+  | _ -> if is_lowercase s.[0] then Parse.OBJECTID s else Parse.TYPEID s
 
 let print_filename filename =
   if !lexer_debug then Print.print_filename filename
@@ -132,7 +132,8 @@ and str_const strbuf n = parse
 {
 let get_token lexbuf =
   let tok = next_token lexbuf in
-  let line_num = lexbuf.Lexing.lex_curr_p.pos_lnum in
-  if !lexer_debug then Print.print_token tok line_num;
+  if !lexer_debug then (
+    let line_num = lexbuf.Lexing.lex_curr_p.pos_lnum in
+    Print.print_token tok line_num);
   tok
 }

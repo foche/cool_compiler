@@ -1,10 +1,11 @@
 (* parsedriver.ml *)
 
+open StdLabels
 module Abssyn = Abstractsyntax
 
 let parser_verbose = ref false
 
-let run_on_file f acc filename =
+let run_on_file ~f acc filename =
   let file = open_in filename in
   let acc' =
     try f acc filename file
@@ -29,19 +30,18 @@ let parse_single (acc, empty_count) filename file =
 
 let internal_parse filenames =
   let programs, empty_count =
-    List.fold_left (run_on_file parse_single) ([], 0) filenames
+    List.fold_left ~f:(run_on_file ~f:parse_single) ~init:([], 0) filenames
   in
-  let cls = List.rev_map (Option.value ~default:[]) programs |> List.concat in
-  let all_empty = List.compare_length_with filenames empty_count = 0 in
-  let empty_cls = List.compare_length_with cls 0 = 0 in
-  match (all_empty, empty_cls) with
+  let cls =
+    List.rev_map ~f:(Option.value ~default:[]) programs |> List.concat
+  in
+  let all_empty = List.compare_length_with filenames ~len:empty_count = 0 in
+  match (all_empty, cls) with
   | true, _ ->
       List.hd filenames |> Astprint.print_eof_error;
       None
-  | false, true -> None
-  | false, false ->
-      let cl0 = List.hd cls in
-      Some { Abssyn.elem = cls; loc = cl0.Abssyn.loc }
+  | false, [] -> None
+  | false, cl :: _ -> Some { Abssyn.elem = cls; loc = cl.Abssyn.loc }
 
 let parse filenames =
   let program_opt = internal_parse filenames in

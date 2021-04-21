@@ -2,12 +2,9 @@
 
 module Parse = Coolparser
 
-[@@@coverage exclude_file]
+let print_filename = Printf.printf "#name %S\n"
 
-let print_filename filename = Printf.printf "#name %S\n" filename
-
-let token_string tok =
-  match tok with
+let token_string = function
   | Parse.EOF -> "EOF"
   | Parse.CLASS -> "CLASS"
   | Parse.ELSE -> "ELSE"

@@ -1,4 +1,4 @@
-(* translator.ml *)
+(* translator.ml
 
 open Parser
 open Ast
@@ -218,4 +218,4 @@ let translate_class blocks (clazz, _) =
 let translate_program (classes, _) =
   let blocks = Hashtbl.create 64 in
   List.iter (translate_class blocks) classes;
-  blocks
+  blocks *)
