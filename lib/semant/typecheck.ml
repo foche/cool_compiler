@@ -36,17 +36,19 @@ let internal_typecheck program =
     Globalvalidator.validate ~args:{ program; handle_to_class; parents; sigs }
   in
   let is_valid =
-    is_global_valid
-    && Localvalidator.validate
-         ~args:
-           {
-             id_env;
-             func_env;
-             inherit_tree = Option.get tree_opt;
-             sigs;
-             untyped_classes = handle_to_class;
-             typed_classes;
-           }
+    match (is_global_valid, tree_opt) with
+    | true, Some inherit_tree ->
+        Localvalidator.validate
+          ~args:
+            {
+              id_env;
+              func_env;
+              inherit_tree;
+              sigs;
+              untyped_classes = handle_to_class;
+              typed_classes;
+            }
+    | _ -> false
   in
   let replace_class (cl : Abssyn.class_node) =
     Hashtbl.find typed_classes cl.elem.cl_typ

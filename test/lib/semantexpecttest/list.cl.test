@@ -5,14 +5,14 @@
  *  The List class has 4 operations defined on List objects. If 'l' is
  *  a list, then the methods dispatched on 'l' have the following effects:
  *
- *    isNil() : Bool		Returns true if 'l' is empty, false otherwise.
- *    head()  : Int		Returns the integer at the head of 'l'.
- *				If 'l' is empty, execution aborts.
- *    tail()  : List		Returns the remainder of the 'l',
- *				i.e. without the first element.
- *    cons(i : Int) : List	Return a new list containing i as the
- *				first element, followed by the
- *				elements in 'l'.
+ *    isNil() : Bool        Returns true if 'l' is empty, false otherwise.
+ *    head()  : Int        Returns the integer at the head of 'l'.
+ *                If 'l' is empty, execution aborts.
+ *    tail()  : List        Returns the remainder of the 'l',
+ *                i.e. without the first element.
+ *    cons(i : Int) : List    Return a new list containing i as the
+ *                first element, followed by the
+ *                elements in 'l'.
  *
  *  There are 2 kinds of lists, the empty list and a non-empty
  *  list. We can think of the non-empty list as a specialization of
@@ -69,9 +69,9 @@ class List {
 
 class Cons inherits List {
 
-   car : Int;	-- The element in this list cell
+   car : Int;    -- The element in this list cell
 
-   cdr : List;	-- The rest of the list
+   cdr : List;    -- The rest of the list
 
    isNil() : Bool { false };
 
@@ -81,9 +81,9 @@ class Cons inherits List {
 
    init(i : Int, rest : List) : List {
       {
-	 car <- i;
-	 cdr <- rest;
-	 self;
+     car <- i;
+     cdr <- rest;
+     self;
       }
    };
 
@@ -107,10 +107,10 @@ class Main inherits IO {
    print_list(l : List) : Object {
       if l.isNil() then out_string("\n")
                    else {
-			   out_int(l.head());
-			   out_string(" ");
-			   print_list(l.tail());
-		        }
+               out_int(l.head());
+               out_string(" ");
+               print_list(l.tail());
+                }
       fi
    };
 
@@ -125,13 +125,13 @@ class Main inherits IO {
 
    main() : Object {
       {
-	 mylist <- new List.cons(1).cons(2).cons(3).cons(4).cons(5);
-	 while (not mylist.isNil()) loop
-	    {
-	       print_list(mylist);
-	       mylist <- mylist.tail();
-	    }
-	 pool;
+     mylist <- new List.cons(1).cons(2).cons(3).cons(4).cons(5);
+     while (not mylist.isNil()) loop
+        {
+           print_list(mylist);
+           mylist <- mylist.tail();
+        }
+     pool;
       }
    };
 

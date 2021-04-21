@@ -8,8 +8,8 @@ class Cow inherits Animal {
       
 class Blerg {
       foo() : Object {
-	    let cow : Animal <- new Cow 
-	    in cow.moo()
+        let cow : Animal <- new Cow 
+        in cow.moo()
       };
 };
 

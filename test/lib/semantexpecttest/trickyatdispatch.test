@@ -1,14 +1,14 @@
 class Main { main() : Int {0 }; };
 
 class A {
-	inky():Int { 1 };
+    inky():Int { 1 };
 };
 
 class B inherits A {
-	binky():String {"hello"};
+    binky():String {"hello"};
 };
 
 class C {
-	b:B;
-	winky():Int { b@B.inky() };
+    b:B;
+    winky():Int { b@B.inky() };
 };

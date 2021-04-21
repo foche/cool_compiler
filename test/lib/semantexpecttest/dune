@@ -23,6 +23,56 @@
   (diff assignment.test.exp assignment.test.out)))
 
 (rule
+ (with-stderr-to
+  assignnoconform.test.out
+  (run ./semantexpecttest.exe %{dep:assignnoconform.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff assignnoconform.test.exp assignnoconform.test.out)))
+
+(rule
+ (with-stderr-to
+  attrbadinit.test.out
+  (run ./semantexpecttest.exe %{dep:attrbadinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff attrbadinit.test.exp attrbadinit.test.out)))
+
+(rule
+ (with-stderr-to
+  attroverride.test.out
+  (run ./semantexpecttest.exe %{dep:attroverride.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff attroverride.test.exp attroverride.test.out)))
+
+(rule
+ (with-stderr-to
+  badargs1.test.out
+  (run ./semantexpecttest.exe %{dep:badargs1.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badargs1.test.exp badargs1.test.out)))
+
+(rule
+ (with-stderr-to
+  badarith.test.out
+  (run ./semantexpecttest.exe %{dep:badarith.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badarith.test.exp badarith.test.out)))
+
+(rule
  (with-stdout-to
   basic.test.out
   (run ./semantexpecttest.exe %{dep:basic.test})))

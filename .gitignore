@@ -22,6 +22,7 @@ _coverage
 .vscode
 semanttest
 *.sh
+*.bak
 
 # ocamlbuild working directory
 _build/

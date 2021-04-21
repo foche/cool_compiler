@@ -1,2 +1,3 @@
-attrbadinit.test:8: Undeclared identifier moo.
+File "attrbadinit.test": line 8, characters 24-27:
+Undeclared identifier moo.
 Compilation halted due to static semantic errors.

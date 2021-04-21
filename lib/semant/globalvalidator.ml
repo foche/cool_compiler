@@ -45,11 +45,10 @@ let check_ret_type ~parents ~method_def ~loc =
   is_valid_ret_type
 
 let check_method ~parents ~method_def ~loc =
-  let valid_ret_typ = check_ret_type ~parents ~method_def ~loc in
   let valid_formals =
     List.for_all ~f:(check_formal ~parents) method_def.Abssyn.method_formals
   in
-  valid_ret_typ && valid_formals
+  check_ret_type ~parents ~method_def ~loc && valid_formals
 
 let check_feature ~parents feature =
   let loc = feature.Abssyn.loc in
@@ -98,8 +97,7 @@ let add_to_sigs sigs ~typ ~method_def ~loc =
   let is_unique = Methodtbl.add sigs ~typ ~method_id ~ret_typ ~formals in
   if not is_unique then (
     Semantprint.print_location loc;
-    Printf.eprintf "Method %a is multiply defined.\n" T.print_id
-      method_def.method_id);
+    Printf.eprintf "Method %a is multiply defined.\n" T.print_id method_id);
   is_unique
 
 let validate_field_not_self ~loc ~id =
@@ -109,19 +107,19 @@ let validate_field_not_self ~loc ~id =
     prerr_endline "'self' cannot be the name of an attribute.");
   is_valid_id
 
+let validate_method ~sigs ~method_def ~typ ~loc =
+  let is_unique = add_to_sigs sigs ~typ ~method_def ~loc in
+  let is_valid_main = validate_main_method ~typ ~method_def ~loc in
+  List.for_all ~f:validate_formal_not_self method_def.Abssyn.method_formals
+  && is_unique && is_valid_main
+
 let validate_feature ~args ~(cl : Abssyn.class_node) feature =
   let loc = feature.Abssyn.loc in
   let typ = cl.elem.cl_typ in
   match feature.elem with
   | Abssyn.Field ((id, _), _) -> validate_field_not_self ~loc ~id
   | Abssyn.Method method_def ->
-      let is_unique = add_to_sigs args.sigs ~typ ~method_def ~loc in
-      let is_valid_main = validate_main_method ~typ ~method_def ~loc in
-      let no_self_args =
-        List.for_all ~f:validate_formal_not_self
-          method_def.Abssyn.method_formals
-      in
-      is_unique && is_valid_main && no_self_args
+      validate_method ~sigs:args.sigs ~method_def ~typ ~loc
 
 let add_to_parents ~parents ~(cl : Abssyn.class_node) =
   let is_duplicate = Hashtbl.mem parents cl.elem.cl_typ in
@@ -152,12 +150,9 @@ let validate_class ~args (cl : Abssyn.class_node) =
   Hashtbl.add args.handle_to_class ~key:cl.elem.cl_typ ~data:cl;
   let is_valid_type = is_unreserved ~cl in
   let is_valid_parent = is_valid_inheritance ~cl in
-  let parents = args.parents in
-  let is_unique = is_valid_type && add_to_parents ~parents ~cl in
-  let valid_features =
-    List.for_all ~f:(validate_feature ~args ~cl) cl.elem.cl_features
-  in
-  is_valid_type && is_valid_parent && is_unique && valid_features
+  let is_unique = is_valid_type && add_to_parents ~parents:args.parents ~cl in
+  List.for_all ~f:(validate_feature ~args ~cl) cl.elem.cl_features
+  && is_valid_type && is_valid_parent && is_unique
 
 let validate_main_method_exists ~loc =
   if not !main_method_exists then (
@@ -174,32 +169,31 @@ let validate_main ~handle_to_class =
 
 let create_tree ~parents ~handle_to_class =
   match Tree.create ~parents ~root:T.object_type with
-  | Tree.Tree tree -> (true, Some tree)
+  | Tree.Tree tree -> Some tree
   | Tree.Disconnected (typ, parent) ->
       let cl = Hashtbl.find handle_to_class typ in
       Semantprint.print_location cl.Abssyn.loc;
       Printf.eprintf "Class %a inherits from an undefined class %a.\n"
         T.print_type typ T.print_type parent;
-      (false, None)
+      None
   | Tree.Cycle typ ->
       let cl = Hashtbl.find handle_to_class typ in
       Semantprint.print_location cl.Abssyn.loc;
       Printf.eprintf
         "Class %a, or an ancestor of %a, is involved in an inheritance cycle.\n"
         T.print_type typ T.print_type typ;
-      (false, None)
+      None
 
 let validate ~args =
   let classes = args.program.Abssyn.elem in
   let valid_classes = List.for_all ~f:(validate_class ~args) classes in
   let handle_to_class = args.handle_to_class in
+  let is_valid_main = valid_classes && validate_main ~handle_to_class in
   let parents = args.parents in
-  let valid_main = validate_main ~handle_to_class in
-  let valid_tree, tree_opt =
-    if valid_classes then create_tree ~parents ~handle_to_class
-    else (false, None)
+  let tree_opt =
+    if valid_classes then create_tree ~parents ~handle_to_class else None
   in
-  let valid_method_types =
+  let valid_feature_types =
     List.for_all ~f:(validate_feature_types ~parents) classes
   in
-  (valid_classes && valid_tree && valid_method_types && valid_main, tree_opt)
+  (valid_classes && valid_feature_types && is_valid_main, tree_opt)

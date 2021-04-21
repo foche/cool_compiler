@@ -2,10 +2,10 @@
 
 class Foo inherits Bazz {
      a : Razz <- case self of
-		      n : Razz => (new Bar);
-		      n : Foo => (new Razz);
-		      n : Bar => n;
-   	         esac;
+              n : Razz => (new Bar);
+              n : Foo => (new Razz);
+              n : Bar => n;
+                esac;
 
      b : Int <- a.doh() + g.doh() + doh() + printh();
 
@@ -24,9 +24,9 @@ class Bar inherits Razz {
 class Razz inherits Foo {
 
      e : Bar <- case self of
-		  n : Razz => (new Bar);
-		  n : Bar => n;
-		esac;
+          n : Razz => (new Bar);
+          n : Bar => n;
+        esac;
 
      f : Int <- a@Bazz.doh() + g.doh() + e.doh() + doh() + printh();
 
@@ -37,11 +37,11 @@ class Bazz inherits IO {
      h : Int <- 1;
 
      g : Foo  <- case self of
-		     	n : Bazz => (new Foo);
-		     	n : Razz => (new Bar);
-			n : Foo  => (new Razz);
-			n : Bar => n;
-		  esac;
+                 n : Bazz => (new Foo);
+                 n : Razz => (new Bar);
+            n : Foo  => (new Razz);
+            n : Bar => n;
+          esac;
 
      i : Object <- printh();
 

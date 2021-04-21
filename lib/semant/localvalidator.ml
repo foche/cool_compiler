@@ -185,12 +185,9 @@ let extract_feature ~id_env ~func_env ~cl_typ feature =
 let typecheck_class ~args ~typ (cl : Abssyn.class_node) =
   let cl_typ = cl.elem.cl_typ in
   let features = cl.elem.cl_features in
-  let valid_field_decl =
-    List.for_all
-      ~f:(extract_feature ~id_env:args.id_env ~func_env:args.func_env ~cl_typ)
-      features
-  in
-  valid_field_decl
+  List.for_all
+    ~f:(extract_feature ~id_env:args.id_env ~func_env:args.func_env ~cl_typ)
+    features
   &&
   let typed_feature_opt =
     List.rev_map ~f:(typecheck_feature ~args ~cl_typ) features

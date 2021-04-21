@@ -34,14 +34,13 @@ let print_typee n typ_opt =
   | None -> print_endline "_no_type"
   | Some handle -> print_type 0 handle
 
-let get_arith_name op =
-  match op with
+let get_arith_name = function
   | Abssyn.Plus -> "_plus"
   | Abssyn.Minus -> "_sub"
   | Abssyn.Mult -> "_mul"
   | Abssyn.Div -> "_divide"
 
-let get_comp_name op = match op with Abssyn.Lt -> "_lt" | Abssyn.Le -> "_leq"
+let get_comp_name = function Abssyn.Lt -> "_lt" | Abssyn.Le -> "_leq"
 
 let rec print_branch n (branch : Abssyn.branch_node) =
   print_header n branch.loc "_branch";
