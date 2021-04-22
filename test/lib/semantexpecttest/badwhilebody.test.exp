@@ -1,2 +1,3 @@
-badwhilebody.test:5: Dispatch to undefined method length.
+File "badwhilebody.test": line 5, characters 39-49:
+Dispatch to undefined method length.
 Compilation halted due to static semantic errors.

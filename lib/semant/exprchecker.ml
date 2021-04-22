@@ -218,7 +218,7 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
   match (typed_e1.expr_typ, typed_e2.expr_typ) with
   | Some typ1, Some typ2 ->
       let is_valid_comp =
-        ((not (Tables.is_primitive typ1)) && not (Tables.is_primitive typ2))
+        ((not @@ Tables.is_primitive typ1) && (not @@ Tables.is_primitive typ2))
         || typ1 = typ2
       in
       if is_valid_comp then

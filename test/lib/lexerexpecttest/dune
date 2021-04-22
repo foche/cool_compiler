@@ -21,3 +21,53 @@
  (alias runtest)
  (action
   (diff atoi.cool.exp atoi.cool.out)))
+
+(rule
+ (with-stdout-to
+  escapedunprintables.cool.out
+  (run ./lexerexpecttest.exe %{dep:escapedunprintables.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff escapedunprintables.cool.exp escapedunprintables.cool.out)))
+
+(rule
+ (with-stdout-to
+  invalidcharacters.cool.out
+  (run ./lexerexpecttest.exe %{dep:invalidcharacters.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff invalidcharacters.cool.exp invalidcharacters.cool.out)))
+
+(rule
+ (with-stdout-to
+  invalidinvisible.cool.out
+  (run ./lexerexpecttest.exe %{dep:invalidinvisible.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff invalidinvisible.cool.exp invalidinvisible.cool.out)))
+
+(rule
+ (with-stdout-to
+  null_in_code.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:null_in_code.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff null_in_code.cl.cool.exp null_in_code.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  null_in_string.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:null_in_string.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff null_in_string.cl.cool.exp null_in_string.cl.cool.out)))

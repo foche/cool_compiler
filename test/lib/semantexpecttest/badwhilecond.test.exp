@@ -1,2 +1,3 @@
-badwhilecond.test:5: Loop condition does not have type Bool.
+File "badwhilecond.test": line 5, characters 29-30:
+Loop condition does not have type Bool.
 Compilation halted due to static semantic errors.

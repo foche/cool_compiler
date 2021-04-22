@@ -1,2 +1,3 @@
-inheritsselftype.test:1: Class Main cannot inherit class SELF_TYPE.
+File "inheritsselftype.test": line 1, characters 0-53:
+Class Main cannot inherit class SELF_TYPE.
 Compilation halted due to static semantic errors.

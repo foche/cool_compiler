@@ -2,4 +2,4 @@
  (name translator)
  (instrumentation
   (backend bisect_ppx))
- (libraries parser util layout))
+ (libraries parser util))

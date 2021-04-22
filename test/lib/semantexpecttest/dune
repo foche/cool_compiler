@@ -73,6 +73,86 @@
   (diff badarith.test.exp badarith.test.out)))
 
 (rule
+ (with-stderr-to
+  baddispatch.test.out
+  (run ./semantexpecttest.exe %{dep:baddispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff baddispatch.test.exp baddispatch.test.out)))
+
+(rule
+ (with-stderr-to
+  badequalitytest.test.out
+  (run ./semantexpecttest.exe %{dep:badequalitytest.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badequalitytest.test.exp badequalitytest.test.out)))
+
+(rule
+ (with-stderr-to
+  badequalitytest2.test.out
+  (run ./semantexpecttest.exe %{dep:badequalitytest2.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badequalitytest2.test.exp badequalitytest2.test.out)))
+
+(rule
+ (with-stderr-to
+  badmethodcallsitself.test.out
+  (run ./semantexpecttest.exe %{dep:badmethodcallsitself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badmethodcallsitself.test.exp badmethodcallsitself.test.out)))
+
+(rule
+ (with-stderr-to
+  badredefineint.test.out
+  (run ./semantexpecttest.exe %{dep:badredefineint.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badredefineint.test.exp badredefineint.test.out)))
+
+(rule
+ (with-stderr-to
+  badstaticdispatch.test.out
+  (run ./semantexpecttest.exe %{dep:badstaticdispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badstaticdispatch.test.exp badstaticdispatch.test.out)))
+
+(rule
+ (with-stderr-to
+  badwhilebody.test.out
+  (run ./semantexpecttest.exe %{dep:badwhilebody.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badwhilebody.test.exp badwhilebody.test.out)))
+
+(rule
+ (with-stderr-to
+  badwhilecond.test.out
+  (run ./semantexpecttest.exe %{dep:badwhilecond.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badwhilecond.test.exp badwhilecond.test.out)))
+
+(rule
  (with-stdout-to
   basic.test.out
   (run ./semantexpecttest.exe %{dep:basic.test})))
@@ -91,6 +171,26 @@
  (alias runtest)
  (action
   (diff basicclassestree.test.exp basicclassestree.test.out)))
+
+(rule
+ (with-stderr-to
+  caseidenticalbranch.test.out
+  (run ./semantexpecttest.exe %{dep:caseidenticalbranch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff caseidenticalbranch.test.exp caseidenticalbranch.test.out)))
+
+(rule
+ (with-stdout-to
+  cells.cl.test.out
+  (run ./semantexpecttest.exe %{dep:cells.cl.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff cells.cl.test.exp cells.cl.test.out)))
 
 (rule
  (with-stdout-to
@@ -134,16 +234,6 @@
 
 (rule
  (with-stdout-to
-  cells.cl.test.out
-  (run ./semantexpecttest.exe %{dep:cells.cl.test})))
-
-(rule
- (alias runtest)
- (action
-  (diff cells.cl.test.exp cells.cl.test.out)))
-
-(rule
- (with-stdout-to
   dispatch.test.out
   (run ./semantexpecttest.exe %{dep:dispatch.test})))
 
@@ -151,6 +241,16 @@
  (alias runtest)
  (action
   (diff dispatch.test.exp dispatch.test.out)))
+
+(rule
+ (with-stderr-to
+  dupformals.test.out
+  (run ./semantexpecttest.exe %{dep:dupformals.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dupformals.test.exp dupformals.test.out)))
 
 (rule
  (with-stdout-to
@@ -201,6 +301,26 @@
  (alias runtest)
  (action
   (diff inheritsObject.test.exp inheritsObject.test.out)))
+
+(rule
+ (with-stderr-to
+  inheritsselftype.test.out
+  (run ./semantexpecttest.exe %{dep:inheritsselftype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff inheritsselftype.test.exp inheritsselftype.test.out)))
+
+(rule
+ (with-stderr-to
+  inheritsstring.test.out
+  (run ./semantexpecttest.exe %{dep:inheritsstring.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff inheritsstring.test.exp inheritsstring.test.out)))
 
 (rule
  (with-stdout-to

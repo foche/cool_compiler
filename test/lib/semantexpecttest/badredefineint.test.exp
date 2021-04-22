@@ -1,2 +1,3 @@
-badredefineint.test:4: Redefinition of basic class Int.
+File "badredefineint.test": line 3, character 0 to line 4, character 2
+Redefinition of basic class Int.
 Compilation halted due to static semantic errors.

@@ -7,7 +7,7 @@
 open StdLabels
 open Parser
 open Semant
-open Layout
+open Translator
 
 let usage_msg =
   Printf.sprintf "Usage: %s [-lpPS] [-o out_file] file [files]" Sys.argv.(0)

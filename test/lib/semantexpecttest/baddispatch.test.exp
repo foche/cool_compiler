@@ -1,2 +1,3 @@
-baddispatch.test:12: Dispatch to undefined method moo.
+File "baddispatch.test": line 12, characters 11-20:
+Dispatch to undefined method moo.
 Compilation halted due to static semantic errors.

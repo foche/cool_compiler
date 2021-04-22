@@ -1,2 +1,3 @@
-badequalitytest2.test:5: Illegal comparison with a basic type.
+File "badequalitytest2.test": line 5, characters 23-31:
+Illegal comparison with a basic type.
 Compilation halted due to static semantic errors.

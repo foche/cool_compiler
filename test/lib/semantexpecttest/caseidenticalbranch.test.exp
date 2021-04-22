@@ -1,2 +1,3 @@
-caseidenticalbranch.test:4: Duplicate branch Int in case statement.
+File "caseidenticalbranch.test": line 4, characters 45-56:
+Duplicate branch Int in case statement.
 Compilation halted due to static semantic errors.

@@ -16,10 +16,32 @@ type validator_args = {
   typed_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
 }
 
-let typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init =
+let check_field_init ~args ~feature ~cl_typ ~id ~field_typ ~typed_init =
+  match typed_init.Abssyn.expr_typ with
+  | None -> None
+  | Some init_typ ->
+      let is_valid_init_type =
+        Types.is_subtype args.inherit_tree ~cl_typ ~sub_typ:init_typ
+          ~super_typ:field_typ
+      in
+      if is_valid_init_type then
+        Some
+          {
+            feature with
+            Abssyn.elem = Abssyn.Field ((id, field_typ), typed_init);
+          }
+      else (
+        Semantprint.print_location feature.loc;
+        Printf.eprintf
+          "Inferred type %a of initialization of attribute %a does not conform \
+           to declared type %a.\n"
+          T.print_type init_typ T.print_id id T.print_type field_typ;
+        None)
+
+let typecheck_field ~args ~cl_typ ~feature ~id ~field_typ ~init =
   match init.Abssyn.expr_expr with
   | NoExpr -> Some feature
-  | _ -> (
+  | _ ->
       let typed_init =
         Exprchecker.typecheck
           ~ctx:
@@ -31,26 +53,7 @@ let typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init =
             }
           ~expr:init
       in
-      match typed_init.Abssyn.expr_typ with
-      | None -> None
-      | Some init_typ ->
-          let is_valid_init_type =
-            Types.is_subtype args.inherit_tree ~cl_typ ~sub_typ:init_typ
-              ~super_typ:typ
-          in
-          if is_valid_init_type then
-            Some
-              {
-                feature with
-                Abssyn.elem = Abssyn.Field ((id, typ), typed_init);
-              }
-          else (
-            Semantprint.print_location feature.loc;
-            Printf.eprintf
-              "Inferred type %a of initialization of attribute %a does not \
-               conform to declared type %a.\n"
-              T.print_type init_typ T.print_id id T.print_type typ;
-            None))
+      check_field_init ~args ~feature ~cl_typ ~id ~field_typ ~typed_init
 
 let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
   match typed_body.Abssyn.expr_typ with
@@ -77,20 +80,18 @@ let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
         None)
 
 let typecheck_method ~args ~cl_typ ~method_def ~feature =
-  let add_formal formal =
-    let id, typ = formal.Abssyn.elem in
-    let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
-    if is_duplicate then (
-      Semantprint.print_location formal.loc;
-      Printf.eprintf "Formal parameter %a is multiply defined.\n" T.print_id id);
-    not is_duplicate
-  in
   let lazy_typecheck =
     lazy
-      (let unique_formals =
-         List.for_all ~f:add_formal method_def.Abssyn.method_formals
+      (let add_formal formal =
+         let id, typ = formal.Abssyn.elem in
+         let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
+         if is_duplicate then (
+           Semantprint.print_location formal.loc;
+           Printf.eprintf "Formal parameter %a is multiply defined.\n"
+             T.print_id id);
+         not is_duplicate
        in
-       if unique_formals then
+       if List.for_all ~f:add_formal method_def.Abssyn.method_formals then
          Exprchecker.typecheck
            ~ctx:
              {
@@ -108,8 +109,8 @@ let typecheck_method ~args ~cl_typ ~method_def ~feature =
 
 let typecheck_feature ~args ~cl_typ feature =
   match feature.Abssyn.elem with
-  | Abssyn.Field ((id, typ), init) ->
-      typecheck_field ~args ~cl_typ ~feature ~id ~typ ~init
+  | Abssyn.Field ((id, field_typ), init) ->
+      typecheck_field ~args ~cl_typ ~feature ~id ~field_typ ~init
   | Abssyn.Method method_def ->
       typecheck_method ~args ~cl_typ ~method_def ~feature
 
@@ -125,10 +126,10 @@ let validate_formal_types ~method_id formal parent_formal =
       T.print_id method_id T.print_type typ T.print_type parent_typ);
   types_match
 
-let validate_overridden_method ~method_def ~loc parent_method =
+let validate_overridden_method ~method_def ~loc ~overridden_method =
   let param_counts_match =
     List.compare_lengths method_def.Abssyn.method_formals
-      parent_method.Abssyn.method_formals
+      overridden_method.Abssyn.method_formals
     = 0
   in
   if not param_counts_match then (
@@ -137,7 +138,7 @@ let validate_overridden_method ~method_def ~loc parent_method =
       "Incompatible number of formal parameters in redefined method %a.\n"
       T.print_id method_def.method_id);
   let return_types_match =
-    method_def.method_ret_typ = parent_method.method_ret_typ
+    method_def.method_ret_typ = overridden_method.method_ret_typ
   in
   if not return_types_match then (
     Semantprint.print_location loc;
@@ -145,24 +146,24 @@ let validate_overridden_method ~method_def ~loc parent_method =
       "In redefined method %a, return type %a is different from original \
        return type %a.\n"
       T.print_id method_def.method_id T.print_type method_def.method_ret_typ
-      T.print_type parent_method.method_ret_typ);
+      T.print_type overridden_method.method_ret_typ);
   let formal_types_match =
     param_counts_match
     && List.for_all2
          ~f:(validate_formal_types ~method_id:method_def.method_id)
-         method_def.method_formals parent_method.method_formals
+         method_def.method_formals overridden_method.method_formals
   in
   param_counts_match && return_types_match && formal_types_match
 
 let extract_method ~func_env ~method_def ~loc =
-  let parent_method_opt =
+  let overridden_method_opt =
     Symtbl.find_opt func_env method_def.Abssyn.method_id
   in
-  let _, is_overridden =
-    Symtbl.add func_env ~key:method_def.method_id ~data:method_def
-  in
-  (not is_overridden)
-  || Option.get parent_method_opt |> validate_overridden_method ~method_def ~loc
+  Symtbl.add func_env ~key:method_def.method_id ~data:method_def |> ignore;
+  match overridden_method_opt with
+  | None -> true
+  | Some overridden_method ->
+      validate_overridden_method ~method_def ~loc ~overridden_method
 
 let extract_field ~id_env ~cl_typ ~loc ~id ~typ =
   let is_duplicate, is_shadowed = Symtbl.add id_env ~key:id ~data:typ in

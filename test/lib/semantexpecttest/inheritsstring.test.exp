@@ -1,2 +1,3 @@
-inheritsstring.test:9: Class B cannot inherit class String.
+File "inheritsstring.test": line 8, character 0 to line 9, character 2
+Class B cannot inherit class String.
 Compilation halted due to static semantic errors.
