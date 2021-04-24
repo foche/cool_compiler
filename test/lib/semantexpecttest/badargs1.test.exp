@@ -1,3 +1,3 @@
-File "badargs1.test": line 5, characters 12-33:
+File "badargs1.test": line 5, characters 13-34:
 In call of method foo, type SELF_TYPE of parameter b does not conform to declared type B.
 Compilation halted due to static semantic errors.

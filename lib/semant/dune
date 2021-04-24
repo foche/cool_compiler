@@ -2,4 +2,4 @@
  (name semant)
  (instrumentation
   (backend bisect_ppx))
- (libraries parser util))
+ (libraries parser util translator))

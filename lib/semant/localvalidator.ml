@@ -16,10 +16,12 @@ type validator_args = {
   typed_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
 }
 
-let check_field_init ~args ~feature ~cl_typ ~id ~field_typ ~typed_init =
+let check_field_init ~args ~feature ~cl_typ
+    ~field_def:({ Abssyn.field_var; _ } as field_def) ~typed_init =
   match typed_init.Abssyn.expr_typ with
   | None -> None
   | Some init_typ ->
+      let field_id, field_typ = field_var.Abssyn.elem in
       let is_valid_init_type =
         Types.is_subtype args.inherit_tree ~cl_typ ~sub_typ:init_typ
           ~super_typ:field_typ
@@ -28,18 +30,20 @@ let check_field_init ~args ~feature ~cl_typ ~id ~field_typ ~typed_init =
         Some
           {
             feature with
-            Abssyn.elem = Abssyn.Field ((id, field_typ), typed_init);
+            Abssyn.elem =
+              Abssyn.Field { field_def with field_init = typed_init };
           }
       else (
-        Semantprint.print_location feature.loc;
+        Semantprint.print_location typed_init.expr_loc;
         Printf.eprintf
           "Inferred type %a of initialization of attribute %a does not conform \
            to declared type %a.\n"
-          T.print_type init_typ T.print_id id T.print_type field_typ;
+          T.print_type init_typ T.print_id field_id T.print_type field_typ;
         None)
 
-let typecheck_field ~args ~cl_typ ~feature ~id ~field_typ ~init =
-  match init.Abssyn.expr_expr with
+let typecheck_field ~args ~cl_typ ~feature
+    ~field_def:({ Abssyn.field_init; _ } as field_def) =
+  match field_init.Abssyn.expr_expr with
   | NoExpr -> Some feature
   | _ ->
       let typed_init =
@@ -51,9 +55,9 @@ let typecheck_field ~args ~cl_typ ~feature ~id ~field_typ ~init =
               inherit_tree = args.inherit_tree;
               cl_typ;
             }
-          ~expr:init
+          ~expr:field_init
       in
-      check_field_init ~args ~feature ~cl_typ ~id ~field_typ ~typed_init
+      check_field_init ~args ~feature ~cl_typ ~field_def ~typed_init
 
 let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
   match typed_body.Abssyn.expr_typ with
@@ -71,7 +75,7 @@ let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
               Abssyn.Method { method_def with method_body = typed_body };
           }
       else (
-        Semantprint.print_location feature.loc;
+        Semantprint.print_location typed_body.expr_loc;
         Printf.eprintf
           "Inferred return type %a of method %a does not conform to declared \
            return type %a.\n"
@@ -79,14 +83,13 @@ let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
           method_def.method_ret_typ;
         None)
 
-let typecheck_method ~args ~cl_typ ~method_def ~feature =
+let typecheck_method ~args ~cl_typ ~feature ~method_def =
   let lazy_typecheck =
     lazy
-      (let add_formal formal =
-         let id, typ = formal.Abssyn.elem in
+      (let add_formal { Abssyn.elem = id, typ; loc } =
          let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
          if is_duplicate then (
-           Semantprint.print_location formal.loc;
+           Semantprint.print_location loc;
            Printf.eprintf "Formal parameter %a is multiply defined.\n"
              T.print_id id);
          not is_duplicate
@@ -109,10 +112,9 @@ let typecheck_method ~args ~cl_typ ~method_def ~feature =
 
 let typecheck_feature ~args ~cl_typ feature =
   match feature.Abssyn.elem with
-  | Abssyn.Field ((id, field_typ), init) ->
-      typecheck_field ~args ~cl_typ ~feature ~id ~field_typ ~init
+  | Abssyn.Field field_def -> typecheck_field ~args ~cl_typ ~feature ~field_def
   | Abssyn.Method method_def ->
-      typecheck_method ~args ~cl_typ ~method_def ~feature
+      typecheck_method ~args ~cl_typ ~feature ~method_def
 
 let validate_formal_types ~method_id formal parent_formal =
   let _, typ = formal.Abssyn.elem in
@@ -165,23 +167,27 @@ let extract_method ~func_env ~method_def ~loc =
   | Some overridden_method ->
       validate_overridden_method ~method_def ~loc ~overridden_method
 
-let extract_field ~id_env ~cl_typ ~loc ~id ~typ =
-  let is_duplicate, is_shadowed = Symtbl.add id_env ~key:id ~data:typ in
+let extract_field ~id_env ~cl_typ
+    ~field_var:{ Abssyn.elem = field_id, field_typ; loc } =
+  let is_duplicate, is_shadowed =
+    Symtbl.add id_env ~key:field_id ~data:field_typ
+  in
   if is_duplicate then (
     Semantprint.print_location loc;
     Printf.eprintf "Attribute %a is multiply defined in class %a.\n" T.print_id
-      id T.print_type cl_typ);
+      field_id T.print_type cl_typ);
   if is_shadowed then (
     Semantprint.print_location loc;
     Printf.eprintf "Attribute %a is an attribute of an inherited class.\n"
-      T.print_id id);
+      T.print_id field_id);
   (not is_duplicate) && not is_shadowed
 
 let extract_feature ~id_env ~func_env ~cl_typ feature =
-  let loc = feature.Abssyn.loc in
-  match feature.elem with
-  | Abssyn.Method method_def -> extract_method ~func_env ~method_def ~loc
-  | Abssyn.Field ((id, typ), _) -> extract_field ~id_env ~cl_typ ~loc ~id ~typ
+  match feature.Abssyn.elem with
+  | Abssyn.Method method_def ->
+      extract_method ~func_env ~method_def ~loc:feature.loc
+  | Abssyn.Field { Abssyn.field_var; _ } ->
+      extract_field ~id_env ~cl_typ ~field_var
 
 let typecheck_class ~args ~typ (cl : Abssyn.class_node) =
   let cl_typ = cl.elem.cl_typ in

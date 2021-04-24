@@ -1,4 +1,4 @@
-#9
+#1
 _program
   #1
   _class
@@ -15,7 +15,7 @@ _program
         0
       : Int
     )
-  #5
+  #3
   _class
     D
     Object
@@ -34,7 +34,7 @@ _program
         1
       : Int
     )
-  #9
+  #7
   _class
     E
     D

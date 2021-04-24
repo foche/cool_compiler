@@ -99,13 +99,8 @@ let parent :=
     { Tables.make_type typ }
 
 let feature :=
-| id = OBJECTID; COLON; typ = TYPEID; ~ = init; SEMI;
-    {
-        {
-            Abssyn.elem = Abssyn.Field (Ast.create_var_decl ~id ~typ, init);
-            loc = $loc;
-        }
-    }
+| field_var = var_decl; field_init = init; SEMI;
+    { { Abssyn.elem = Abssyn.Field { field_var; field_init }; loc = $loc; } }
 | id = OBJECTID; ~ = formals; COLON; ret_typ = TYPEID; LBRACE; method_body = expr; RBRACE; SEMI;
     {
         {
@@ -124,24 +119,16 @@ let init :=
 | ASSIGN; expr
 
 let formals :=
-| LPAREN; ~ = separated_list(COMMA, formal); RPAREN;
+| LPAREN; ~ = separated_list(COMMA, var_decl); RPAREN;
     <>
 
-let formal :=
+let var_decl :=
 | id = OBJECTID; COLON; typ = TYPEID;
-    {
-        {
-            Abssyn.elem = Ast.create_var_decl ~id ~typ;
-            loc = $loc;
-        }
-    }
+    { { Abssyn.elem = Ast.create_var_decl ~id ~typ; loc = $loc; } }
 
 let expr :=
 | id = OBJECTID; ASSIGN; ~ = expr;
-    {
-        Ast.create_expr ~expr:(Abssyn.Assign (Tables.make_id id, expr))
-        $loc
-    }
+    { Ast.create_expr ~expr:(Abssyn.Assign (Tables.make_id id, expr)) $loc }
 | method_id = OBJECTID; dyn_args = args;
     {
         Ast.create_expr ~expr:(
@@ -187,10 +174,7 @@ let expr :=
 | NEW; typ = TYPEID;
     { Ast.create_expr ~expr:(Abssyn.New (Tables.make_type typ)) $loc }
 | arith_e1 = expr; ~ = arith_op; arith_e2 = expr;
-    {
-        Ast.create_expr ~expr:(Abssyn.Arith {arith_op; arith_e1; arith_e2})
-        $loc
-    }
+    { Ast.create_expr ~expr:(Abssyn.Arith {arith_op; arith_e1; arith_e2}) $loc }
 | comp_e1 = expr; ~ = comp_op; comp_e2 = expr;
     { Ast.create_expr ~expr:(Abssyn.Comp {comp_op; comp_e1; comp_e2}) $loc }
 | e1 = expr; EQ; e2 = expr;
@@ -236,17 +220,12 @@ let unary_op ==
     { (fun e -> Abssyn.IsVoid e) }
 
 let binding :=
-| id = OBJECTID; COLON; typ = TYPEID; ~ = init;
-    { (Tables.make_id id, Tables.make_type typ, init, $loc) }
+| ~ = var_decl; ~ = init;
+    { (var_decl, init, $loc) }
 
 let branch :=
-| id = OBJECTID; COLON; typ = TYPEID; DARROW; body = expr; SEMI;
-    {
-        {
-            Abssyn.elem = (Ast.create_var_decl ~id ~typ, body);
-            loc = $loc;
-        }
-    }
+| branch_var = var_decl; DARROW; branch_body = expr; SEMI;
+    { { Abssyn.elem = { branch_var; branch_body }; loc = $loc; } }
 
 let args := LPAREN; ~ = separated_list(COMMA, expr); RPAREN;
     <>

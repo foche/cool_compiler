@@ -1,2 +1,3 @@
-inheritsbool.test:9: Class B cannot inherit class Bool.
+File "inheritsbool.test": line 8, character 1 to line 9, character 3
+Class B cannot inherit class Bool.
 Compilation halted due to static semantic errors.

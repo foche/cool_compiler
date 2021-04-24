@@ -1,2 +1,3 @@
-selfinformalparameter.test:5: 'self' cannot be the name of a formal parameter.
+File "selfinformalparameter.test": line 5, characters 7-18:
+'self' cannot be the name of a formal parameter.
 Compilation halted due to static semantic errors.

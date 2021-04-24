@@ -293,6 +293,16 @@
   (diff if.test.exp if.test.out)))
 
 (rule
+ (with-stderr-to
+  inheritsbool.test.out
+  (run ./semantexpecttest.exe %{dep:inheritsbool.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff inheritsbool.test.exp inheritsbool.test.out)))
+
+(rule
  (with-stdout-to
   inheritsObject.test.out
   (run ./semantexpecttest.exe %{dep:inheritsObject.test})))
@@ -353,6 +363,16 @@
   (diff isvoid.test.exp isvoid.test.out)))
 
 (rule
+ (with-stderr-to
+  letbadinit.test.out
+  (run ./semantexpecttest.exe %{dep:letbadinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letbadinit.test.exp letbadinit.test.out)))
+
+(rule
  (with-stdout-to
   letinit.test.out
   (run ./semantexpecttest.exe %{dep:letinit.test})))
@@ -371,6 +391,16 @@
  (alias runtest)
  (action
   (diff letnoinit.test.exp letnoinit.test.out)))
+
+(rule
+ (with-stderr-to
+  letself.test.out
+  (run ./semantexpecttest.exe %{dep:letself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letself.test.exp letself.test.out)))
 
 (rule
  (with-stdout-to
@@ -403,6 +433,16 @@
   (diff methodcallsitself.test.exp methodcallsitself.test.out)))
 
 (rule
+ (with-stderr-to
+  lubtest.test.out
+  (run ./semantexpecttest.exe %{dep:lubtest.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff lubtest.test.exp lubtest.test.out)))
+
+(rule
  (with-stdout-to
   methodcallsitself.test.out
   (run ./semantexpecttest.exe %{dep:methodcallsitself.test})))
@@ -423,6 +463,16 @@
   (diff methodnameclash.test.exp methodnameclash.test.out)))
 
 (rule
+ (with-stderr-to
+  missingclass.test.out
+  (run ./semantexpecttest.exe %{dep:missingclass.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff missingclass.test.exp missingclass.test.out)))
+
+(rule
  (with-stdout-to
   neg.test.out
   (run ./semantexpecttest.exe %{dep:neg.test})))
@@ -441,6 +491,178 @@
  (alias runtest)
  (action
   (diff newselftype.test.exp newselftype.test.out)))
+
+(rule
+ (with-stderr-to
+  nomain.test.out
+  (run ./semantexpecttest.exe %{dep:nomain.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nomain.test.exp nomain.test.out)))
+
+(rule
+ (with-stdout-to
+  objectdispatchabort.test.out
+  (run ./semantexpecttest.exe %{dep:objectdispatchabort.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff objectdispatchabort.test.exp objectdispatchabort.test.out)))
+
+(rule
+ (with-stderr-to
+  outofscope.test.out
+  (run ./semantexpecttest.exe %{dep:outofscope.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff outofscope.test.exp outofscope.test.out)))
+
+(rule
+ (with-stdout-to
+  overriderenamearg.test.out
+  (run ./semantexpecttest.exe %{dep:overriderenamearg.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff overriderenamearg.test.exp overriderenamearg.test.out)))
+
+(rule
+ (with-stdout-to
+  overridingmethod.test.out
+  (run ./semantexpecttest.exe %{dep:overridingmethod.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff overridingmethod.test.exp overridingmethod.test.out)))
+
+(rule
+ (with-stdout-to
+  overridingmethod2.test.out
+  (run ./semantexpecttest.exe %{dep:overridingmethod2.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff overridingmethod2.test.exp overridingmethod2.test.out)))
+
+(rule
+ (with-stdout-to
+  overridingmethod3.test.out
+  (run ./semantexpecttest.exe %{dep:overridingmethod3.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff overridingmethod3.test.exp overridingmethod3.test.out)))
+
+(rule
+ (with-stderr-to
+  overridingmethod4.test.out
+  (run ./semantexpecttest.exe %{dep:overridingmethod4.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff overridingmethod4.test.exp overridingmethod4.test.out)))
+
+(rule
+ (with-stderr-to
+  redefinedclass.test.out
+  (run ./semantexpecttest.exe %{dep:redefinedclass.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff redefinedclass.test.exp redefinedclass.test.out)))
+
+(rule
+ (with-stderr-to
+  redefinedobject.test.out
+  (run ./semantexpecttest.exe %{dep:redefinedobject.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff redefinedobject.test.exp redefinedobject.test.out)))
+
+(rule
+ (with-stderr-to
+  returntypenoexist.test.out
+  (run ./semantexpecttest.exe %{dep:returntypenoexist.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff returntypenoexist.test.exp returntypenoexist.test.out)))
+
+(rule
+ (with-stdout-to
+  scopes.test.out
+  (run ./semantexpecttest.exe %{dep:scopes.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff scopes.test.exp scopes.test.out)))
+
+(rule
+ (with-stderr-to
+  self-assignment.test.out
+  (run ./semantexpecttest.exe %{dep:self-assignment.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff self-assignment.test.exp self-assignment.test.out)))
+
+(rule
+ (with-stderr-to
+  selfinformalparameter.test.out
+  (run ./semantexpecttest.exe %{dep:selfinformalparameter.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff selfinformalparameter.test.exp selfinformalparameter.test.out)))
+
+(rule
+ (with-stderr-to
+  selftypebadreturn.test.out
+  (run ./semantexpecttest.exe %{dep:selftypebadreturn.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff selftypebadreturn.test.exp selftypebadreturn.test.out)))
+
+(rule
+ (with-stderr-to
+  selftypeparameterposition.test.out
+  (run ./semantexpecttest.exe %{dep:selftypeparameterposition.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   selftypeparameterposition.test.exp
+   selftypeparameterposition.test.out)))
+
+(rule
+ (with-stderr-to
+  selftyperedeclared.test.out
+  (run ./semantexpecttest.exe %{dep:selftyperedeclared.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff selftyperedeclared.test.exp selftyperedeclared.test.out)))
 
 (rule
  (with-stdout-to

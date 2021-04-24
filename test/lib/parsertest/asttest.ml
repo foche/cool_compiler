@@ -57,8 +57,12 @@ let%test "no_expr" =
   Ast.no_expr ~loc = { bool_const with Abssyn.expr_expr = Abssyn.NoExpr }
 
 let%test "replace_expr" =
-  Ast.replace_expr ~new_expr:Abssyn.NoExpr bool_const
-  = { bool_const with Abssyn.expr_expr = Abssyn.NoExpr }
+  Ast.replace_expr ~expr:bool_const ~new_expr:Abssyn.NoExpr ~typ:T.bool_type
+  = {
+      Abssyn.expr_expr = Abssyn.NoExpr;
+      expr_typ = Some T.bool_type;
+      expr_loc = loc;
+    }
 
 let%test "add_type" =
   Ast.add_type ~typ:T.bool_type bool_const
@@ -66,21 +70,24 @@ let%test "add_type" =
 
 let%test "create_let" =
   let bindings =
-    [ (y, T.bool_type, bool_const, loc); (x, T.int_type, int_const, loc2) ]
+    [
+      ({ Abssyn.elem = (y, T.bool_type); loc }, bool_const, loc);
+      ({ Abssyn.elem = (x, T.int_type); loc = loc2 }, int_const, loc2);
+    ]
   in
   Ast.create_let ~bindings ~body:var_expr
   = {
       Abssyn.expr_expr =
         Abssyn.Let
           {
-            let_var = (x, T.int_type);
+            let_var = { Abssyn.elem = (x, T.int_type); loc = loc2 };
             let_init = int_const;
             let_body =
               {
                 Abssyn.expr_expr =
                   Abssyn.Let
                     {
-                      let_var = (y, T.bool_type);
+                      let_var = { Abssyn.elem = (y, T.bool_type); loc };
                       let_init = bool_const;
                       let_body = var_expr;
                     };

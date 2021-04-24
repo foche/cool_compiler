@@ -1,2 +1,3 @@
-letself.test:3: 'self' cannot be bound in a 'let' expression.
+File "letself.test": line 3, characters 19-27:
+'self' cannot be bound in a 'let' expression.
 Compilation halted due to static semantic errors.

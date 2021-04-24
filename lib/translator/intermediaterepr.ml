@@ -6,7 +6,7 @@ type temp = int
 
 type var = Tables.id_sym * int
 
-type lvalue = Temp of temp | IVar of var | RetReg | SelfReg
+type reg = ITemp of temp | IVar of var | RetReg | SelfReg
 
 type const = IInt32Const of int32 | IStrConst of Tables.str_sym
 

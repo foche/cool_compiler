@@ -2,7 +2,7 @@
 
 open Util
 
-module type ObjLayout = sig
+module type Layout = sig
   type t
 
   type access
@@ -13,7 +13,7 @@ module type ObjLayout = sig
 
   val alloc_field : t -> Tables.id_sym -> size:int -> access
 
-  val alloc_method : t -> Tables.id_sym -> label:Temp.label -> access
+  val alloc_method : t -> Tables.id_sym -> label:Labeler.label -> access
 
   val access_field : t -> Tables.id_sym -> access
 end

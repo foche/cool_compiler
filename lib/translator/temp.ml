@@ -1,22 +1,14 @@
 (* temp.ml *)
 
-open Util
+type t = int ref
 
-type t = int
+type temp = int
 
-type label = Tables.id_sym
+let create _ = ref 0
 
-let temp_i = ref 0
-
-let label_i = ref 0
-
-let create_temp _ =
-  let i = !temp_i in
-  temp_i := i + 1;
+let fresh_temp temp =
+  let i = !temp in
+  temp := i + 1;
   i
 
-let create_label _ =
-  let i = !label_i in
-  let lab = Tables.make_id ("label" ^ string_of_int i) in
-  label_i := i + 1;
-  lab
+let print ppf = Format.fprintf ppf "$%d"

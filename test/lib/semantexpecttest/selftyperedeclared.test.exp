@@ -1,2 +1,3 @@
-selftyperedeclared.test:6: Redefinition of basic class SELF_TYPE.
+File "selftyperedeclared.test": line 3, character 1 to line 6, character 3
+Redefinition of basic class SELF_TYPE.
 Compilation halted due to static semantic errors.

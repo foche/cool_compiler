@@ -5,7 +5,7 @@ open Util
 
 type access = int
 
-type method_info = { offset : access; label : Temp.label }
+type method_info = { offset : access; label : Labeler.label }
 
 type t = {
   typ : Tables.type_sym;

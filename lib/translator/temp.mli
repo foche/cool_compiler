@@ -2,8 +2,10 @@
 
 type t
 
-type label
+type temp
 
-val create_temp : unit -> t
+val create : unit -> t
 
-val create_label : unit -> label
+val fresh_temp : t -> temp
+
+val print : Format.formatter -> temp -> unit

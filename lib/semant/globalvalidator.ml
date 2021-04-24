@@ -18,21 +18,21 @@ let main_method_exists = ref false
 
 let is_valid_type ~parents ~typ = typ = T.object_type || Hashtbl.mem parents typ
 
-let check_field_type ~parents ~id ~typ ~loc =
-  let is_valid_field_type = is_valid_type ~parents ~typ in
+let check_field_type ~parents
+    ~field_var:{ Abssyn.elem = field_id, field_typ; loc } =
+  let is_valid_field_type = is_valid_type ~parents ~typ:field_typ in
   if not is_valid_field_type then (
     Semantprint.print_location loc;
-    Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type typ
-      T.print_id id);
+    Printf.eprintf "Class %a of attribute %a is undefined.\n" T.print_type
+      field_typ T.print_id field_id);
   is_valid_field_type
 
-let check_formal ~parents formal =
-  let id, typ = formal.Abssyn.elem in
-  let is_valid_formal_type = is_valid_type ~parents ~typ in
+let check_formal ~parents { Abssyn.elem = formal_id, formal_typ; loc } =
+  let is_valid_formal_type = is_valid_type ~parents ~typ:formal_typ in
   if not is_valid_formal_type then (
-    Semantprint.print_location formal.loc;
+    Semantprint.print_location loc;
     Printf.eprintf "Class %a of formal parameter %a is undefined.\n"
-      T.print_type typ T.print_id id);
+      T.print_type formal_typ T.print_id formal_id);
   is_valid_formal_type
 
 let check_ret_type ~parents ~method_def ~loc =
@@ -54,20 +54,19 @@ let check_feature ~parents feature =
   let loc = feature.Abssyn.loc in
   match feature.elem with
   | Abssyn.Method method_def -> check_method ~parents ~method_def ~loc
-  | Abssyn.Field ((id, typ), _) -> check_field_type ~parents ~id ~typ ~loc
+  | Abssyn.Field { field_var; _ } -> check_field_type ~parents ~field_var
 
 let validate_feature_types ~parents (cl : Abssyn.class_node) =
   List.for_all ~f:(check_feature ~parents) cl.elem.cl_features
 
-let validate_formal_not_self formal =
-  let id, typ = formal.Abssyn.elem in
+let validate_formal_not_self { Abssyn.elem = id, typ; loc } =
   let is_valid_id = id <> T.self_var in
   if not is_valid_id then (
-    Semantprint.print_location formal.loc;
+    Semantprint.print_location loc;
     prerr_endline "'self' cannot be the name of a formal parameter.");
   let is_valid_type = typ <> T.self_type in
   if not is_valid_type then (
-    Semantprint.print_location formal.loc;
+    Semantprint.print_location loc;
     Printf.eprintf "Formal parameter %a cannot have type SELF_TYPE.\n"
       T.print_id id);
   is_valid_id && is_valid_type
@@ -100,8 +99,8 @@ let add_to_sigs sigs ~typ ~method_def ~loc =
     Printf.eprintf "Method %a is multiply defined.\n" T.print_id method_id);
   is_unique
 
-let validate_field_not_self ~loc ~id =
-  let is_valid_id = id <> T.self_var in
+let validate_field_not_self ~field_var:{ Abssyn.elem = field_id, _; loc } =
+  let is_valid_id = field_id <> T.self_var in
   if not is_valid_id then (
     Semantprint.print_location loc;
     prerr_endline "'self' cannot be the name of an attribute.");
@@ -117,7 +116,7 @@ let validate_feature ~args ~(cl : Abssyn.class_node) feature =
   let loc = feature.Abssyn.loc in
   let typ = cl.elem.cl_typ in
   match feature.elem with
-  | Abssyn.Field ((id, _), _) -> validate_field_not_self ~loc ~id
+  | Abssyn.Field { field_var; _ } -> validate_field_not_self ~field_var
   | Abssyn.Method method_def ->
       validate_method ~sigs:args.sigs ~method_def ~typ ~loc
 

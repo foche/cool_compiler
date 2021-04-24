@@ -1,6 +1,6 @@
-#12
+#1
 _program
-  #5
+  #1
   _class
     A
     Object
@@ -15,7 +15,7 @@ _program
         6
       : Int
     )
-  #10
+  #7
   _class
     B
     A

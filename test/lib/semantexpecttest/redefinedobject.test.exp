@@ -1,2 +1,3 @@
-redefinedobject.test:6: Redefinition of basic class Object.
+File "redefinedobject.test": line 3, character 1 to line 6, character 3
+Redefinition of basic class Object.
 Compilation halted due to static semantic errors.

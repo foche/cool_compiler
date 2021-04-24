@@ -9,6 +9,8 @@ open Parser
 open Semant
 open Translator
 
+(* let typechecker = *)
+
 let usage_msg =
   Printf.sprintf "Usage: %s [-lpPS] [-o out_file] file [files]" Sys.argv.(0)
 
@@ -45,7 +47,8 @@ let main _ =
     let program_opt =
       Parsedriver.parse !input_files |> Option.map Typecheck.typecheck
     in
-    Temp.create_temp () |> ignore;
+    let temp = Temp.create () |> Temp.fresh_temp in
+    Temp.print Format.std_formatter temp;
     match program_opt with None -> exit 1 | Some program -> program |> ignore
     (* let blocks = Instrselector.translate_program program in
        Irprint.print_ir blocks;

@@ -1,4 +1,4 @@
-#9
+#1
 _program
   #1
   _class
@@ -15,7 +15,7 @@ _program
         0
       : Int
     )
-  #5
+  #3
   _class
     A
     Object
@@ -30,7 +30,7 @@ _program
         self
       : SELF_TYPE
     )
-  #9
+  #7
   _class
     B
     A

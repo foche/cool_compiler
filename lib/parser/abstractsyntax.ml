@@ -2,13 +2,17 @@
 
 open Util
 
-type 'a with_pos = { elem : 'a; loc : Lexing.position * Lexing.position }
+type loc = Lexing.position * Lexing.position
+
+type 'a with_pos = { elem : 'a; loc : loc }
 
 type arith_op = Plus | Minus | Mult | Div
 
 type comp = Lt | Le
 
 type var_decl = Tables.id_sym * Tables.type_sym
+
+type var_node = var_decl with_pos
 
 type expr =
   | Assign of Tables.id_sym * expr_node
@@ -35,7 +39,7 @@ type expr =
 and expr_node = {
   expr_expr : expr;
   expr_typ : Tables.type_sym option;
-  expr_loc : Lexing.position * Lexing.position;
+  expr_loc : loc;
 }
 
 and cond_expr = {
@@ -47,7 +51,7 @@ and cond_expr = {
 and loop_expr = { loop_pred : expr_node; loop_body : expr_node }
 
 and let_expr = {
-  let_var : var_decl;
+  let_var : var_node;
   let_init : expr_node;
   let_body : expr_node;
 }
@@ -76,9 +80,11 @@ and static_dispatch_expr = {
   stat_label : Tables.id_sym option;
 }
 
-and branch_node = (var_decl * expr_node) with_pos
+and branch = { branch_var : var_node; branch_body : expr_node }
 
-type formal = var_decl with_pos
+and branch_node = branch with_pos
+
+type formal = var_node
 
 type method_def = {
   method_id : Tables.id_sym;
@@ -87,7 +93,9 @@ type method_def = {
   method_body : expr_node;
 }
 
-type feature = Method of method_def | Field of var_decl * expr_node
+type field_def = { field_var : var_node; field_init : expr_node }
+
+type feature = Method of method_def | Field of field_def
 
 type class_def = {
   cl_typ : Tables.type_sym;
