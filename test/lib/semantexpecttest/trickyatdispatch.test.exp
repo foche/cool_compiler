@@ -57,7 +57,7 @@ _program
       B
       #12
       _no_expr
-      : _no_type
+      : B
     #13
     _method
       winky

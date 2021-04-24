@@ -8,7 +8,7 @@ type access = int
 type method_info = { offset : access; label : Labeler.label }
 
 type t = {
-  typ : Tables.type_sym;
+  typ : Tables.typ_sym;
   field_offsets : (Tables.id_sym, access) Hashtbl.t;
   method_info : (Tables.id_sym, method_info) Hashtbl.t;
   curr_field_offset : access ref;

@@ -8,12 +8,12 @@ module Abssyn = Abstractsyntax
 module T = Tables
 
 type validator_args = {
-  id_env : (T.id_sym, T.type_sym) Symtbl.t;
+  id_env : (T.id_sym, T.typ_sym) Symtbl.t;
   func_env : (T.id_sym, Abssyn.method_def) Symtbl.t;
-  inherit_tree : T.type_sym Tree.t;
+  inherit_tree : T.typ_sym Tree.t;
   sigs : Methodtbl.t;
-  untyped_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
-  typed_classes : (T.type_sym, Abssyn.class_node) Hashtbl.t;
+  untyped_classes : (T.typ_sym, Abssyn.class_node) Hashtbl.t;
+  typed_classes : (T.typ_sym, Abssyn.class_node) Hashtbl.t;
 }
 
 let check_field_init ~args ~feature ~cl_typ
@@ -34,30 +34,27 @@ let check_field_init ~args ~feature ~cl_typ
               Abssyn.Field { field_def with field_init = typed_init };
           }
       else (
-        Semantprint.print_location typed_init.expr_loc;
-        Printf.eprintf
+        Semantprint.print_error ~loc:typed_init.expr_loc
           "Inferred type %a of initialization of attribute %a does not conform \
-           to declared type %a.\n"
+           to declared type %a."
           T.print_type init_typ T.print_id field_id T.print_type field_typ;
         None)
 
 let typecheck_field ~args ~cl_typ ~feature
-    ~field_def:({ Abssyn.field_init; _ } as field_def) =
-  match field_init.Abssyn.expr_expr with
-  | NoExpr -> Some feature
-  | _ ->
-      let typed_init =
-        Exprchecker.typecheck
-          ~ctx:
-            {
-              id_env = args.id_env;
-              sigs = args.sigs;
-              inherit_tree = args.inherit_tree;
-              cl_typ;
-            }
-          ~expr:field_init
-      in
-      check_field_init ~args ~feature ~cl_typ ~field_def ~typed_init
+    ~field_def:({ Abssyn.field_var; field_init } as field_def) =
+  let _, field_typ = field_var.elem in
+  let typed_init =
+    Exprchecker.typecheck ~super_typ:field_typ
+      ~ctx:
+        {
+          id_env = args.id_env;
+          sigs = args.sigs;
+          inherit_tree = args.inherit_tree;
+          cl_typ;
+        }
+      field_init
+  in
+  check_field_init ~args ~feature ~cl_typ ~field_def ~typed_init
 
 let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
   match typed_body.Abssyn.expr_typ with
@@ -75,10 +72,9 @@ let check_method_body ~inherit_tree ~cl_typ ~feature ~method_def ~typed_body =
               Abssyn.Method { method_def with method_body = typed_body };
           }
       else (
-        Semantprint.print_location typed_body.expr_loc;
-        Printf.eprintf
+        Semantprint.print_error ~loc:typed_body.expr_loc
           "Inferred return type %a of method %a does not conform to declared \
-           return type %a.\n"
+           return type %a."
           T.print_type body_typ T.print_id method_def.method_id T.print_type
           method_def.method_ret_typ;
         None)
@@ -88,10 +84,9 @@ let typecheck_method ~args ~cl_typ ~feature ~method_def =
     lazy
       (let add_formal { Abssyn.elem = id, typ; loc } =
          let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
-         if is_duplicate then (
-           Semantprint.print_location loc;
-           Printf.eprintf "Formal parameter %a is multiply defined.\n"
-             T.print_id id);
+         if is_duplicate then
+           Semantprint.print_error ~loc
+             "Formal parameter %a is multiply defined." T.print_id id;
          not is_duplicate
        in
        if List.for_all ~f:add_formal method_def.Abssyn.method_formals then
@@ -103,7 +98,7 @@ let typecheck_method ~args ~cl_typ ~feature ~method_def =
                inherit_tree = args.inherit_tree;
                cl_typ;
              }
-           ~expr:method_def.method_body
+           method_def.method_body
        else method_def.method_body)
   in
   let typed_body = Symtbl.enter_scope args.id_env ~cont:lazy_typecheck in
@@ -120,12 +115,11 @@ let validate_formal_types ~method_id formal parent_formal =
   let _, typ = formal.Abssyn.elem in
   let _, parent_typ = parent_formal.Abssyn.elem in
   let types_match = typ = parent_typ in
-  if not types_match then (
-    Semantprint.print_location formal.loc;
-    Printf.eprintf
+  if not types_match then
+    Semantprint.print_error ~loc:formal.loc
       "In redefined method %a, parameter type %a is different from original \
-       type %a.\n"
-      T.print_id method_id T.print_type typ T.print_type parent_typ);
+       type %a."
+      T.print_id method_id T.print_type typ T.print_type parent_typ;
   types_match
 
 let validate_overridden_method ~method_def ~loc ~overridden_method =
@@ -134,21 +128,19 @@ let validate_overridden_method ~method_def ~loc ~overridden_method =
       overridden_method.Abssyn.method_formals
     = 0
   in
-  if not param_counts_match then (
-    Semantprint.print_location loc;
-    Printf.eprintf
-      "Incompatible number of formal parameters in redefined method %a.\n"
-      T.print_id method_def.method_id);
+  if not param_counts_match then
+    Semantprint.print_error ~loc
+      "Incompatible number of formal parameters in redefined method %a."
+      T.print_id method_def.method_id;
   let return_types_match =
     method_def.method_ret_typ = overridden_method.method_ret_typ
   in
-  if not return_types_match then (
-    Semantprint.print_location loc;
-    Printf.eprintf
+  if not return_types_match then
+    Semantprint.print_error ~loc
       "In redefined method %a, return type %a is different from original \
-       return type %a.\n"
+       return type %a."
       T.print_id method_def.method_id T.print_type method_def.method_ret_typ
-      T.print_type overridden_method.method_ret_typ);
+      T.print_type overridden_method.method_ret_typ;
   let formal_types_match =
     param_counts_match
     && List.for_all2
@@ -172,14 +164,12 @@ let extract_field ~id_env ~cl_typ
   let is_duplicate, is_shadowed =
     Symtbl.add id_env ~key:field_id ~data:field_typ
   in
-  if is_duplicate then (
-    Semantprint.print_location loc;
-    Printf.eprintf "Attribute %a is multiply defined in class %a.\n" T.print_id
-      field_id T.print_type cl_typ);
-  if is_shadowed then (
-    Semantprint.print_location loc;
-    Printf.eprintf "Attribute %a is an attribute of an inherited class.\n"
-      T.print_id field_id);
+  if is_duplicate then
+    Semantprint.print_error ~loc "Attribute %a is multiply defined in class %a."
+      T.print_id field_id T.print_type cl_typ;
+  if is_shadowed then
+    Semantprint.print_error ~loc
+      "Attribute %a is an attribute of an inherited class." T.print_id field_id;
   (not is_duplicate) && not is_shadowed
 
 let extract_feature ~id_env ~func_env ~cl_typ feature =

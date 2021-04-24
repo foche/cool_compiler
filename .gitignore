@@ -23,6 +23,9 @@ _coverage
 semanttest
 *.sh
 *.bak
+*.data
+*.dump
+*.old
 
 # ocamlbuild working directory
 _build/

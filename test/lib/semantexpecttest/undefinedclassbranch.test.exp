@@ -1,0 +1,3 @@
+File "undefinedclassbranch.test": line 6, characters 7-18:
+[31mError:[0m Class B of case branch is undefined.
+Compilation halted due to static semantic errors.

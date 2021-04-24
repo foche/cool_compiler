@@ -12,7 +12,7 @@ _program
       String
       #6
       _no_expr
-      : _no_type
+      : String
     #8
     _method
       init
@@ -389,7 +389,7 @@ _program
         Int
         #61
         _no_expr
-        : _no_type
+        : Int
         #62
         _let
           num
@@ -410,7 +410,7 @@ _program
             String
             #63
             _no_expr
-            : _no_type
+            : String
             #64
             _block
               #65
@@ -502,7 +502,7 @@ _program
       CellularAutomaton
       #79
       _no_expr
-      : _no_type
+      : CellularAutomaton
     #81
     _method
       main

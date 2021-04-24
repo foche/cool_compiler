@@ -1,3 +1,3 @@
 File "cycleinclasses.test": line 3, characters 1-23:
-Class A, or an ancestor of A, is involved in an inheritance cycle.
+[31mError:[0m Class A, or an ancestor of A, is involved in an inheritance cycle.
 Compilation halted due to static semantic errors.

@@ -5,13 +5,13 @@ open Parser
 open Util
 
 type method_sig = {
-  ret_typ : Tables.type_sym;
+  ret_typ : Tables.typ_sym;
   formals : Abstractsyntax.var_decl list;
-  impl_class : Tables.type_sym;
+  impl_class : Tables.typ_sym;
   label : Tables.id_sym;
 }
 
-type t = (Tables.type_sym * Tables.id_sym, method_sig) Hashtbl.t
+type t = (Tables.typ_sym * Tables.id_sym, method_sig) Hashtbl.t
 
 let create = Hashtbl.create ~random:false
 

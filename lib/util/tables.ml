@@ -1,24 +1,35 @@
 (* tables.ml *)
 
 open StdLabels
-open MoreLabels
+
+(* open MoreLabels *)
 module Hutil = Hashtblutil
 
-type id_sym = Strtbl.handle
+type cool_id
 
-type type_sym = Strtbl.handle
+type cool_typ
 
-type str_sym = Strtbl.handle
+type cool_str
 
-type int_sym = Strtbl.handle
+type cool_int
 
-let id_tbl = Strtbl.create 257
+type id_sym = cool_id Strtbl.handle
 
-let type_tbl = Strtbl.create 61
+type typ_sym = cool_typ Strtbl.handle
 
-let str_const_tbl = Strtbl.create 131
+type str_sym = cool_str Strtbl.handle
 
-let int_const_tbl = Strtbl.create 61
+type int_sym = cool_int Strtbl.handle
+
+type arg = id_sym * typ_sym
+
+let id_tbl : (string, cool_id) Strtbl.t = Strtbl.create 257
+
+let type_tbl : (string, cool_typ) Strtbl.t = Strtbl.create 61
+
+let str_const_tbl : (string, cool_str) Strtbl.t = Strtbl.create 131
+
+let int_const_tbl : (string, cool_int) Strtbl.t = Strtbl.create 61
 
 let make_id id = Strtbl.add id_tbl id
 
@@ -36,21 +47,13 @@ let find_str = Strtbl.find str_const_tbl
 
 let find_int = Strtbl.find int_const_tbl
 
-let print_id out id = find_id id |> Printf.fprintf out "%s"
+let print_id ppf id = find_id id |> Format.fprintf ppf "%s"
 
-let print_type out typ = find_type typ |> Printf.fprintf out "%s"
+let print_type ppf typ = find_type typ |> Format.fprintf ppf "%s"
 
-let print_str out s = find_str s |> Printf.fprintf out "%s"
+let print_str ppf s = find_str s |> Format.fprintf ppf "%s"
 
-let print_int out x = find_int x |> Printf.fprintf out "%s"
-
-let method_label typ method_id =
-  Printf.sprintf "%s.%s" (find_type typ) (find_id method_id) |> make_id
-
-let clinit_label typ = find_type typ |> Printf.sprintf "%s_init" |> make_id
-
-let prototype_label typ =
-  find_type typ |> Printf.sprintf "%s_protObj" |> make_id
+let print_int ppf x = find_int x |> Format.fprintf ppf "%s"
 
 let empty_str = make_str ""
 
@@ -110,7 +113,7 @@ let basic_methods =
   ]
 
 let reserved_classes =
-  Hutil.init 17
+  Hutil.init
     [
       (object_type, ());
       (io_type, ());
@@ -121,21 +124,31 @@ let reserved_classes =
     ]
 
 let inheritance_blocklist =
-  Hutil.init 11
+  Hutil.init
     [ (int_type, ()); (string_type, ()); (bool_type, ()); (self_type, ()) ]
 
 let primitives = [ int_type; string_type; bool_type ]
 
+let id_count _ = Strtbl.length id_tbl
+
 let basic_classes = io_type :: self_type :: primitives
 
-let create_basic_labels _ =
+let method_label typ method_id =
+  Printf.sprintf "%s.%s" (find_type typ) (find_id method_id) |> make_id
+
+(* let clinit_label typ = find_type typ |> Printf.sprintf "%s_init" |> make_id *)
+
+(* let prototype_label typ =
+  find_type typ |> Printf.sprintf "%s_protObj" |> make_id *)
+
+(* let create_basic_labels _ =
   let tbl = Hashtbl.create 32 in
   List.iter
     ~f:(fun (typ, method_id, _, _) ->
       Hashtbl.add tbl ~key:(typ, method_id) ~data:(method_label typ method_id))
     basic_methods;
-  tbl
+  tbl *)
 
-let basic_method_labels = create_basic_labels ()
+(* let basic_method_labels = create_basic_labels () *)
 
 let is_primitive = List.mem ~set:primitives

@@ -144,6 +144,26 @@
 
 (rule
  (with-stderr-to
+  badnegatetype.test.out
+  (run ./semantexpecttest.exe %{dep:badnegatetype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badnegatetype.test.exp badnegatetype.test.out)))
+
+(rule
+ (with-stderr-to
+  badnottype.test.out
+  (run ./semantexpecttest.exe %{dep:badnottype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badnottype.test.exp badnottype.test.out)))
+
+(rule
+ (with-stderr-to
   badoverridereturntype.test.out
   (run ./semantexpecttest.exe %{dep:badoverridereturntype.test})))
 
@@ -211,6 +231,26 @@
  (alias runtest)
  (action
   (diff basicclassestree.test.exp basicclassestree.test.out)))
+
+(rule
+ (with-stderr-to
+  branchselfvar.test.out
+  (run ./semantexpecttest.exe %{dep:branchselfvar.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff branchselfvar.test.exp branchselfvar.test.out)))
+
+(rule
+ (with-stderr-to
+  branchselftype.test.out
+  (run ./semantexpecttest.exe %{dep:branchselftype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff branchselftype.test.exp branchselftype.test.out)))
 
 (rule
  (with-stderr-to
@@ -291,6 +331,16 @@
  (alias runtest)
  (action
   (diff dispatch.test.exp dispatch.test.out)))
+
+(rule
+ (with-stderr-to
+  dispatchwrongargs.test.out
+  (run ./semantexpecttest.exe %{dep:dispatchwrongargs.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff dispatchwrongargs.test.exp dispatchwrongargs.test.out)))
 
 (rule
  (with-stderr-to
@@ -856,6 +906,28 @@
 
 (rule
  (with-stderr-to
+  undefinedclassbranch.test.out
+  (run ./semantexpecttest.exe %{dep:undefinedclassbranch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undefinedclassbranch.test.exp undefinedclassbranch.test.out)))
+
+(rule
+ (with-stderr-to
+  undefinedclassstaticdispatch.test.out
+  (run ./semantexpecttest.exe %{dep:undefinedclassstaticdispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   undefinedclassstaticdispatch.test.exp
+   undefinedclassstaticdispatch.test.out)))
+
+(rule
+ (with-stderr-to
   undefinedformalclass.test.out
   (run ./semantexpecttest.exe %{dep:undefinedformalclass.test})))
 
@@ -863,6 +935,16 @@
  (alias runtest)
  (action
   (diff undefinedformalclass.test.exp undefinedformalclass.test.out)))
+
+(rule
+ (with-stderr-to
+  undefinedlettype.test.out
+  (run ./semantexpecttest.exe %{dep:undefinedlettype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undefinedlettype.test.exp undefinedlettype.test.out)))
 
 (rule
  (with-stderr-to

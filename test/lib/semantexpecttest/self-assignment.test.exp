@@ -1,3 +1,3 @@
 File "self-assignment.test": line 5, characters 17-36:
-Cannot assign to 'self'.
+[31mError:[0m Cannot assign to 'self'.
 Compilation halted due to static semantic errors.

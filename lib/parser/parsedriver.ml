@@ -36,17 +36,17 @@ let internal_parse filenames =
     List.rev_map ~f:(Option.value ~default:[]) programs |> List.concat
   in
   let all_empty = List.compare_length_with filenames ~len:empty_count = 0 in
-  match (all_empty, cls) with
-  | true, _ ->
-      List.hd filenames |> Astprint.print_eof_error;
-      None
-  | false, [] -> None
-  | false, cl :: _ -> Some { Abssyn.elem = cls; loc = cl.Abssyn.loc }
+  if all_empty then (
+    List.hd filenames |> Astprint.print_eof_error;
+    None)
+  else
+    match cls with
+    | [] -> None
+    | cl :: _ -> Some { Abssyn.elem = cls; loc = cl.Abssyn.loc }
 
 let parse filenames =
   let program_opt = internal_parse filenames in
-  (match (program_opt, !parser_verbose) with
-  | None, _ -> Astprint.print_syntax_error ()
-  | Some program, true -> Astprint.print_ast program
-  | Some _, false -> ());
+  (match program_opt with
+  | None -> Astprint.print_syntax_error ()
+  | Some program -> if !parser_verbose then Astprint.print_ast program);
   program_opt

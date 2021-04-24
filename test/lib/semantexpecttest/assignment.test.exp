@@ -12,21 +12,21 @@ _program
       Int
       #2
       _no_expr
-      : _no_type
+      : Int
     #3
     _attr
       y
       String
       #3
       _no_expr
-      : _no_type
+      : String
     #4
     _attr
       f
       Foo
       #4
       _no_expr
-      : _no_type
+      : Foo
     #5
     _method
       main

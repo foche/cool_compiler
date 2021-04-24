@@ -2,9 +2,10 @@
 
 open MoreLabels
 
-type handle = int
+type 'a handle = int
 
-type 'a t = (handle, 'a) Hashtbl.t * ('a, handle) Hashtbl.t * handle ref
+type ('a, 'b) t =
+  ('b handle, 'a) Hashtbl.t * ('a, 'b handle) Hashtbl.t * 'b handle ref
 
 let create n = (Hashtbl.create n, Hashtbl.create n, ref 0)
 

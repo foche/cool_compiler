@@ -39,7 +39,7 @@ let init_parents class_count =
   parents
 
 let internal_typecheck program =
-  let id_count = Strtbl.length Tables.id_tbl in
+  let id_count = Tables.id_count () in
   let class_count = List.length program.Abssyn.elem in
   let id_env = Symtbl.create ((id_count * 2) - 1) in
   let func_env = Symtbl.create ((id_count * 2) - 1) in
@@ -51,8 +51,10 @@ let internal_typecheck program =
     Globalvalidator.validate ~args:{ program; handle_to_class; parents; sigs }
   in
   let is_valid =
-    match (is_global_valid, tree_opt) with
-    | true, Some inherit_tree ->
+    is_global_valid
+    &&
+    match tree_opt with
+    | Some inherit_tree ->
         Localvalidator.validate
           ~args:
             {
@@ -63,7 +65,7 @@ let internal_typecheck program =
               untyped_classes = handle_to_class;
               typed_classes;
             }
-    | _ -> false
+    | None -> false
   in
   let replace_class (cl : Abssyn.class_node) =
     Hashtbl.find typed_classes cl.elem.cl_typ
@@ -75,9 +77,9 @@ let internal_typecheck program =
 
 let typecheck program =
   let program_opt = internal_typecheck program in
-  (match (program_opt, !semant_verbose) with
-  | None, _ -> Semantprint.print_typecheck_error ()
-  | Some typed_program, true -> Astprint.print_ast typed_program
-  | Some _, false -> ());
+  (match program_opt with
+  | None -> Semantprint.print_typecheck_error ()
+  | Some typed_program ->
+      if !semant_verbose then Astprint.print_ast typed_program);
   program_opt
 (* end *)

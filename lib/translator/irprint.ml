@@ -1,4 +1,4 @@
-(* irprint.ml *)
+(* irprint.ml
 
 open Intermediaterepr
 open Util
@@ -89,4 +89,4 @@ let print_block _ block =
   List.iter print_stmt block;
   print_endline ""
 
-let print_ir blocks = Hashtbl.iter print_block blocks
+let print_ir blocks = Hashtbl.iter print_block blocks *)

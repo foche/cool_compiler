@@ -41,14 +41,14 @@ _program
       A
       #6
       _no_expr
-      : _no_type
+      : A
     #7
     _attr
       b
       B
       #7
       _no_expr
-      : _no_type
+      : B
     #9
     _method
       compare

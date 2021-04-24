@@ -36,7 +36,7 @@ let cl_g = T.make_type "G"
         G
  *)
 let create_tree_parents _ =
-  Hashtblutil.init 31
+  Hashtblutil.init
     [
       (T.int_type, root);
       (T.io_type, root);

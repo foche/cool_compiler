@@ -2,6 +2,10 @@ class Main { main() : Int {0 }; };
 
 class A {
   x:String;
-  foo(x:Int) : Object {isvoid while x loop 0 pool + 3 = 6};
+  foo(x:Int) : Object {
+    case x of
+      y : Int => isvoid while x loop 0 pool + 3 = 6;
+    esac
+  };
 };
 

@@ -12,7 +12,7 @@ _program
       Int
       #3
       _no_expr
-      : _no_type
+      : Int
     #5
     _method
       main
@@ -34,7 +34,7 @@ _program
       Int
       #13
       _no_expr
-      : _no_type
+      : Int
     )
   #17
   _class

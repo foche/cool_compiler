@@ -27,7 +27,7 @@ _program
       Object
       #4
       _no_expr
-      : _no_type
+      : Object
     #5
     _method
       boo

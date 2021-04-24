@@ -13,15 +13,13 @@ let dump_string n s =
   print_endline s
 
 let dump_string_escaped n handle =
-  Strtbl.find Tables.str_const_tbl handle
-  |> Printf.sprintf "%S" |> dump_string n
+  Tables.find_str handle |> Printf.sprintf "%S" |> dump_string n
 
-let print_id n handle = Strtbl.find Tables.id_tbl handle |> dump_string n
+let print_id n handle = Tables.find_id handle |> dump_string n
 
-let print_type n handle = Strtbl.find Tables.type_tbl handle |> dump_string n
+let print_type n handle = Tables.find_type handle |> dump_string n
 
-let print_int_const n handle =
-  Strtbl.find Tables.int_const_tbl handle |> dump_string n
+let print_int_const n handle = Tables.find_int handle |> dump_string n
 
 let print_header n (loc, _) name =
   Printf.sprintf "#%d" loc.Lexing.pos_lnum |> dump_string n;

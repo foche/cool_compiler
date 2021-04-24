@@ -95,14 +95,14 @@ _program
       Int
       #72
       _no_expr
-      : _no_type
+      : Int
     #74
     _attr
       cdr
       List
       #74
       _no_expr
-      : _no_type
+      : List
     #76
     _method
       isNil
@@ -175,7 +175,7 @@ _program
       List
       #102
       _no_expr
-      : _no_type
+      : List
     #107
     _method
       print_list

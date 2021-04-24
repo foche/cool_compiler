@@ -4,11 +4,14 @@ open Parser
 open Util
 
 type context = {
-  id_env : (Tables.id_sym, Tables.type_sym) Symtbl.t;
+  id_env : (Tables.id_sym, Tables.typ_sym) Symtbl.t;
   sigs : Methodtbl.t;
-  inherit_tree : Tables.type_sym Tree.t;
-  cl_typ : Tables.type_sym;
+  inherit_tree : Tables.typ_sym Tree.t;
+  cl_typ : Tables.typ_sym;
 }
 
 val typecheck :
-  ctx:context -> expr:Abstractsyntax.expr_node -> Abstractsyntax.expr_node
+  ?super_typ:Tables.typ_sym ->
+  ctx:context ->
+  Abstractsyntax.expr_node ->
+  Abstractsyntax.expr_node

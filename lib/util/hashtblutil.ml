@@ -3,8 +3,8 @@
 open StdLabels
 open MoreLabels
 
-let init n kv_pairs =
-  let tbl = Hashtbl.create n in
+let init kv_pairs =
+  let tbl = (List.length kv_pairs * 2) - 1 |> Hashtbl.create in
   List.iter ~f:(fun (key, data) -> Hashtbl.add tbl ~key ~data) kv_pairs;
   tbl
 

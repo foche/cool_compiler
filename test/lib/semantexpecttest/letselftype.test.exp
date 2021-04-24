@@ -22,7 +22,7 @@ _program
             SELF_TYPE
             #4
             _no_expr
-            : _no_type
+            : SELF_TYPE
             #4
             _object
               x

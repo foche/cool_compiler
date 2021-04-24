@@ -27,7 +27,7 @@ _program
       Int
       #4
       _no_expr
-      : _no_type
+      : Int
     #6
     _method
       f
@@ -74,7 +74,7 @@ _program
             Bool
             #8
             _no_expr
-            : _no_type
+            : Bool
             #8
             _dispatch
               #8

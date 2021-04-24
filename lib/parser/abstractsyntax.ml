@@ -10,7 +10,7 @@ type arith_op = Plus | Minus | Mult | Div
 
 type comp = Lt | Le
 
-type var_decl = Tables.id_sym * Tables.type_sym
+type var_decl = Tables.id_sym * Tables.typ_sym
 
 type var_node = var_decl with_pos
 
@@ -23,7 +23,7 @@ type expr =
   | Block of expr_node list * expr_node
   | Let of let_expr
   | Case of case_expr
-  | New of Tables.type_sym
+  | New of Tables.typ_sym
   | IsVoid of expr_node
   | Arith of arith_expr
   | Neg of expr_node
@@ -38,7 +38,7 @@ type expr =
 
 and expr_node = {
   expr_expr : expr;
-  expr_typ : Tables.type_sym option;
+  expr_typ : Tables.typ_sym option;
   expr_loc : loc;
 }
 
@@ -74,7 +74,7 @@ and dynamic_dispatch_expr = {
 
 and static_dispatch_expr = {
   stat_recv : expr_node;
-  stat_target_typ : Tables.type_sym;
+  stat_target_typ : Tables.typ_sym;
   stat_method_id : Tables.id_sym;
   stat_args : expr_node list;
   stat_label : Tables.id_sym option;
@@ -89,7 +89,7 @@ type formal = var_node
 type method_def = {
   method_id : Tables.id_sym;
   method_formals : formal list;
-  method_ret_typ : Tables.type_sym;
+  method_ret_typ : Tables.typ_sym;
   method_body : expr_node;
 }
 
@@ -98,8 +98,8 @@ type field_def = { field_var : var_node; field_init : expr_node }
 type feature = Method of method_def | Field of field_def
 
 type class_def = {
-  cl_typ : Tables.type_sym;
-  cl_parent : Tables.type_sym;
+  cl_typ : Tables.typ_sym;
+  cl_parent : Tables.typ_sym;
   cl_features : feature with_pos list;
 }
 

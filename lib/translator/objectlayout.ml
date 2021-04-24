@@ -7,9 +7,9 @@ module type Layout = sig
 
   type access
 
-  val create : typ:Tables.type_sym -> t
+  val create : typ:Tables.typ_sym -> t
 
-  val copy : t -> typ:Tables.type_sym -> t
+  val copy : t -> typ:Tables.typ_sym -> t
 
   val alloc_field : t -> Tables.id_sym -> size:int -> access
 

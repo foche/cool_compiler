@@ -22,7 +22,7 @@ let cl_foo = Tables.make_type "Foo"
 let%test "Cycle" =
   let parents = Tutil.create_tree_parents () in
   let cycle =
-    Hutil.init 17 [ (cl_h, cl_i); (cl_i, cl_j); (cl_j, cl_k); (cl_k, cl_h) ]
+    Hutil.init [ (cl_h, cl_i); (cl_i, cl_j); (cl_j, cl_k); (cl_k, cl_h) ]
   in
   Hutil.add_all parents cycle;
   match Tree.create ~parents ~root:Tutil.root with
@@ -32,7 +32,7 @@ let%test "Cycle" =
 let%test "Disconnected" =
   let parents = Tutil.create_tree_parents () in
   let disconnected =
-    Hutil.init 17 [ (cl_h, cl_i); (cl_i, cl_j); (cl_j, cl_k); (cl_k, cl_l) ]
+    Hutil.init [ (cl_h, cl_i); (cl_i, cl_j); (cl_j, cl_k); (cl_k, cl_l) ]
   in
   Hutil.add_all parents disconnected;
   match Tree.create ~parents ~root:Tutil.root with

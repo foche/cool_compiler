@@ -12,7 +12,7 @@ _program
       Int
       #3
       _no_expr
-      : _no_type
+      : Int
     )
   #7
   _class
@@ -26,7 +26,7 @@ _program
       Int
       #9
       _no_expr
-      : _no_type
+      : Int
     )
   #12
   _class

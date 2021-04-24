@@ -1,0 +1,7 @@
+class Main {
+  main() : Object { 0 };
+};
+
+class A {
+  foo() : Object { let x : B in 4 };
+};

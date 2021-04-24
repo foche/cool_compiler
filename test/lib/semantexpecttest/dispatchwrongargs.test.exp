@@ -1,0 +1,5 @@
+File "dispatchwrongargs.test": line 12, characters 7-18:
+[31mError:[0m Method foo called with wrong number of arguments.
+File "dispatchwrongargs.test": line 13, characters 7-14:
+[31mError:[0m Method bar called with wrong number of arguments.
+Compilation halted due to static semantic errors.

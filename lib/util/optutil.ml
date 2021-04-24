@@ -2,8 +2,12 @@
 
 open StdLabels
 
-let map2 ~f x y =
-  match (x, y) with Some x', Some y' -> Some (f x' y') | _ -> None
+let fold2 ~none ~some x y =
+  match (x, y) with
+  | Some x', Some y' -> some x' y'
+  | Some _, None | None, Some _ | None, None -> none
+
+let map2 ~f x y = fold2 ~none:None ~some:(fun x' y' -> Some (f x' y')) x y
 
 let singleton x_opt = Option.map (fun x -> [ x ]) x_opt
 

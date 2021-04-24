@@ -16,7 +16,7 @@ _program
         A
         #3
         _no_expr
-        : _no_type
+        : A
         #3
         _block
           #4

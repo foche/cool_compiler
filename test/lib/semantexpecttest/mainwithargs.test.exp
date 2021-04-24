@@ -1,3 +1,3 @@
 File "mainwithargs.test": line 1, characters 14-40:
-'main' method in class Main should have no arguments.
+[31mError:[0m 'main' method in class Main should have no arguments.
 Compilation halted due to static semantic errors.

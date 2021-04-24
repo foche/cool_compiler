@@ -1,0 +1,16 @@
+class A {
+  foo() : Int { 0 };
+
+  bar(x : Int) : Int { x };
+};
+
+class Main {
+  x : A <- new A;
+
+  main() : Int {
+    {
+      x.foo(self);
+      x.bar();
+    }
+  };
+};

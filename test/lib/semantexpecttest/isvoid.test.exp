@@ -12,7 +12,7 @@ _program
       Bool
       #2
       _no_expr
-      : _no_type
+      : Bool
     #3
     _method
       main

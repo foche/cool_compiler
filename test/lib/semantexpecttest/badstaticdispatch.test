@@ -8,7 +8,7 @@ class A {
 class C inherits B { bar(): Object {10}; };
 
 class B inherits A {
-  foo(x:Int): Object {self@C.bar()};
+  foo(x:Int): Object { foo(self@C.bar()) };
 };
 
 
