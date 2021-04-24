@@ -1,23 +1,23 @@
-#19
+#1
 _program
-  #9
+  #1
   _class
     A
     Object
     "subtypemethodreturn.test"
     (
-    #7
+    #2
     _method
       foo
       A
-      #7
+      #3
       _let
         x
         A
         #3
         _no_expr
         : _no_type
-        #6
+        #3
         _block
           #4
           _assign
@@ -40,17 +40,17 @@ _program
         : A
       : A
     )
-  #17
+  #11
   _class
     B
     A
     "subtypemethodreturn.test"
     (
-    #15
+    #13
     _method
       foo
       A
-      #15
+      #14
       _object
         self
       : SELF_TYPE

@@ -2,6 +2,6 @@ class Main { main() : Int {0 }; };
 
 class A {
   x:String;
-  foo(x:Int) : Object {while true loop x.length() pool};
+  foo(x:Int) : Object {if true then while true loop x.length() pool else 0 fi};
 };
 

@@ -44,6 +44,16 @@
 
 (rule
  (with-stderr-to
+  attributeredefined.test.out
+  (run ./semantexpecttest.exe %{dep:attributeredefined.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff attributeredefined.test.exp attributeredefined.test.out)))
+
+(rule
+ (with-stderr-to
   attroverride.test.out
   (run ./semantexpecttest.exe %{dep:attroverride.test})))
 
@@ -71,6 +81,26 @@
  (alias runtest)
  (action
   (diff badarith.test.exp badarith.test.out)))
+
+(rule
+ (with-stderr-to
+  badattrinit.test.out
+  (run ./semantexpecttest.exe %{dep:badattrinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badattrinit.test.exp badattrinit.test.out)))
+
+(rule
+ (with-stderr-to
+  badcondpred.test.out
+  (run ./semantexpecttest.exe %{dep:badcondpred.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badcondpred.test.exp badcondpred.test.out)))
 
 (rule
  (with-stderr-to
@@ -111,6 +141,16 @@
  (alias runtest)
  (action
   (diff badmethodcallsitself.test.exp badmethodcallsitself.test.out)))
+
+(rule
+ (with-stderr-to
+  badoverridereturntype.test.out
+  (run ./semantexpecttest.exe %{dep:badoverridereturntype.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badoverridereturntype.test.exp badoverridereturntype.test.out)))
 
 (rule
  (with-stderr-to
@@ -221,6 +261,16 @@
  (alias runtest)
  (action
   (diff comparisons.test.exp comparisons.test.out)))
+
+(rule
+ (with-stderr-to
+  cycleinclasses.test.out
+  (run ./semantexpecttest.exe %{dep:cycleinclasses.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff cycleinclasses.test.exp cycleinclasses.test.out)))
 
 (rule
  (with-stdout-to
@@ -363,6 +413,16 @@
   (diff isvoid.test.exp isvoid.test.out)))
 
 (rule
+ (with-stdout-to
+  iteratedlet.test.out
+  (run ./semantexpecttest.exe %{dep:iteratedlet.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff iteratedlet.test.exp iteratedlet.test.out)))
+
+(rule
  (with-stderr-to
   letbadinit.test.out
   (run ./semantexpecttest.exe %{dep:letbadinit.test})))
@@ -423,16 +483,6 @@
   (diff letshadows.test.exp letshadows.test.out)))
 
 (rule
- (with-stdout-to
-  list.cl.test.out
-  (run ./semantexpecttest.exe %{dep:list.cl.test})))
-
-(rule
- (alias runtest)
- (action
-  (diff methodcallsitself.test.exp methodcallsitself.test.out)))
-
-(rule
  (with-stderr-to
   lubtest.test.out
   (run ./semantexpecttest.exe %{dep:lubtest.test})))
@@ -443,9 +493,29 @@
   (diff lubtest.test.exp lubtest.test.out)))
 
 (rule
+ (with-stderr-to
+  mainwithargs.test.out
+  (run ./semantexpecttest.exe %{dep:mainwithargs.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff mainwithargs.test.exp mainwithargs.test.out)))
+
+(rule
  (with-stdout-to
   methodcallsitself.test.out
   (run ./semantexpecttest.exe %{dep:methodcallsitself.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff methodcallsitself.test.exp methodcallsitself.test.out)))
+
+(rule
+ (with-stdout-to
+  list.cl.test.out
+  (run ./semantexpecttest.exe %{dep:list.cl.test})))
 
 (rule
  (alias runtest)
@@ -464,6 +534,16 @@
 
 (rule
  (with-stderr-to
+  methodredefined.test.out
+  (run ./semantexpecttest.exe %{dep:methodredefined.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff methodredefined.test.exp methodredefined.test.out)))
+
+(rule
+ (with-stderr-to
   missingclass.test.out
   (run ./semantexpecttest.exe %{dep:missingclass.test})))
 
@@ -471,6 +551,16 @@
  (alias runtest)
  (action
   (diff missingclass.test.exp missingclass.test.out)))
+
+(rule
+ (with-stderr-to
+  missingmainmethod.test.out
+  (run ./semantexpecttest.exe %{dep:missingmainmethod.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff missingmainmethod.test.exp missingmainmethod.test.out)))
 
 (rule
  (with-stdout-to
@@ -665,6 +755,16 @@
   (diff selftyperedeclared.test.exp selftyperedeclared.test.out)))
 
 (rule
+ (with-stderr-to
+  signaturechange.test.out
+  (run ./semantexpecttest.exe %{dep:signaturechange.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff signaturechange.test.exp signaturechange.test.out)))
+
+(rule
  (with-stdout-to
   simplearith.test.out
   (run ./semantexpecttest.exe %{dep:simplearith.test})))
@@ -686,6 +786,36 @@
 
 (rule
  (with-stdout-to
+  staticdispatch.test.out
+  (run ./semantexpecttest.exe %{dep:staticdispatch.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff staticdispatch.test.exp staticdispatch.test.out)))
+
+(rule
+ (with-stdout-to
+  stringtest.test.out
+  (run ./semantexpecttest.exe %{dep:stringtest.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff stringtest.test.exp stringtest.test.out)))
+
+(rule
+ (with-stdout-to
+  subtypemethodreturn.test.out
+  (run ./semantexpecttest.exe %{dep:subtypemethodreturn.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff subtypemethodreturn.test.exp subtypemethodreturn.test.out)))
+
+(rule
+ (with-stdout-to
   trickyatdispatch.test.out
   (run ./semantexpecttest.exe %{dep:trickyatdispatch.test})))
 
@@ -703,3 +833,43 @@
  (alias runtest)
  (action
   (diff trickyatdispatch2.test.exp trickyatdispatch2.test.out)))
+
+(rule
+ (with-stderr-to
+  undeclaredassignvar.test.out
+  (run ./semantexpecttest.exe %{dep:undeclaredassignvar.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undeclaredassignvar.test.exp undeclaredassignvar.test.out)))
+
+(rule
+ (with-stderr-to
+  undefinedattributeclass.test.out
+  (run ./semantexpecttest.exe %{dep:undefinedattributeclass.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undefinedattributeclass.test.exp undefinedattributeclass.test.out)))
+
+(rule
+ (with-stderr-to
+  undefinedformalclass.test.out
+  (run ./semantexpecttest.exe %{dep:undefinedformalclass.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undefinedformalclass.test.exp undefinedformalclass.test.out)))
+
+(rule
+ (with-stderr-to
+  undefinednewclass.test.out
+  (run ./semantexpecttest.exe %{dep:undefinednewclass.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff undefinednewclass.test.exp undefinednewclass.test.out)))

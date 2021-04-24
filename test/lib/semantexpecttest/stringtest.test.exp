@@ -1,16 +1,16 @@
-#7
+#1
 _program
-  #7
+  #1
   _class
     Main
     Object
     "stringtest.test"
     (
-    #6
+    #2
     _method
       main
       Object
-      #6
+      #2
       _block
         #3
         _dispatch

@@ -1,0 +1,11 @@
+class Main {
+  main () : Int {
+    let
+      x : Int <- 42,
+      y : String <- "foo",
+      z : SELF_TYPE <- self
+    in
+      x
+  };
+};
+

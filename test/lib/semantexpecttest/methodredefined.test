@@ -1,0 +1,9 @@
+class Main {
+  main() : Object { 0 };
+};
+
+class A {
+  foo() : Object { 0 };
+
+  foo(x : Int) : Object { 0 };
+};
