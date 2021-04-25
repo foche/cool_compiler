@@ -1,16 +1,16 @@
-#5
+#1
 _program
-  #5
+  #1
   _class
     Foo
     Object
     "letparens.test"
     (
-    #4
+    #2
     _method
       bar
       Int
-      #4
+      #2
       _block
         #2
         _let

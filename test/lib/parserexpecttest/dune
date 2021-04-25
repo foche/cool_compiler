@@ -4,26 +4,6 @@
 
 (rule
  (with-stdout-to
-  atoi.test.out
-  (run ./parserexpecttest.exe %{dep:atoi.test})))
-
-(rule
- (alias runtest)
- (action
-  (diff atoi.test.exp atoi.test.out)))
-
-(rule
- (with-stdout-to
-  complex.test.out
-  (run ./parserexpecttest.exe %{dep:complex.test})))
-
-(rule
- (alias runtest)
- (action
-  (diff complex.test.exp complex.test.out)))
-
-(rule
- (with-stdout-to
   addedlet.test.out
   (run ./parserexpecttest.exe %{dep:addedlet.test})))
 
@@ -41,6 +21,16 @@
  (alias runtest)
  (action
   (diff arithprecedence.test.exp arithprecedence.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   assigngetstype.test.out
+;   (run ./parserexpecttest.exe %{dep:assigngetstype.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff assigngetstype.test.exp assigngetstype.test.out)))
 
 (rule
  (with-stdout-to
@@ -64,6 +54,146 @@
 
 (rule
  (with-stdout-to
+  associativitydiv.test.out
+  (run ./parserexpecttest.exe %{dep:associativitydiv.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff associativitydiv.test.exp associativitydiv.test.out)))
+
+(rule
+ (with-stdout-to
+  associativity-.test.out
+  (run ./parserexpecttest.exe %{dep:associativity-.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff associativity-.test.exp associativity-.test.out)))
+
+(rule
+ (with-stdout-to
+  associativity+.test.out
+  (run ./parserexpecttest.exe %{dep:associativity+.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff associativity+.test.exp associativity+.test.out)))
+
+(rule
+ (with-stdout-to
+  associativity-times.test.out
+  (run ./parserexpecttest.exe %{dep:associativity-times.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff associativity-times.test.exp associativity-times.test.out)))
+
+(rule
+ (with-stdout-to
+  atoi.test.out
+  (run ./parserexpecttest.exe %{dep:atoi.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff atoi.test.exp atoi.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   attrcapitalname.test.out
+;   (run ./parserexpecttest.exe %{dep:attrcapitalname.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff attrcapitalname.test.exp attrcapitalname.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   badblock.test.out
+;   (run ./parserexpecttest.exe %{dep:badblock.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff badblock.test.exp badblock.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   baddispatch1.test.out
+;   (run ./parserexpecttest.exe %{dep:baddispatch1.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff baddispatch1.test.exp baddispatch1.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   baddispatch2.test.out
+;   (run ./parserexpecttest.exe %{dep:baddispatch2.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff baddispatch2.test.exp baddispatch2.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   baddispatch3.test.out
+;   (run ./parserexpecttest.exe %{dep:baddispatch3.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff baddispatch3.test.exp baddispatch3.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   baddispatch4.test.out
+;   (run ./parserexpecttest.exe %{dep:baddispatch4.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff baddispatch4.test.exp baddispatch4.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   badexprlist.test.out
+;   (run ./parserexpecttest.exe %{dep:badexprlist.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff badexprlist.test.exp badexprlist.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   badfeaturenames.test.out
+;   (run ./parserexpecttest.exe %{dep:badfeaturenames.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff badfeaturenames.test.exp badfeaturenames.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   badfeatures.test.out
+;   (run ./parserexpecttest.exe %{dep:badfeatures.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff badfeatures.test.exp badfeatures.test.out)))
+
+(rule
+ (with-stdout-to
   casemultiplebranch.test.out
   (run ./parserexpecttest.exe %{dep:casemultiplebranch.test})))
 
@@ -71,6 +201,96 @@
  (alias runtest)
  (action
   (diff casemultiplebranch.test.exp casemultiplebranch.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   casenoexpr.test.out
+;   (run ./parserexpecttest.exe %{dep:casenoexpr.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff casenoexpr.test.exp casenoexpr.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   classbadinherits.test.out
+;   (run ./parserexpecttest.exe %{dep:classbadinherits.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff classbadinherits.test.exp classbadinherits.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   classbadname.test.out
+;   (run ./parserexpecttest.exe %{dep:classbadname.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff classbadname.test.exp classbadname.test.out)))
+
+(rule
+ (with-stdout-to
+  classmethodonearg.test.out
+  (run ./parserexpecttest.exe %{dep:classmethodonearg.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff classmethodonearg.test.exp classmethodonearg.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   classnoname.test.out
+;   (run ./parserexpecttest.exe %{dep:classnoname.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff classnoname.test.exp classnoname.test.out)))
+
+(rule
+ (with-stdout-to
+  classonefield.test.out
+  (run ./parserexpecttest.exe %{dep:classonefield.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff classonefield.test.exp classonefield.test.out)))
+
+(rule
+ (with-stdout-to
+  classtwofields.test.out
+  (run ./parserexpecttest.exe %{dep:classtwofields.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff classtwofields.test.exp classtwofields.test.out)))
+
+(rule
+ (with-stdout-to
+  comparisons-assoc.test.out
+  (run ./parserexpecttest.exe %{dep:comparisons-assoc.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff comparisons-assoc.test.exp comparisons-assoc.test.out)))
+
+(rule
+ (with-stdout-to
+  complex.test.out
+  (run ./parserexpecttest.exe %{dep:complex.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff complex.test.exp complex.test.out)))
 
 (rule
  (with-stdout-to
@@ -101,3 +321,383 @@
  (alias runtest)
  (action
   (diff dispatchonearg.test.exp dispatchonearg.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   emptyassign.test.out
+;   (run ./parserexpecttest.exe %{dep:emptyassign.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff emptyassign.test.exp emptyassign.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   emptymethodbody.test.out
+;   (run ./parserexpecttest.exe %{dep:emptymethodbody.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff emptymethodbody.test.exp emptymethodbody.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   emptyprogram.test.out
+;   (run ./parserexpecttest.exe %{dep:emptyprogram.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff emptyprogram.test.exp emptyprogram.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   emptystaticdispatch.test.out
+;   (run ./parserexpecttest.exe %{dep:emptystaticdispatch.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff emptystaticdispatch.test.exp emptystaticdispatch.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   equalsassociativity.test.out
+;   (run ./parserexpecttest.exe %{dep:equalsassociativity.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff equalsassociativity.test.exp equalsassociativity.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   extrasemicolonblock.test.out
+;   (run ./parserexpecttest.exe %{dep:extrasemicolonblock.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff extrasemicolonblock.test.exp extrasemicolonblock.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   firstbindingerrored.test.out
+;   (run ./parserexpecttest.exe %{dep:firstbindingerrored.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff firstbindingerrored.test.exp firstbindingerrored.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   firstclasserrored.test.out
+;   (run ./parserexpecttest.exe %{dep:firstclasserrored.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff firstclasserrored.test.exp firstclasserrored.test.out)))
+
+(rule
+ (with-stdout-to
+  formallists.test.out
+  (run ./parserexpecttest.exe %{dep:formallists.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff formallists.test.exp formallists.test.out)))
+
+(rule
+ (with-stdout-to
+  ifexpressionblock.test.out
+  (run ./parserexpecttest.exe %{dep:ifexpressionblock.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ifexpressionblock.test.exp ifexpressionblock.test.out)))
+
+(rule
+ (with-stdout-to
+  ifnested.test.out
+  (run ./parserexpecttest.exe %{dep:ifnested.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff ifnested.test.exp ifnested.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   ifnoelsebranch.test.out
+;   (run ./parserexpecttest.exe %{dep:ifnoelsebranch.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff ifnoelsebranch.test.exp ifnoelsebranch.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   ifnoelse.test.out
+;   (run ./parserexpecttest.exe %{dep:ifnoelse.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff ifnoelse.test.exp ifnoelse.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   ifnofi.test.out
+;   (run ./parserexpecttest.exe %{dep:ifnofi.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff ifnofi.test.exp ifnofi.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   ifnothenbranch.test.out
+;   (run ./parserexpecttest.exe %{dep:ifnothenbranch.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff ifnothenbranch.test.exp ifnothenbranch.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   isvoidbadtype.test.out
+;   (run ./parserexpecttest.exe %{dep:isvoidbadtype.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff isvoidbadtype.test.exp isvoidbadtype.test.out)))
+
+(rule
+ (with-stdout-to
+  letassociativity.test.out
+  (run ./parserexpecttest.exe %{dep:letassociativity.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letassociativity.test.exp letassociativity.test.out)))
+
+(rule
+ (with-stdout-to
+  letinitmultiplebindings.test.out
+  (run ./parserexpecttest.exe %{dep:letinitmultiplebindings.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letinitmultiplebindings.test.exp letinitmultiplebindings.test.out)))
+
+(rule
+ (with-stdout-to
+  letinit.test.out
+  (run ./parserexpecttest.exe %{dep:letinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letinit.test.exp letinit.test.out)))
+
+(rule
+ (with-stdout-to
+  letnoinit.test.out
+  (run ./parserexpecttest.exe %{dep:letnoinit.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letnoinit.test.exp letnoinit.test.out)))
+
+(rule
+ (with-stdout-to
+  letparens.test.out
+  (run ./parserexpecttest.exe %{dep:letparens.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff letparens.test.exp letparens.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   lteassociativity.test.out
+;   (run ./parserexpecttest.exe %{dep:lteassociativity.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff lteassociativity.test.exp lteassociativity.test.out)))
+
+(rule
+ (with-stdout-to
+  multipleatdispatches.test.out
+  (run ./parserexpecttest.exe %{dep:multipleatdispatches.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff multipleatdispatches.test.exp multipleatdispatches.test.out)))
+
+(rule
+ (with-stdout-to
+  multipleattributes.test.out
+  (run ./parserexpecttest.exe %{dep:multipleattributes.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff multipleattributes.test.exp multipleattributes.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   multipleclasses.test.out
+;   (run ./parserexpecttest.exe %{dep:multipleclasses.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff multipleclasses.test.exp multipleclasses.test.out)))
+
+(rule
+ (with-stdout-to
+  multipledispatches.test.out
+  (run ./parserexpecttest.exe %{dep:multipledispatches.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff multipledispatches.test.exp multipledispatches.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   multiplemethoderrors.test.out
+;   (run ./parserexpecttest.exe %{dep:multiplemethoderrors.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff multiplemethoderrors.test.exp multiplemethoderrors.test.out)))
+
+(rule
+ (with-stdout-to
+  nestedblocks.test.out
+  (run ./parserexpecttest.exe %{dep:nestedblocks.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nestedblocks.test.exp nestedblocks.test.out)))
+
+(rule
+ (with-stdout-to
+  nestedlet.test.out
+  (run ./parserexpecttest.exe %{dep:nestedlet.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nestedlet.test.exp nestedlet.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   newbadtype.test.out
+;   (run ./parserexpecttest.exe %{dep:newbadtype.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff newbadtype.test.exp newbadtype.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   returntypebad.test.out
+;   (run ./parserexpecttest.exe %{dep:returntypebad.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff returntypebad.test.exp returntypebad.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   secondbindingerrored.test.out
+;   (run ./parserexpecttest.exe %{dep:secondbindingerrored.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff secondbindingerrored.test.exp secondbindingerrored.test.out)))
+
+(rule
+ (with-stdout-to
+  staticdispatchnoargs.test.out
+  (run ./parserexpecttest.exe %{dep:staticdispatchnoargs.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff staticdispatchnoargs.test.exp staticdispatchnoargs.test.out)))
+
+(rule
+ (with-stdout-to
+  unaryassociativity.test.out
+  (run ./parserexpecttest.exe %{dep:unaryassociativity.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff unaryassociativity.test.exp unaryassociativity.test.out)))
+
+(rule
+ (with-stdout-to
+  whileexpressionblock.test.out
+  (run ./parserexpecttest.exe %{dep:whileexpressionblock.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff whileexpressionblock.test.exp whileexpressionblock.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   whilenoloop.test.out
+;   (run ./parserexpecttest.exe %{dep:whilenoloop.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff whilenoloop.test.exp whilenoloop.test.out)))
+
+(rule
+ (with-stdout-to
+  whileoneexpression.test.out
+  (run ./parserexpecttest.exe %{dep:whileoneexpression.test})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff whileoneexpression.test.exp whileoneexpression.test.out)))
+
+; (rule
+;  (with-stderr-to
+;   while.test.out
+;   (run ./parserexpecttest.exe %{dep:while.test})))
+
+; (rule
+;  (alias runtest)
+;  (action
+;   (diff while.test.exp while.test.out)))

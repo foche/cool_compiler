@@ -1,12 +1,12 @@
-#9
+#1
 _program
-  #9
+  #1
   _class
     A
     Object
     "nestedlet.test"
     (
-    #8
+    #2
     _method
       f
       #2
@@ -14,7 +14,7 @@ _program
         x
         Int
       Object
-      #8
+      #3
       _let
         x
         Int
@@ -22,42 +22,42 @@ _program
         _int
           3
         : _no_type
-        #8
+        #4
         _let
           y
           Bool
           #4
           _no_expr
           : _no_type
-          #8
+          #4
           _let
             z
             Object
             #4
             _no_expr
             : _no_type
-            #8
+            #5
             _let
               a
               Object
               #5
               _no_expr
               : _no_type
-              #8
+              #5
               _let
                 b
                 Object
                 #5
                 _no_expr
                 : _no_type
-                #8
+                #5
                 _let
                   c
                   Object
                   #5
                   _no_expr
                   : _no_type
-                  #8
+                  #6
                   _let
                     d
                     Int
@@ -65,7 +65,7 @@ _program
                     _int
                       6
                     : _no_type
-                    #8
+                    #7
                     _plus
                       #7
                       _object

@@ -1,6 +1,6 @@
-#10
+#1
 _program
-  #10
+  #1
   _class
     A
     Object
@@ -27,7 +27,7 @@ _program
       #4
       _no_expr
       : _no_type
-    #7
+    #5
     _method
       f
       Bool

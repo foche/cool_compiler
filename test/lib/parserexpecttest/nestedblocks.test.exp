@@ -1,16 +1,16 @@
-#10
+#1
 _program
-  #10
+  #1
   _class
     A
     Object
     "nestedblocks.test"
     (
-    #8
+    #3
     _method
       f
       Int
-      #7
+      #4
       _block
         #5
         _block

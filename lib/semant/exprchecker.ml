@@ -404,7 +404,7 @@ and aux_case ~ctx ~expr ~case_expr:{ case_expr; case_branches } =
 
 and create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches =
   let branch_types =
-    List.map
+    List.rev_map
       ~f:(fun { elem = { branch_body; _ }; _ } ->
         Option.get branch_body.expr_typ)
       typed_branches

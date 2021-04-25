@@ -1,16 +1,16 @@
-#11
+#1
 _program
-  #11
+  #1
   _class
     A
     Object
     "multipleatdispatches.test"
     (
-    #10
+    #2
     _method
       f
       Object
-      #10
+      #2
       _block
         #3
         _static_dispatch

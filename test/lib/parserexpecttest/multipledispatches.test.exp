@@ -1,16 +1,16 @@
-#9
+#1
 _program
-  #9
+  #1
   _class
     A
     Object
     "multipledispatches.test"
     (
-    #8
+    #2
     _method
       f
       Int
-      #8
+      #2
       _block
         #3
         _dispatch

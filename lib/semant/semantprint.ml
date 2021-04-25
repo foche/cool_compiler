@@ -1,7 +1,7 @@
 (* semantprint.ml *)
 
 let print_typecheck_error _ =
-  Format.eprintf "Compilation halted due to static semantic errors.@."
+  Format.eprintf "@[<v>Compilation halted due to static semantic errors.@]@."
 
 let print_error ~loc:(startpos, endpos) fmt =
   let line1 = startpos.Lexing.pos_lnum in

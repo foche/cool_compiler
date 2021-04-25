@@ -1,16 +1,16 @@
-#6
+#1
 _program
-  #6
+  #1
   _class
     Foo
     Object
     "unaryassociativity.test"
     (
-    #5
+    #2
     _method
       bar
       Int
-      #5
+      #2
       _block
         #2
         _plus

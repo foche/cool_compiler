@@ -1,12 +1,12 @@
-#14
+#1
 _program
-  #14
+  #1
   _class
     A
     Object
     "formallists.test"
     (
-    #4
+    #2
     _method
       f
       Int
@@ -14,7 +14,7 @@ _program
       _int
         5
       : _no_type
-    #7
+    #5
     _method
       g
       #5
@@ -22,11 +22,11 @@ _program
         x
         Bool
       IO
-      #7
+      #6
       _object
         self
       : _no_type
-    #10
+    #8
     _method
       h
       #8
@@ -38,11 +38,11 @@ _program
         z
         Int
       SELF_TYPE
-      #10
+      #9
       _object
         x
       : _no_type
-    #13
+    #11
     _method
       f
       #11
@@ -58,7 +58,7 @@ _program
         c
         Object
       Object
-      #13
+      #12
       _plus
         #12
         _plus
@@ -71,7 +71,7 @@ _program
             b
           : _no_type
         : _no_type
-        #13
+        #12
         _object
           c
         : _no_type

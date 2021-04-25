@@ -2,7 +2,7 @@
 
 module Parse = Coolparser
 
-let print_filename = Format.printf "#name %S@."
+let print_filename = Format.printf "@[<v>#name %S@]@."
 
 let token_string (tok : Parse.token) =
   match tok with
@@ -51,4 +51,4 @@ let token_string (tok : Parse.token) =
   | ERR err -> Printf.sprintf "ERROR %S" err
 
 let print_token tok line_number =
-  token_string tok |> Format.printf "#%d %s@." line_number
+  token_string tok |> Format.printf "@[<v>#%d %s@]@." line_number
