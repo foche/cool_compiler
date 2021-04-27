@@ -4,6 +4,16 @@
 
 (rule
  (with-stdout-to
+  all_else_true.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:all_else_true.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff all_else_true.cl.cool.exp all_else_true.cl.cool.out)))
+
+(rule
+ (with-stdout-to
   arith.cool.out
   (run ./lexerexpecttest.exe %{dep:arith.cool})))
 
@@ -24,6 +34,138 @@
 
 (rule
  (with-stdout-to
+  backslash2.cool.out
+  (run ./lexerexpecttest.exe %{dep:backslash2.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff backslash2.cool.exp backslash2.cool.out)))
+
+(rule
+ (with-stdout-to
+  backslash.cool.out
+  (run ./lexerexpecttest.exe %{dep:backslash.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff backslash.cool.exp backslash.cool.out)))
+
+(rule
+ (with-stdout-to
+  badidentifiers.cool.out
+  (run ./lexerexpecttest.exe %{dep:badidentifiers.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badidentifiers.cool.exp badidentifiers.cool.out)))
+
+(rule
+ (with-stdout-to
+  badkeywords.cool.out
+  (run ./lexerexpecttest.exe %{dep:badkeywords.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff badkeywords.cool.exp badkeywords.cool.out)))
+
+(rule
+ (with-stdout-to
+  book_list.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:book_list.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff book_list.cl.cool.exp book_list.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  bothcomments.cool.out
+  (run ./lexerexpecttest.exe %{dep:bothcomments.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff bothcomments.cool.exp bothcomments.cool.out)))
+
+(rule
+ (with-stdout-to
+  comment_in_string.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:comment_in_string.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff comment_in_string.cl.cool.exp comment_in_string.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  endcomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:endcomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff endcomment.cool.exp endcomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  eofstring.cool.out
+  (run ./lexerexpecttest.exe %{dep:eofstring.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff eofstring.cool.exp eofstring.cool.out)))
+
+(rule
+ (with-stdout-to
+  escaped_chars_in_comment.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:escaped_chars_in_comment.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   escaped_chars_in_comment.cl.cool.exp
+   escaped_chars_in_comment.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  escapedeof.cool.out
+  (run ./lexerexpecttest.exe %{dep:escapedeof.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff escapedeof.cool.exp escapedeof.cool.out)))
+
+(rule
+ (with-stdout-to
+  escapednull.cool.out
+  (run ./lexerexpecttest.exe %{dep:escapednull.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff escapednull.cool.exp escapednull.cool.out)))
+
+(rule
+ (with-stdout-to
+  escapedquote.cool.out
+  (run ./lexerexpecttest.exe %{dep:escapedquote.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff escapedquote.cool.exp escapedquote.cool.out)))
+
+(rule
+ (with-stdout-to
   escapedunprintables.cool.out
   (run ./lexerexpecttest.exe %{dep:escapedunprintables.cool})))
 
@@ -31,6 +173,26 @@
  (alias runtest)
  (action
   (diff escapedunprintables.cool.exp escapedunprintables.cool.out)))
+
+(rule
+ (with-stdout-to
+  hairyscary.cool.out
+  (run ./lexerexpecttest.exe %{dep:hairyscary.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff hairyscary.cool.exp hairyscary.cool.out)))
+
+(rule
+ (with-stdout-to
+  integers2.cool.out
+  (run ./lexerexpecttest.exe %{dep:integers2.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff integers2.cool.exp integers2.cool.out)))
 
 (rule
  (with-stdout-to
@@ -54,6 +216,108 @@
 
 (rule
  (with-stdout-to
+  io.cool.out
+  (run ./lexerexpecttest.exe %{dep:io.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff io.cool.exp io.cool.out)))
+
+(rule
+ (with-stdout-to
+  keywords.cool.out
+  (run ./lexerexpecttest.exe %{dep:keywords.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff keywords.cool.exp keywords.cool.out)))
+
+(rule
+ (with-stdout-to
+  life.cool.out
+  (run ./lexerexpecttest.exe %{dep:life.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff life.cool.exp life.cool.out)))
+
+(rule
+ (with-stdout-to
+  lineno2.cool.out
+  (run ./lexerexpecttest.exe %{dep:lineno2.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff lineno2.cool.exp lineno2.cool.out)))
+
+(rule
+ (with-stdout-to
+  lineno3.cool.out
+  (run ./lexerexpecttest.exe %{dep:lineno3.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff lineno3.cool.exp lineno3.cool.out)))
+
+(rule
+ (with-stdout-to
+  longcomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:longcomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff longcomment.cool.exp longcomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  longstring_escapedbackslashes.cool.out
+  (run ./lexerexpecttest.exe %{dep:longstring_escapedbackslashes.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   longstring_escapedbackslashes.cool.exp
+   longstring_escapedbackslashes.cool.out)))
+
+(rule
+ (with-stdout-to
+  multilinecomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:multilinecomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff multilinecomment.cool.exp multilinecomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  nestedcomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:nestedcomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff nestedcomment.cool.exp nestedcomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  new_complex.cool.out
+  (run ./lexerexpecttest.exe %{dep:new_complex.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff new_complex.cool.exp new_complex.cool.out)))
+
+(rule
+ (with-stdout-to
   null_in_code.cl.cool.out
   (run ./lexerexpecttest.exe %{dep:null_in_code.cl.cool})))
 
@@ -71,3 +335,311 @@
  (alias runtest)
  (action
   (diff null_in_string.cl.cool.exp null_in_string.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  null_in_string_followed_by_tokens.cl.cool.out
+  (run
+   ./lexerexpecttest.exe
+   %{dep:null_in_string_followed_by_tokens.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   null_in_string_followed_by_tokens.cl.cool.exp
+   null_in_string_followed_by_tokens.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  null_in_string_unescaped_newline.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:null_in_string_unescaped_newline.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   null_in_string_unescaped_newline.cl.cool.exp
+   null_in_string_unescaped_newline.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  objectid.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:objectid.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff objectid.test.cool.exp objectid.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  opencomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:opencomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff opencomment.cool.exp opencomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  operators.cool.out
+  (run ./lexerexpecttest.exe %{dep:operators.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff operators.cool.exp operators.cool.out)))
+
+(rule
+ (with-stdout-to
+  palindrome.cool.out
+  (run ./lexerexpecttest.exe %{dep:palindrome.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff palindrome.cool.exp palindrome.cool.out)))
+
+(rule
+ (with-stdout-to
+  pathologicalstrings.cool.out
+  (run ./lexerexpecttest.exe %{dep:pathologicalstrings.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff pathologicalstrings.cool.exp pathologicalstrings.cool.out)))
+
+(rule
+ (with-stdout-to
+  s03.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s03.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s03.test.cool.exp s03.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s04.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s04.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s04.test.cool.exp s04.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s05.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s05.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s05.test.cool.exp s05.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s14.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s14.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s14.test.cool.exp s14.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s16.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s16.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s16.test.cool.exp s16.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s19.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s19.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s19.test.cool.exp s19.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s25.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s25.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s25.test.cool.exp s25.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s26.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s26.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s26.test.cool.exp s26.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s31.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s31.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s31.test.cool.exp s31.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s32.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s32.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s32.test.cool.exp s32.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s33.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s33.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s33.test.cool.exp s33.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  s34.test.cool.out
+  (run ./lexerexpecttest.exe %{dep:s34.test.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff s34.test.cool.exp s34.test.cool.out)))
+
+(rule
+ (with-stdout-to
+  simplestrings.cool.out
+  (run ./lexerexpecttest.exe %{dep:simplestrings.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff simplestrings.cool.exp simplestrings.cool.out)))
+
+(rule
+ (with-stdout-to
+  sort_list.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:sort_list.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff sort_list.cl.cool.exp sort_list.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  stringcomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:stringcomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff stringcomment.cool.exp stringcomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  stringwithescapes.cool.out
+  (run ./lexerexpecttest.exe %{dep:stringwithescapes.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff stringwithescapes.cool.exp stringwithescapes.cool.out)))
+
+(rule
+ (with-stdout-to
+  twice_512_nested_comments.cl.cool.out
+  (run ./lexerexpecttest.exe %{dep:twice_512_nested_comments.cl.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff
+   twice_512_nested_comments.cl.cool.exp
+   twice_512_nested_comments.cl.cool.out)))
+
+(rule
+ (with-stdout-to
+  validcharacters.cool.out
+  (run ./lexerexpecttest.exe %{dep:validcharacters.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff validcharacters.cool.exp validcharacters.cool.out)))
+
+(rule
+ (with-stdout-to
+  weirdcharcomment.cool.out
+  (run ./lexerexpecttest.exe %{dep:weirdcharcomment.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff weirdcharcomment.cool.exp weirdcharcomment.cool.out)))
+
+(rule
+ (with-stdout-to
+  wq0607-c1.cool.out
+  (run ./lexerexpecttest.exe %{dep:wq0607-c1.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff wq0607-c1.cool.exp wq0607-c1.cool.out)))
+
+(rule
+ (with-stdout-to
+  wq0607-c2.cool.out
+  (run ./lexerexpecttest.exe %{dep:wq0607-c2.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff wq0607-c2.cool.exp wq0607-c2.cool.out)))
+
+(rule
+ (with-stdout-to
+  wq0607-c3.cool.out
+  (run ./lexerexpecttest.exe %{dep:wq0607-c3.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff wq0607-c3.cool.exp wq0607-c3.cool.out)))
+
+(rule
+ (with-stdout-to
+  wq0607-c4.cool.out
+  (run ./lexerexpecttest.exe %{dep:wq0607-c4.cool})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff wq0607-c4.cool.exp wq0607-c4.cool.out)))

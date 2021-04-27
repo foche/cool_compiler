@@ -29,17 +29,15 @@ let dfs ~out_edges ~visit_fun ~finish_fun ~init ~root =
   aux ~parent:root init root
 
 let rec find_root ~parents ~origin ~vert ~parent =
-  let found_cycle = parent = origin in
-  if found_cycle then IsCycle origin
+  if parent = origin then IsCycle origin
   else
     match Hashtbl.find_opt parents parent with
     | None -> IsDisconnected (vert, parent)
     | Some grandparent ->
         find_root ~parents ~origin ~vert:parent ~parent:grandparent
 
-let find_disconnected ~parents ~visited ~key:vert ~data:parent acc =
-  match acc with
-  | Some _ -> acc
+let find_disconnected ~parents ~visited ~key:vert ~data:parent = function
+  | Some _ as acc -> acc
   | None ->
       if Hashtbl.mem visited vert then None
       else Some (find_root ~parents ~origin:vert ~vert ~parent)

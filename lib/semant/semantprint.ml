@@ -14,5 +14,4 @@ let print_error ~loc:(startpos, endpos) fmt =
   else
     Format.eprintf "lines %d-%d, characters %d-%d:@," line1 line2 offset1
       offset2;
-  Format.eprintf "\027[31mError:\027[0m ";
-  fmt ^^ "@]@." |> Format.eprintf
+  "\027[31mError:\027[0m " ^^ fmt ^^ "@]@." |> Format.eprintf

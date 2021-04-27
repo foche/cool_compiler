@@ -1,4 +1,4 @@
-(* tcheck.mli *)
+(* typecheck.mli *)
 
 open Parser
 (* open Translator *)

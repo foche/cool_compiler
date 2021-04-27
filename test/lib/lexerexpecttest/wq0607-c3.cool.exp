@@ -13,3 +13,4 @@
 #3 STR_CONST "\""
 #3 ERROR "\\"
 #4 ERROR "Unterminated string constant"
+#5 EOF

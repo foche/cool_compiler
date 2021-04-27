@@ -183,14 +183,14 @@ and aux_arith ~ctx ~expr ~arith_expr =
   let arith_op = arith_expr.arith_op in
   let op_str = get_arith_op_str arith_op in
   aux_binop ~ctx ~expr ~op_str
-    ~f:(fun e1 e2 -> Arith { arith_op; arith_e1 = e1; arith_e2 = e2 })
+    ~f:(fun arith_e1 arith_e2 -> Arith { arith_op; arith_e1; arith_e2 })
     ~e1:arith_expr.arith_e1 ~e2:arith_expr.arith_e2 ~typ:T.int_type
 
 and aux_comp ~ctx ~expr ~comp_expr =
   let comp_op = comp_expr.comp_op in
   let op_str = get_comp_op_str comp_op in
   aux_binop ~ctx ~expr ~op_str
-    ~f:(fun e1 e2 -> Comp { comp_op; comp_e1 = e1; comp_e2 = e2 })
+    ~f:(fun comp_e1 comp_e2 -> Comp { comp_op; comp_e1; comp_e2 })
     ~e1:comp_expr.comp_e1 ~e2:comp_expr.comp_e2 ~typ:T.bool_type
 
 and aux_binop ~ctx ~expr ~op_str ~f ~e1 ~e2 ~typ =
@@ -227,18 +227,23 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
     typed_e1.expr_typ typed_e2.expr_typ
 
 and validate_let_var_not_self ~loc ~id =
-  let is_self_var = id = T.self_var in
-  if is_self_var then
-    Semantprint.print_error ~loc "'self' cannot be bound in a 'let' expression.";
-  not is_self_var
+  Validator.bind
+    ~checker:(lazy (id <> T.self_var))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc
+           "'self' cannot be bound in a 'let' expression."))
+    true
 
 and validate_let_type ~inherit_tree ~id ~var_typ ~loc =
-  let is_defined = Tree.mem inherit_tree var_typ in
-  if not is_defined then
-    Semantprint.print_error ~loc
-      "Class %a of let-bound identifier %a is undefined." T.print_type var_typ
-      T.print_id id;
-  is_defined
+  Validator.bind
+    ~checker:(lazy (Tree.mem inherit_tree var_typ))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc
+           "Class %a of let-bound identifier %a is undefined." T.print_type
+           var_typ T.print_id id))
+    true
 
 and aux_let ~ctx ~expr ~let_expr:({ let_var; let_init; _ } as let_expr) =
   let id, var_typ = let_var.elem in
@@ -333,7 +338,7 @@ and aux_dispatch_common ~ctx ~expr ~method_id ~recv ~args ~recv_type_translator
   let typed_args = List.map ~f:(typecheck ~ctx) args in
   let arg_typ_opt =
     List.fold_right
-      ~f:(fun arg acc -> Optutil.merge arg.expr_typ acc)
+      ~f:(fun arg -> Optutil.merge arg.expr_typ)
       typed_args ~init:(Some [])
   in
   Optutil.fold2 ~none:expr
@@ -371,23 +376,25 @@ and check_method_sig ~ctx ~expr ~method_id ~typed_recv ~recv_typ ~typed_args
         else expr
 
 and validate_arg_type ~ctx ~loc ~method_id arg_typ (id, formal_typ) =
-  let is_valid_arg_type =
-    Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:arg_typ
-      ~super_typ:formal_typ
-  in
-  if not is_valid_arg_type then
-    Semantprint.print_error ~loc
-      "In call of method %a, type %a of parameter %a does not conform to \
-       declared type %a."
-      T.print_id method_id T.print_type arg_typ T.print_id id T.print_type
-      formal_typ;
-  is_valid_arg_type
+  Validator.bind
+    ~checker:
+      (lazy
+        (Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:arg_typ
+           ~super_typ:formal_typ))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc
+           "In call of method %a, type %a of parameter %a does not conform to \
+            declared type %a."
+           T.print_id method_id T.print_type arg_typ T.print_id id T.print_type
+           formal_typ))
+    true
 
 and aux_case ~ctx ~expr ~case_expr:{ case_expr; case_branches } =
   let typed_case_expr = typecheck ~ctx case_expr in
   let typed_branches_opt =
     List.fold_right
-      ~f:(fun branch acc -> Optutil.merge (aux_branch ~ctx branch) acc)
+      ~f:(fun branch -> Optutil.merge (aux_branch ~ctx branch))
       case_branches ~init:(Some [])
   in
   let typ_tbl = Hashtbl.create ((List.length case_branches * 2) - 1) in
@@ -419,18 +426,18 @@ and create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches =
 
 and dedup_branches ~typ_tbl { elem = { branch_var; _ }; loc } =
   let _, var_typ = branch_var.elem in
-  let is_duplicate = Hashtbl.mem typ_tbl var_typ in
-  if is_duplicate then
-    Semantprint.print_error ~loc "Duplicate branch %a in case statement."
-      T.print_type var_typ
-  else Hashtbl.add typ_tbl ~key:var_typ ~data:();
-  not is_duplicate
+  Validator.bind
+    ~accept:(lazy (Hashtbl.add typ_tbl ~key:var_typ ~data:()))
+    ~checker:(lazy (Hashtbl.mem typ_tbl var_typ |> not))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc "Duplicate branch %a in case statement."
+           T.print_type var_typ))
+    true
 
 and aux_branch ~ctx ({ elem = { branch_var; branch_body }; loc } as branch) =
   let id, var_typ = branch_var.elem in
-  let is_valid_id = validate_branch_id ~loc ~id in
-  let is_valid_typ = validate_branch_typ ~ctx ~loc ~id ~var_typ in
-  if is_valid_id && is_valid_typ then
+  if validate_branch ~ctx ~loc ~id ~var_typ then
     Symtbl.enter_scope ctx.id_env
       ~cont:
         (lazy
@@ -446,23 +453,24 @@ and aux_branch ~ctx ({ elem = { branch_var; branch_body }; loc } as branch) =
                  }))
   else None
 
-and validate_branch_id ~loc ~id =
-  let is_self_var = id = T.self_var in
-  if is_self_var then Semantprint.print_error ~loc "'self' bound in 'case'.";
-  not is_self_var
-
-and validate_branch_typ ~ctx ~loc ~id ~var_typ =
-  let is_self_type = var_typ = T.self_type in
-  if is_self_type then
-    Semantprint.print_error ~loc
-      "Identifier %a declared with type SELF_TYPE in case branch." T.print_id id;
-  (not is_self_type)
-  &&
-  let is_class_defined = Tree.mem ctx.inherit_tree var_typ in
-  if not is_class_defined then
-    Semantprint.print_error ~loc "Class %a of case branch is undefined."
-      T.print_type var_typ;
-  is_class_defined
+and validate_branch ~ctx ~loc ~id ~var_typ =
+  Validator.bind
+    ~checker:(Validator.is_not_self_var ~id)
+    ~err_fun:(lazy (Semantprint.print_error ~loc "'self' bound in 'case'."))
+    true
+  |> Validator.bind
+       ~checker:(Validator.is_not_self_type ~typ:var_typ)
+       ~err_fun:
+         (lazy
+           (Semantprint.print_error ~loc
+              "Identifier %a declared with type SELF_TYPE in case branch."
+              T.print_id id))
+  |> Validator.bind
+       ~checker:(lazy (Tree.mem ctx.inherit_tree var_typ))
+       ~err_fun:
+         (lazy
+           (Semantprint.print_error ~loc "Class %a of case branch is undefined."
+              T.print_type var_typ))
 
 and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
   let typed_sub_expr = typecheck ~super_typ ~ctx sub_expr in

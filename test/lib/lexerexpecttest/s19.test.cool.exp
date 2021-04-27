@@ -2,3 +2,4 @@
 #3 ERROR "Unterminated string constant"
 #3 OBJECTID d
 #4 ERROR "Unterminated string constant"
+#5 EOF

@@ -83,11 +83,14 @@ let typecheck_method ~args ~cl_typ ~feature ~method_def =
   let lazy_typecheck =
     lazy
       (let add_formal { Abssyn.elem = id, typ; loc } =
-         let is_duplicate, _ = Symtbl.add args.id_env ~key:id ~data:typ in
-         if is_duplicate then
-           Semantprint.print_error ~loc
-             "Formal parameter %a is multiply defined." T.print_id id;
-         not is_duplicate
+         Validator.bind
+           ~checker:
+             (lazy (Symtbl.add args.id_env ~key:id ~data:typ |> fst |> not))
+           ~err_fun:
+             (lazy
+               (Semantprint.print_error ~loc
+                  "Formal parameter %a is multiply defined." T.print_id id))
+           true
        in
        if List.for_all ~f:add_formal method_def.Abssyn.method_formals then
          Exprchecker.typecheck
@@ -114,40 +117,43 @@ let typecheck_feature ~args ~cl_typ feature =
 let validate_formal_types ~method_id formal parent_formal =
   let _, typ = formal.Abssyn.elem in
   let _, parent_typ = parent_formal.Abssyn.elem in
-  let types_match = typ = parent_typ in
-  if not types_match then
-    Semantprint.print_error ~loc:formal.loc
-      "In redefined method %a, parameter type %a is different from original \
-       type %a."
-      T.print_id method_id T.print_type typ T.print_type parent_typ;
-  types_match
+  Validator.bind
+    ~checker:(lazy (typ = parent_typ))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc:formal.loc
+           "In redefined method %a, parameter type %a is different from \
+            original type %a."
+           T.print_id method_id T.print_type typ T.print_type parent_typ))
+    true
 
 let validate_overridden_method ~method_def ~loc ~overridden_method =
-  let param_counts_match =
-    List.compare_lengths method_def.Abssyn.method_formals
-      overridden_method.Abssyn.method_formals
-    = 0
-  in
-  if not param_counts_match then
-    Semantprint.print_error ~loc
-      "Incompatible number of formal parameters in redefined method %a."
-      T.print_id method_def.method_id;
-  let return_types_match =
-    method_def.method_ret_typ = overridden_method.method_ret_typ
-  in
-  if not return_types_match then
-    Semantprint.print_error ~loc
-      "In redefined method %a, return type %a is different from original \
-       return type %a."
-      T.print_id method_def.method_id T.print_type method_def.method_ret_typ
-      T.print_type overridden_method.method_ret_typ;
-  let formal_types_match =
-    param_counts_match
-    && List.for_all2
-         ~f:(validate_formal_types ~method_id:method_def.method_id)
-         method_def.method_formals overridden_method.method_formals
-  in
-  param_counts_match && return_types_match && formal_types_match
+  Validator.bind
+    ~checker:
+      (lazy
+        (List.compare_lengths method_def.Abssyn.method_formals
+           overridden_method.Abssyn.method_formals
+        = 0))
+    ~err_fun:
+      (lazy
+        (Semantprint.print_error ~loc
+           "Incompatible number of formal parameters in redefined method %a."
+           T.print_id method_def.method_id))
+    true
+  |> Validator.bind
+       ~checker:
+         (lazy (method_def.method_ret_typ = overridden_method.method_ret_typ))
+       ~err_fun:
+         (lazy
+           (Semantprint.print_error ~loc
+              "In redefined method %a, return type %a is different from \
+               original return type %a."
+              T.print_id method_def.method_id T.print_type
+              method_def.method_ret_typ T.print_type
+              overridden_method.method_ret_typ))
+  && List.for_all2
+       ~f:(validate_formal_types ~method_id:method_def.method_id)
+       method_def.method_formals overridden_method.method_formals
 
 let extract_method ~func_env ~method_def ~loc =
   let overridden_method_opt =

@@ -1,2 +1,3 @@
 #name "s05.test.cool"
-#1 STR_CONST "other unescaped whitespace: \t\f\022\013"
+#1 STR_CONST "other unescaped whitespace: \t\012\018\011"
+#2 EOF

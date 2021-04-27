@@ -28,3 +28,4 @@
 #6 ERROR "Unterminated string constant"
 #6 STR_CONST "-\""
 #6 ERROR "\\"
+#8 EOF

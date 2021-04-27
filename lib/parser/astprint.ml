@@ -12,11 +12,11 @@ let rec print_list printer = function
       Format.print_cut ();
       print_list printer (y :: xs)
 
-let dump_string_escaped handle = Tables.find_str handle |> Format.printf "%S"
-
 let print_id = Format.printf "%a" Tables.print_id
 
 let print_type = Format.printf "%a" Tables.print_type
+
+let print_str_const = Format.printf "%a" Tables.print_str
 
 let print_int_const = Format.printf "%a" Tables.print_int
 
@@ -159,7 +159,7 @@ and print_e loc (expr : Abssyn.expr) =
   | StrConst handle ->
       print_header_with_name "_string";
       Format.print_cut ();
-      dump_string_escaped handle
+      print_str_const handle
   | BoolConst x ->
       print_header_with_name "_bool";
       Format.print_cut ();
@@ -239,5 +239,5 @@ let print_syntax_error _ =
 
 let print_eof_error =
   Format.eprintf
-    "@[<v>File %S, line 0:@,\027[31mError:\027[0m Syntax error at or near \
-     EOF.@]@."
+    "@[<v>File %S, line 0:@,\
+     \027[31mError:\027[0m Syntax error at or near EOF.@]@."

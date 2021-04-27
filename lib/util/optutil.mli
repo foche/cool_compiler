@@ -1,6 +1,8 @@
 (* optutil.mli *)
 
-val fold2 : none:'a -> some:('b -> 'c -> 'a) -> 'b option -> 'c option -> 'a
+val fold2 : none:'c -> some:('a -> 'b -> 'c) -> 'a option -> 'b option -> 'c
+
+val bind2 : f:('a -> 'b -> 'c option) -> 'a option -> 'b option -> 'c option
 
 val map2 : f:('a -> 'b -> 'c) -> 'a option -> 'b option -> 'c option
 

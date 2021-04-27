@@ -9,6 +9,13 @@ let%test "fold2" =
   && add_or_42 None None = 42
   && add_or_42 (Some 1) None = 42
 
+let%test "bind2" =
+  let bind_add = Optutil.bind2 ~f:(fun x y -> Some (x + y)) in
+  bind_add (Some 55) (Some 15) = Some 70
+  && bind_add None (Some 102) = None
+  && bind_add None None = None
+  && bind_add (Some 1) None = None
+
 let%test "map2" =
   let map_add = Optutil.map2 ~f:( + ) in
   map_add (Some 42) (Some 15) = Some 57
@@ -29,3 +36,4 @@ let%test "flatten_opt_list" =
   Optutil.flatten_opt_list [ Some 42; Some 195; Some 123 ]
   = Some [ 123; 195; 42 ]
   && Optutil.flatten_opt_list [ Some 42; None; Some 123 ] = None
+  && Optutil.flatten_opt_list [] = Some []

@@ -23,13 +23,13 @@ type int_sym = cool_int Strtbl.handle
 
 type arg = id_sym * typ_sym
 
-let id_tbl : (string, cool_id) Strtbl.t = Strtbl.create 257
+let id_tbl = Strtbl.create 257
 
-let type_tbl : (string, cool_typ) Strtbl.t = Strtbl.create 61
+let type_tbl = Strtbl.create 61
 
-let str_const_tbl : (string, cool_str) Strtbl.t = Strtbl.create 131
+let str_const_tbl = Strtbl.create 131
 
-let int_const_tbl : (string, cool_int) Strtbl.t = Strtbl.create 61
+let int_const_tbl = Strtbl.create 61
 
 let make_id id = Strtbl.add id_tbl id
 
@@ -51,7 +51,7 @@ let print_id ppf id = find_id id |> Format.fprintf ppf "%s"
 
 let print_type ppf typ = find_type typ |> Format.fprintf ppf "%s"
 
-let print_str ppf s = find_str s |> Format.fprintf ppf "%s"
+let print_str ppf s = find_str s |> Format.fprintf ppf "%S"
 
 let print_int ppf x = find_int x |> Format.fprintf ppf "%s"
 
