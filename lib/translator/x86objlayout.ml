@@ -1,4 +1,4 @@
-(* mipsobjlayout.ml *)
+(* x86objlayout.ml *)
 
 open MoreLabels
 module Tbls = Util.Tables

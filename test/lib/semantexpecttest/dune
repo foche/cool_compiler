@@ -1,6 +1,6 @@
 (executable
  (name semantexpecttest)
- (libraries semant parser))
+ (libraries semant parser translator))
 
 (rule
  (with-stderr-to

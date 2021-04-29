@@ -1,7 +1,3 @@
-(* objectlayout.ml *)
-
-open Util
-module Arch = Architecture
 module Tbls = Util.Tables
 
 module type S = sig
@@ -18,8 +14,6 @@ module type S = sig
   val alloc_method : t -> Tbls.id_sym -> label:Labeler.label -> access
 
   val access_field : t -> Tbls.id_sym -> access
-end
 
-let select = function
-  | Arch.Mips -> (module Mipsobjlayout : S)
-  | Arch.X86 -> (module X86objlayout : S)
+  val access_method : t -> Tbls.id_sym -> access
+end

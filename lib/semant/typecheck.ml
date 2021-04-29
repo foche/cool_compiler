@@ -4,22 +4,8 @@ open StdLabels
 open MoreLabels
 open Parser
 open Util
-
-(* open Translator *)
 module Abssyn = Abstractsyntax
-
-(* module type Typechecker =
-  sig
-    type layout
-
-    val semant_verbose : bool ref
-
-    val typecheck : Abstractsyntax.program -> layout -> Abstractsyntax.program option
-  end
-
-module Make(Obj : Objectlayout.Layout) : Typechecker with type layout = Obj.t =
-  struct *)
-(* type layout = Obj.t *)
+module Layout = Translator.Objectlayout
 
 let semant_verbose = ref false
 
@@ -75,11 +61,10 @@ let internal_typecheck program =
     Some { program with Abssyn.elem = typed_classes }
   else None
 
-let typecheck program =
+let typecheck _ program =
   let program_opt = internal_typecheck program in
   (match program_opt with
   | None -> Semantprint.print_typecheck_error ()
   | Some typed_program ->
       if !semant_verbose then Astprint.print_ast typed_program);
   program_opt
-(* end *)

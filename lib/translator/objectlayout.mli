@@ -1,7 +1,6 @@
-(* objectlayout.ml *)
+(* objlayout.mli *)
 
-open Util
-module Arch = Architecture
+module Arch = Util.Architecture
 module Tbls = Util.Tables
 
 module type S = sig
@@ -20,6 +19,4 @@ module type S = sig
   val access_field : t -> Tbls.id_sym -> access
 end
 
-let select = function
-  | Arch.Mips -> (module Mipsobjlayout : S)
-  | Arch.X86 -> (module X86objlayout : S)
+val select : Arch.arch -> (module S)

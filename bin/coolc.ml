@@ -8,6 +8,7 @@ open StdLabels
 open Parser
 open Semant
 open Translator
+module Arch = Util.Architecture
 
 (* let typechecker = *)
 
@@ -20,8 +21,6 @@ let output_file = ref ""
 
 let parse_input filename = input_files := filename :: !input_files
 
-let out_file_extension = "s"
-
 let spec_list =
   [
     ("-l", Arg.Set Coollexer.lexer_debug, "Enable lexer tracing");
@@ -30,7 +29,6 @@ let spec_list =
       "Enable parser tracing" );
     ("-P", Arg.Set Parsedriver.parser_verbose, "Enable parser AST printing");
     ("-S", Arg.Set Typecheck.semant_verbose, "Enable typed AST printing");
-    (* ("-i", Arg.Set Instrselector.translator_verbose, "Enable IR printing"); *)
     ("-o", Arg.Set_string output_file, "Set output file name");
   ]
 
@@ -40,25 +38,17 @@ let get_default_out_file file =
     | None -> file
     | Some i -> String.sub file ~pos:0 ~len:i
   in
-  base ^ ".s"
+  Printf.sprintf "%s.s" base
 
 let main _ =
   try
+    let layout = Objectlayout.select Arch.Mips in
     let program_opt =
-      Parsedriver.parse !input_files |> Option.map Typecheck.typecheck
+      Parsedriver.parse !input_files |> Option.map (Typecheck.typecheck layout)
     in
     let temp = Temp.create () |> Temp.fresh_temp in
     Temp.print Format.std_formatter temp;
     match program_opt with None -> exit 1 | Some program -> program |> ignore
-    (* let blocks = Instrselector.translate_program program in
-       Irprint.print_ir blocks;
-       let actual_output_file =
-         match !output_file with
-         | "" -> List.rev !input_files |> List.hd |> get_default_out_file
-         | out_file -> out_file
-       in
-       let out_file = open_out actual_output_file in
-       close_out out_file *)
   with Sys_error msg ->
     prerr_endline msg;
     exit 1

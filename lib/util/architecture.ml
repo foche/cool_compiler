@@ -1,3 +1,3 @@
 (* architecture.ml *)
 
-type arch = Mips
+type arch = Mips | X86

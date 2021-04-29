@@ -55,7 +55,7 @@ let ch = alpha | digit | '_'
 
 (* Parse the next token *)
 rule next_token = parse
-  | space+ | "--" [^'\n']*
+  | space+ | "--" [^ '\n']*
       { next_token lexbuf } (* skip comments and whitespace except new line *)
   | '\n'
       { Lexing.new_line lexbuf; next_token lexbuf }
@@ -125,7 +125,7 @@ and skip_comment depth = parse
   | '\n'
       { Lexing.new_line lexbuf; skip_comment depth lexbuf }
   (* match anything until we see one of the previous classes *)
-  | [^'(' '*' '\n']+
+  | [^ '(' '*' '\n']+
       { skip_comment depth lexbuf }
   | eof
       { Parse.ERR "EOF in comment" }
@@ -167,6 +167,12 @@ and str_const strbuf n = parse
       }
   | '\n'
       { Lexing.new_line lexbuf; Parse.ERR "Unterminated string constant" }
+  | [^ '\\' '\n' '\000' '"']+
+      {
+        let s = Lexing.lexeme lexbuf in
+        Buffer.add_string strbuf s;
+        str_const strbuf (n + String.length s) lexbuf
+      }
   | eof
       { Parse.ERR "EOF in string constant" }
   | _ as c
