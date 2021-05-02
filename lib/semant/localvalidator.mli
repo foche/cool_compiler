@@ -14,4 +14,4 @@ type validator_args = {
   typed_classes : (Tbls.typ_sym, Abssyn.class_node) Hashtbl.t;
 }
 
-val validate : args:validator_args -> bool
+val validate : args:validator_args -> Bool.t

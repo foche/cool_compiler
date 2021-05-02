@@ -1,7 +1,7 @@
 (* tables.mli *)
 
-(* open StdLabels *)
-open MoreLabels
+open! MoreLabels
+open! StdLabels
 
 type id_sym
 
@@ -11,29 +11,29 @@ type str_sym
 
 type int_sym
 
-val make_id : string -> id_sym
+val make_id : String.t -> id_sym
 
-val make_type : string -> typ_sym
+val make_type : String.t -> typ_sym
 
-val make_str : string -> str_sym
+val make_str : String.t -> str_sym
 
-val make_int : string -> int_sym
+val make_int : String.t -> int_sym
 
-val find_id : id_sym -> string
+val find_id : id_sym -> String.t
 
-val find_type : typ_sym -> string
+val find_type : typ_sym -> String.t
 
-val find_str : str_sym -> string
+val find_str : str_sym -> String.t
 
-val find_int : int_sym -> string
+val find_int : int_sym -> String.t
 
-val print_id : Format.formatter -> id_sym -> unit
+val print_id : Format.formatter -> id_sym -> Unit.t
 
-val print_type : Format.formatter -> typ_sym -> unit
+val print_type : Format.formatter -> typ_sym -> Unit.t
 
-val print_str : Format.formatter -> str_sym -> unit
+val print_str : Format.formatter -> str_sym -> Unit.t
 
-val print_int : Format.formatter -> int_sym -> unit
+val print_int : Format.formatter -> int_sym -> Unit.t
 
 val empty_str : str_sym
 
@@ -79,13 +79,13 @@ type arg = id_sym * typ_sym
 
 val basic_methods : (typ_sym * id_sym * typ_sym * arg list) list
 
-val reserved_classes : (typ_sym, unit) Hashtbl.t
+val reserved_classes : (typ_sym, Unit.t) Hashtbl.t
 
-val inheritance_blocklist : (typ_sym, unit) Hashtbl.t
+val inheritance_blocklist : (typ_sym, Unit.t) Hashtbl.t
 
 (* val primitives : typ_sym list *)
 
-val id_count : 'a -> int
+val id_count : 'a -> Int.t
 
 val basic_classes : typ_sym list
 
@@ -99,6 +99,6 @@ val basic_classes : typ_sym list
 
 val basic_method_labels = create_basic_labels () *)
 
-val is_primitive : typ_sym -> bool
+val is_primitive : typ_sym -> Bool.t
 
 val method_label : typ_sym -> id_sym -> id_sym

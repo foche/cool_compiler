@@ -1,4 +1,6 @@
 (library
  (instrumentation
   (backend bisect_ppx))
+ (flags
+  (:standard -strict-formats -w @A-4-48 -g -bin-annot -keep-docs))
  (name util))

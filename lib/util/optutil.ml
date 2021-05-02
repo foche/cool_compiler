@@ -1,6 +1,6 @@
 (* optutil.ml *)
 
-open StdLabels
+open! StdLabels
 
 let fold2 ~none ~some x y =
   match (x, y) with

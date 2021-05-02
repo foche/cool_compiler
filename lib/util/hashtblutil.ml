@@ -1,7 +1,7 @@
 (* hashtblutil.ml *)
 
-open StdLabels
-open MoreLabels
+open! StdLabels
+open! MoreLabels
 
 let init kv_pairs =
   let tbl = (List.length kv_pairs * 2) - 1 |> Hashtbl.create in

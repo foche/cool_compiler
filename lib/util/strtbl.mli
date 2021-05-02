@@ -6,7 +6,7 @@ type 'a handle
 type ('a, 'b) t
 (** The type of string tables. *)
 
-val create : int -> ('a, 'b) t
+val create : Int.t -> ('a, 'b) t
 (** [create n] creates a string table with an initial size [n]. *)
 
 val add : ('a, 'b) t -> 'a -> 'b handle
@@ -15,4 +15,4 @@ val add : ('a, 'b) t -> 'a -> 'b handle
 val find : ('a, 'b) t -> 'b handle -> 'a
 (** [find tbl h] uses handle [h] to look up its associated string. *)
 
-val length : ('a, 'b) t -> int
+val length : ('a, 'b) t -> Int.t

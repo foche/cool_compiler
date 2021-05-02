@@ -45,12 +45,12 @@ module Tbls = Util.Tables
 %token AT
 %token EOF
 
-%token <string> ERR
-%token <string> TYPEID
-%token <string> OBJECTID
-%token <string> STR_CONST
-%token <string> INT_CONST
-%token <bool> BOOL_CONST
+%token <String.t> ERR
+%token <String.t> TYPEID
+%token <String.t> OBJECTID
+%token <String.t> STR_CONST
+%token <String.t> INT_CONST
+%token <Bool.t> BOOL_CONST
 
 (* precedences *)
 

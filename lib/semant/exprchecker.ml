@@ -429,9 +429,9 @@ and aux_case ~ctx ~expr ~case_expr:{ Abssyn.case_expr; case_branches } =
   in
   if is_valid then
     match typed_branches_opt with
+    | None -> expr
     | Some typed_branches ->
         create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches
-    | None -> expr
   else expr
 
 and create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches =
@@ -463,8 +463,8 @@ and dedup_branches ~typ_tbl
     ~checker:(lazy (Hashtbl.mem typ_tbl var_typ |> not))
     ~err_fun:
       (lazy
-        (Semantprint.print_error ~loc
-           "Duplicate branch %a in case statement." Tbls.print_type var_typ))
+        (Semantprint.print_error ~loc "Duplicate branch %a in case statement."
+           Tbls.print_type var_typ))
     true
 
 and aux_branch ~ctx branch =

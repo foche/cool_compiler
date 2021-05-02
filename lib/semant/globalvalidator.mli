@@ -11,4 +11,4 @@ type validator_args = {
   sigs : Methodtbl.t;
 }
 
-val validate : args:validator_args -> bool * Tbls.typ_sym Tree.t option
+val validate : args:validator_args -> Bool.t * Tbls.typ_sym Tree.t Option.t

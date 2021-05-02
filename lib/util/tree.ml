@@ -1,7 +1,7 @@
 (* tree.ml *)
 
-open StdLabels
-open MoreLabels
+open! MoreLabels
+open! StdLabels
 
 type 'a t = {
   out_edges : ('a, 'a list) Hashtbl.t;

@@ -1,6 +1,6 @@
 (* tables.ml *)
 
-open StdLabels
+open! StdLabels
 
 (* open MoreLabels *)
 module Hutil = Hashtblutil

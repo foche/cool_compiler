@@ -1,6 +1,6 @@
 (* strtbl.ml *)
 
-open MoreLabels
+open! MoreLabels
 
 type 'a handle = int
 

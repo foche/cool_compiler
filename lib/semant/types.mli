@@ -10,4 +10,4 @@ val is_subtype :
   cl_typ:Tbls.typ_sym ->
   sub_typ:Tbls.typ_sym ->
   super_typ:Tbls.typ_sym ->
-  bool
+  Bool.t

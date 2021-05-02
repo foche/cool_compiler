@@ -1,6 +1,6 @@
 (* sparsetbl.ml *)
 
-open StdLabels
+open! StdLabels
 
 type t = { tbl : int array array; data : int array; log2 : int array }
 

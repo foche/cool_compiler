@@ -1,7 +1,7 @@
 (* symtbl.ml *)
 
-open StdLabels
-open MoreLabels
+open! MoreLabels
+open! StdLabels
 
 type ('a, 'b) t = 'a list Stack.t * ('a, 'b) Hashtbl.t
 

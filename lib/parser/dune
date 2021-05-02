@@ -3,7 +3,7 @@
  (instrumentation
   (backend bisect_ppx))
  (flags
-  (:standard -strict-formats -w @A-4 -g -bin-annot -keep-docs))
+  (:standard -strict-formats -w @A-4-48 -g -bin-annot -keep-docs))
  (libraries util))
 
 (ocamllex
