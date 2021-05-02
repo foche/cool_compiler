@@ -1,15 +1,17 @@
 (* localvalidator.mli *)
 
-open Parser
-open Util
+module Abssyn = Parser.Abstractsyntax
+module Symtbl = Util.Symtbl
+module Tbls = Util.Tables
+module Tree = Util.Tree
 
 type validator_args = {
-  id_env : (Tables.id_sym, Tables.typ_sym) Symtbl.t;
-  func_env : (Tables.id_sym, Abstractsyntax.method_def) Symtbl.t;
-  inherit_tree : Tables.typ_sym Tree.t;
+  id_env : (Tbls.id_sym, Tbls.typ_sym) Symtbl.t;
+  func_env : (Tbls.id_sym, Abssyn.method_def) Symtbl.t;
+  inherit_tree : Tbls.typ_sym Tree.t;
   sigs : Methodtbl.t;
-  untyped_classes : (Tables.typ_sym, Abstractsyntax.class_node) Hashtbl.t;
-  typed_classes : (Tables.typ_sym, Abstractsyntax.class_node) Hashtbl.t;
+  untyped_classes : (Tbls.typ_sym, Abssyn.class_node) Hashtbl.t;
+  typed_classes : (Tbls.typ_sym, Abssyn.class_node) Hashtbl.t;
 }
 
 val validate : args:validator_args -> bool

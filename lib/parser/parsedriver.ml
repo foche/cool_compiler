@@ -1,6 +1,6 @@
 (* parsedriver.ml *)
 
-open StdLabels
+open! StdLabels
 module Abssyn = Abstractsyntax
 
 let parser_verbose = ref false
@@ -18,8 +18,10 @@ let run_on_file ~f acc filename =
 
 let parse_single (acc, empty_count) filename file =
   let buf = Lexing.from_channel file in
-  buf.lex_curr_p <- { buf.lex_curr_p with pos_fname = filename };
-  buf.lex_start_p <- { buf.lex_start_p with pos_fname = filename };
+  buf.Lexing.lex_curr_p <-
+    { buf.Lexing.lex_curr_p with Lexing.pos_fname = filename };
+  buf.Lexing.lex_start_p <-
+    { buf.Lexing.lex_start_p with Lexing.pos_fname = filename };
   Coollexer.print_filename filename;
   let cls_opt, is_empty =
     try Coolparser.parse Coollexer.get_token buf
@@ -32,14 +34,13 @@ let internal_parse filenames =
   let programs, empty_count =
     List.fold_left ~f:(run_on_file ~f:parse_single) ~init:([], 0) filenames
   in
-  let cls =
-    List.rev_map ~f:(Option.value ~default:[]) programs |> List.concat
-  in
-  let all_empty = List.compare_length_with filenames ~len:empty_count = 0 in
-  if all_empty then (
+  if List.compare_length_with filenames ~len:empty_count = 0 then (
     List.hd filenames |> Astprint.print_eof_error;
     None)
   else
+    let cls =
+      List.rev_map ~f:(Option.value ~default:[]) programs |> List.concat
+    in
     match cls with
     | [] -> None
     | cl :: _ -> Some { Abssyn.elem = cls; loc = cl.Abssyn.loc }

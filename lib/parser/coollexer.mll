@@ -7,7 +7,7 @@
  * Lexer for the Classroom Object-Oriented Language (COOL).
  *)
 
-open StdLabels
+open! StdLabels
 module Parse = Coolparser
 module Print = Lexerprint
 
@@ -64,7 +64,7 @@ rule next_token = parse
   | digit+ as n
       { Parse.INT_CONST n }
   | '"'
-      { str_const (Buffer.create 32) 0 lexbuf } (* string constants *)
+      { str_const (Buffer.create 16) 0 lexbuf } (* string constants *)
   | "(*"
       { skip_comment 0 lexbuf } (* nested multiline comments *)
   | "*)"
@@ -182,7 +182,7 @@ and str_const strbuf n = parse
 let get_token lexbuf =
   let tok = next_token lexbuf in
   if !lexer_debug then (
-    let line_num = lexbuf.Lexing.lex_curr_p.pos_lnum in
+    let line_num = lexbuf.Lexing.lex_curr_p.Lexing.pos_lnum in
     Print.print_token tok line_num);
   tok
 }

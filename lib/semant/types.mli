@@ -1,13 +1,13 @@
 (* types.mli *)
 
-open Util
-module T = Tables
+module Tbls = Util.Tables
+module Tree = Util.Tree
 
-val translate_type : cl_typ:T.typ_sym -> T.typ_sym -> T.typ_sym
+val translate_type : cl_typ:Tbls.typ_sym -> Tbls.typ_sym -> Tbls.typ_sym
 
 val is_subtype :
-  T.typ_sym Tree.t ->
-  cl_typ:T.typ_sym ->
-  sub_typ:T.typ_sym ->
-  super_typ:T.typ_sym ->
+  Tbls.typ_sym Tree.t ->
+  cl_typ:Tbls.typ_sym ->
+  sub_typ:Tbls.typ_sym ->
+  super_typ:Tbls.typ_sym ->
   bool

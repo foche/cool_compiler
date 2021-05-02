@@ -2,5 +2,5 @@
  (name coolc)
  (modes byte exe)
  (flags
-  (:standard -strict-formats -w @A-44 -g -bin-annot -keep-docs))
+  (:standard -strict-formats -w @A -g -bin-annot -keep-docs))
  (libraries parser semant translator))

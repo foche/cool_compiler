@@ -4,7 +4,7 @@
   Classroom Object-Oriented Language (COOL) compiler.
  *)
 
-open StdLabels
+open! StdLabels
 open Parser
 open Semant
 open Translator

@@ -1,6 +1,6 @@
 (* validator.mli *)
 
-open Util
+module Tbls = Util.Tables
 
 val bind :
   ?accept:unit lazy_t ->
@@ -9,6 +9,6 @@ val bind :
   bool ->
   bool
 
-val is_not_self_var : id:Tables.id_sym -> bool lazy_t
+val is_not_self_var : id:Tbls.id_sym -> bool lazy_t
 
-val is_not_self_type : typ:Tables.typ_sym -> bool lazy_t
+val is_not_self_type : typ:Tbls.typ_sym -> bool lazy_t

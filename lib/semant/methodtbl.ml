@@ -1,35 +1,36 @@
 (* methodtbl.ml *)
 
-open MoreLabels
-open Parser
-open Util
+open! MoreLabels
+module Abssyn = Parser.Abstractsyntax
+module Tbls = Util.Tables
+module Tree = Util.Tree
 
 type method_sig = {
-  ret_typ : Tables.typ_sym;
-  formals : Abstractsyntax.var_decl list;
-  impl_class : Tables.typ_sym;
-  label : Tables.id_sym;
+  method_ret_typ : Tbls.typ_sym;
+  formals : Abssyn.var_decl list;
+  impl_class : Tbls.typ_sym;
+  label : Tbls.id_sym;
 }
 
-type t = (Tables.typ_sym * Tables.id_sym, method_sig) Hashtbl.t
+type t = (Tbls.typ_sym * Tbls.id_sym, method_sig) Hashtbl.t
 
 let create = Hashtbl.create ~random:false
 
-let add sigs ~typ ~method_id ~ret_typ ~formals =
-  match Hashtbl.find_opt sigs (typ, method_id) with
+let add sigs ~cl_typ ~method_id ~method_ret_typ ~formals =
+  match Hashtbl.find_opt sigs (cl_typ, method_id) with
   | Some _ -> false
   | None ->
-      Hashtbl.add sigs ~key:(typ, method_id)
+      Hashtbl.add sigs ~key:(cl_typ, method_id)
         ~data:
           {
-            ret_typ;
+            method_ret_typ;
             formals;
-            impl_class = typ;
-            label = Tables.method_label typ method_id;
+            impl_class = cl_typ;
+            label = Tbls.method_label cl_typ method_id;
           };
       true
 
-let find_opt sigs ~inherit_tree ~typ ~method_id =
+let find_opt sigs ~inherit_tree ~cl_typ ~method_id =
   let rec aux ~typ ~cont =
     match Hashtbl.find_opt sigs (typ, method_id) with
     | Some _ as sig_opt -> cont sig_opt
@@ -45,4 +46,4 @@ let find_opt sigs ~inherit_tree ~typ ~method_id =
                   sig_opt;
                 cont sig_opt))
   in
-  aux ~typ ~cont:Fun.id
+  aux ~typ:cl_typ ~cont:Fun.id

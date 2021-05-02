@@ -1,13 +1,14 @@
 (* globalvalidator.mli *)
 
-open Parser
-open Util
+module Abssyn = Parser.Abstractsyntax
+module Tbls = Util.Tables
+module Tree = Util.Tree
 
 type validator_args = {
-  program : Abstractsyntax.program;
-  handle_to_class : (Tables.typ_sym, Abstractsyntax.class_node) Hashtbl.t;
-  parents : (Tables.typ_sym, Tables.typ_sym) Hashtbl.t;
+  program : Abssyn.program;
+  handle_to_class : (Tbls.typ_sym, Abssyn.class_node) Hashtbl.t;
+  parents : (Tbls.typ_sym, Tbls.typ_sym) Hashtbl.t;
   sigs : Methodtbl.t;
 }
 
-val validate : args:validator_args -> bool * Tables.typ_sym Tree.t option
+val validate : args:validator_args -> bool * Tbls.typ_sym Tree.t option

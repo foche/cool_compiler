@@ -1,7 +1,7 @@
 (* astprint.ml *)
 
-open StdLabels
-open Util
+open! StdLabels
+module Tbls = Util.Tables
 module Abssyn = Abstractsyntax
 
 let rec print_list printer = function
@@ -12,13 +12,13 @@ let rec print_list printer = function
       Format.print_cut ();
       print_list printer (y :: xs)
 
-let print_id = Format.printf "%a" Tables.print_id
+let print_id = Format.printf "%a" Tbls.print_id
 
-let print_type = Format.printf "%a" Tables.print_type
+let print_type = Format.printf "%a" Tbls.print_type
 
-let print_str_const = Format.printf "%a" Tables.print_str
+let print_str_const = Format.printf "%a" Tbls.print_str
 
-let print_int_const = Format.printf "%a" Tables.print_int
+let print_int_const = Format.printf "%a" Tbls.print_int
 
 let print_header (startpos, _) =
   Format.printf "#%d@,@[<v 2>%s" startpos.Lexing.pos_lnum
@@ -48,17 +48,17 @@ let rec print_branch { Abssyn.elem = { Abssyn.branch_var; branch_body }; loc } =
   print_expr branch_body;
   Format.printf "@]"
 
-and print_e loc (expr : Abssyn.expr) =
+and print_e loc expr =
   let print_header_with_name = print_header loc in
   let print_e_list = print_list print_expr in
   (match expr with
-  | Assign (id, expr') ->
+  | Abssyn.Assign (id, expr') ->
       print_header_with_name "_assign";
       Format.print_cut ();
       print_id id;
       Format.print_cut ();
       print_expr expr'
-  | DynamicDispatch { dyn_recv; dyn_method_id; dyn_args } ->
+  | Abssyn.DynamicDispatch { Abssyn.dyn_recv; dyn_method_id; dyn_args } ->
       print_header_with_name "_dispatch";
       Format.print_cut ();
       print_expr dyn_recv;
@@ -71,8 +71,8 @@ and print_e loc (expr : Abssyn.expr) =
           Format.print_cut ())
         dyn_args;
       Format.printf ")"
-  | StaticDispatch { stat_recv; stat_target_typ; stat_method_id; stat_args; _ }
-    ->
+  | Abssyn.StaticDispatch
+      { Abssyn.stat_recv; stat_target_typ; stat_method_id; stat_args; _ } ->
       print_header_with_name "_static_dispatch";
       Format.print_cut ();
       print_expr stat_recv;
@@ -87,15 +87,15 @@ and print_e loc (expr : Abssyn.expr) =
           Format.print_cut ())
         stat_args;
       Format.printf ")"
-  | Cond { cond_pred; cond_true; cond_false } ->
+  | Abssyn.Cond { Abssyn.cond_pred; cond_true; cond_false } ->
       print_header_with_name "_cond";
       Format.print_cut ();
       print_e_list [ cond_pred; cond_true; cond_false ]
-  | Loop { loop_pred; loop_body } ->
+  | Abssyn.Loop { Abssyn.loop_pred; loop_body } ->
       print_header_with_name "_loop";
       Format.print_cut ();
       print_e_list [ loop_pred; loop_body ]
-  | Block (stmts, expr) ->
+  | Abssyn.Block (stmts, expr) ->
       print_header_with_name "_block";
       Format.print_cut ();
       List.iter
@@ -104,7 +104,8 @@ and print_e loc (expr : Abssyn.expr) =
           Format.print_cut ())
         stmts;
       print_expr expr
-  | Let { let_var = { elem = var, typ; _ }; let_init; let_body } ->
+  | Abssyn.Let
+      { Abssyn.let_var = { Abssyn.elem = var, typ; _ }; let_init; let_body } ->
       print_header_with_name "_let";
       Format.print_cut ();
       print_id var;
@@ -114,57 +115,57 @@ and print_e loc (expr : Abssyn.expr) =
       print_expr let_init;
       Format.print_cut ();
       print_expr let_body
-  | Case { case_expr; case_branches } ->
+  | Abssyn.Case { Abssyn.case_expr; case_branches } ->
       print_header_with_name "_typcase";
       Format.print_cut ();
       print_expr case_expr;
       Format.print_cut ();
       print_list print_branch case_branches
-  | New typ ->
+  | Abssyn.New typ ->
       print_header_with_name "_new";
       Format.print_cut ();
       print_type typ
-  | IsVoid expr' ->
+  | Abssyn.IsVoid expr' ->
       print_header_with_name "_isvoid";
       Format.print_cut ();
       print_expr expr'
-  | Arith { arith_op; arith_e1; arith_e2 } ->
+  | Abssyn.Arith { Abssyn.arith_op; arith_e1; arith_e2 } ->
       get_arith_name arith_op |> print_header_with_name;
       Format.print_cut ();
       print_e_list [ arith_e1; arith_e2 ]
-  | Neg expr' ->
+  | Abssyn.Neg expr' ->
       print_header_with_name "_neg";
       Format.print_cut ();
       print_expr expr'
-  | Comp { comp_op; comp_e1; comp_e2 } ->
+  | Abssyn.Comp { Abssyn.comp_op; comp_e1; comp_e2 } ->
       get_comp_name comp_op |> print_header_with_name;
       Format.print_cut ();
       print_e_list [ comp_e1; comp_e2 ]
-  | Eq (e1, e2) ->
+  | Abssyn.Eq (e1, e2) ->
       print_header_with_name "_eq";
       Format.print_cut ();
       print_e_list [ e1; e2 ]
-  | Not expr' ->
+  | Abssyn.Not expr' ->
       print_header_with_name "_comp";
       Format.print_cut ();
       print_expr expr'
-  | Variable handle ->
+  | Abssyn.Variable handle ->
       print_header_with_name "_object";
       Format.print_cut ();
       print_id handle
-  | IntConst handle ->
+  | Abssyn.IntConst handle ->
       print_header_with_name "_int";
       Format.print_cut ();
       print_int_const handle
-  | StrConst handle ->
+  | Abssyn.StrConst handle ->
       print_header_with_name "_string";
       Format.print_cut ();
       print_str_const handle
-  | BoolConst x ->
+  | Abssyn.BoolConst x ->
       print_header_with_name "_bool";
       Format.print_cut ();
       Format.printf (if x then "1" else "0")
-  | NoExpr -> print_header_with_name "_no_expr");
+  | Abssyn.NoExpr -> print_header_with_name "_no_expr");
   Format.printf "@]"
 
 and print_expr { Abssyn.expr_expr; expr_typ; expr_loc } =

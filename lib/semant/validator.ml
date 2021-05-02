@@ -1,6 +1,6 @@
 (* validator.ml *)
 
-open Util
+module Tbls = Util.Tables
 
 let bind ?(accept = lazy ()) ~checker ~err_fun acc =
   if Lazy.force checker then (
@@ -10,6 +10,6 @@ let bind ?(accept = lazy ()) ~checker ~err_fun acc =
     Lazy.force err_fun;
     false)
 
-let is_not_self_var ~id = lazy (id <> Tables.self_var)
+let is_not_self_var ~id = lazy (id <> Tbls.self_var)
 
-let is_not_self_type ~typ = lazy (typ <> Tables.self_type)
+let is_not_self_type ~typ = lazy (typ <> Tbls.self_type)

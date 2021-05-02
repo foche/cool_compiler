@@ -1,17 +1,16 @@
 (* exprchecker.mli *)
 
-open Parser
-open Util
+module Abssyn = Parser.Abstractsyntax
+module Symtbl = Util.Symtbl
+module Tbls = Util.Tables
+module Tree = Util.Tree
 
 type context = {
-  id_env : (Tables.id_sym, Tables.typ_sym) Symtbl.t;
+  id_env : (Tbls.id_sym, Tbls.typ_sym) Symtbl.t;
   sigs : Methodtbl.t;
-  inherit_tree : Tables.typ_sym Tree.t;
-  cl_typ : Tables.typ_sym;
+  inherit_tree : Tbls.typ_sym Tree.t;
+  cl_typ : Tbls.typ_sym;
 }
 
 val typecheck :
-  ?super_typ:Tables.typ_sym ->
-  ctx:context ->
-  Abstractsyntax.expr_node ->
-  Abstractsyntax.expr_node
+  ?super_typ:Tbls.typ_sym -> ctx:context -> Abssyn.expr_node -> Abssyn.expr_node
