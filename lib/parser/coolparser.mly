@@ -68,7 +68,7 @@ module Tbls = Util.Tables
 (* start nonterminal *)
 
 %start parse
-%type <Abstractsyntax.class_list option * bool> parse
+%type <Abstractsyntax.class_list Option.t * Bool.t> parse
 
 %%
 

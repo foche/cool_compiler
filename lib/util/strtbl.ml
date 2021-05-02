@@ -2,7 +2,7 @@
 
 open! MoreLabels
 
-type 'a handle = int
+type 'a handle = Int.t
 
 type ('a, 'b) t =
   ('b handle, 'a) Hashtbl.t * ('a, 'b handle) Hashtbl.t * 'b handle ref

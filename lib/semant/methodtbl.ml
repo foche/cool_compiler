@@ -7,7 +7,7 @@ module Tree = Util.Tree
 
 type method_sig = {
   method_ret_typ : Tbls.typ_sym;
-  formals : Abssyn.var_decl list;
+  formals : Abssyn.var_decl List.t;
   impl_class : Tbls.typ_sym;
   label : Tbls.id_sym;
 }

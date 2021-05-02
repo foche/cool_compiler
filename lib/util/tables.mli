@@ -77,27 +77,15 @@ val str_substr : id_sym
 
 type arg = id_sym * typ_sym
 
-val basic_methods : (typ_sym * id_sym * typ_sym * arg list) list
+val basic_methods : (typ_sym * id_sym * typ_sym * arg List.t) List.t
 
 val reserved_classes : (typ_sym, Unit.t) Hashtbl.t
 
 val inheritance_blocklist : (typ_sym, Unit.t) Hashtbl.t
 
-(* val primitives : typ_sym list *)
-
 val id_count : 'a -> Int.t
 
-val basic_classes : typ_sym list
-
-(* val create_basic_labels _ =
-  val tbl = Hashtbl.create 32 in
-  List.iter
-    ~f:(fun (typ, method_id, _, _) ->
-      Hashtbl.add tbl ~key:(typ, method_id) ~data:(method_label typ method_id))
-    basic_methods;
-  tbl
-
-val basic_method_labels = create_basic_labels () *)
+val basic_classes : typ_sym List.t
 
 val is_primitive : typ_sym -> Bool.t
 

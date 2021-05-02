@@ -4,11 +4,11 @@ open! MoreLabels
 open! StdLabels
 
 type 'a t = {
-  out_edges : ('a, 'a list) Hashtbl.t;
+  out_edges : ('a, 'a List.t) Hashtbl.t;
   parents : ('a, 'a) Hashtbl.t;
   root : 'a;
-  euler_tour : 'a array;
-  firsts : ('a, int) Hashtbl.t;
+  euler_tour : 'a Array.t;
+  firsts : ('a, Int.t) Hashtbl.t;
   tbl : Sparsetbl.t;
 }
 

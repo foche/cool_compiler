@@ -2,7 +2,7 @@
 
 type ('a, 'b) t
 
-val create : int -> ('a, 'b) t
+val create : Int.t -> ('a, 'b) t
 (** [create n] creates a new typing environment. *)
 
 val enter_scope : ('a, 'b) t -> cont:'c Lazy.t -> 'c

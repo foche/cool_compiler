@@ -2,6 +2,6 @@
 
 type t
 
-val create : data:int array -> t
+val create : data:Int.t Array.t -> t
 
-val range_min : t -> left:int -> right:int -> int * int
+val range_min : t -> left:Int.t -> right:Int.t -> Int.t * Int.t

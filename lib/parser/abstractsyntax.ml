@@ -20,7 +20,7 @@ type expr =
   | StaticDispatch of static_dispatch_expr
   | Cond of cond_expr
   | Loop of loop_expr
-  | Block of expr_node list * expr_node
+  | Block of expr_node List.t * expr_node
   | Let of let_expr
   | Case of case_expr
   | New of Tbls.typ_sym
@@ -33,12 +33,12 @@ type expr =
   | Variable of Tbls.id_sym
   | IntConst of Tbls.int_sym
   | StrConst of Tbls.str_sym
-  | BoolConst of bool
+  | BoolConst of Bool.t
   | NoExpr
 
 and expr_node = {
   expr_expr : expr;
-  expr_typ : Tbls.typ_sym option;
+  expr_typ : Tbls.typ_sym Option.t;
   expr_loc : loc;
 }
 
@@ -56,7 +56,7 @@ and let_expr = {
   let_body : expr_node;
 }
 
-and case_expr = { case_expr : expr_node; case_branches : branch_node list }
+and case_expr = { case_expr : expr_node; case_branches : branch_node List.t }
 
 and arith_expr = {
   arith_op : arith_op;
@@ -69,15 +69,15 @@ and comp_expr = { comp_op : comp; comp_e1 : expr_node; comp_e2 : expr_node }
 and dynamic_dispatch_expr = {
   dyn_recv : expr_node;
   dyn_method_id : Tbls.id_sym;
-  dyn_args : expr_node list;
+  dyn_args : expr_node List.t;
 }
 
 and static_dispatch_expr = {
   stat_recv : expr_node;
   stat_target_typ : Tbls.typ_sym;
   stat_method_id : Tbls.id_sym;
-  stat_args : expr_node list;
-  stat_label : Tbls.id_sym option;
+  stat_args : expr_node List.t;
+  stat_label : Tbls.id_sym Option.t;
 }
 
 and branch = { branch_var : var_node; branch_body : expr_node }
@@ -88,7 +88,7 @@ type formal = var_node
 
 type method_def = {
   method_id : Tbls.id_sym;
-  method_formals : formal list;
+  method_formals : formal List.t;
   method_ret_typ : Tbls.typ_sym;
   method_body : expr_node;
 }
@@ -100,11 +100,11 @@ type feature = Method of method_def | Field of field_def
 type class_def = {
   cl_typ : Tbls.typ_sym;
   cl_parent : Tbls.typ_sym;
-  cl_features : feature with_pos list;
+  cl_features : feature with_pos List.t;
 }
 
 type class_node = class_def with_pos
 
-type class_list = class_node list
+type class_list = class_node List.t
 
 type program = class_list with_pos

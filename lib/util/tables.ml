@@ -1,8 +1,6 @@
 (* tables.ml *)
 
 open! StdLabels
-
-(* open MoreLabels *)
 module Hutil = Hashtblutil
 
 type cool_id
@@ -135,20 +133,5 @@ let basic_classes = io_type :: self_type :: primitives
 
 let method_label typ method_id =
   Printf.sprintf "%s.%s" (find_type typ) (find_id method_id) |> make_id
-
-(* let clinit_label typ = find_type typ |> Printf.sprintf "%s_init" |> make_id *)
-
-(* let prototype_label typ =
-  find_type typ |> Printf.sprintf "%s_protObj" |> make_id *)
-
-(* let create_basic_labels _ =
-  let tbl = Hashtbl.create 32 in
-  List.iter
-    ~f:(fun (typ, method_id, _, _) ->
-      Hashtbl.add tbl ~key:(typ, method_id) ~data:(method_label typ method_id))
-    basic_methods;
-  tbl *)
-
-(* let basic_method_labels = create_basic_labels () *)
 
 let is_primitive = List.mem ~set:primitives

@@ -2,7 +2,11 @@
 
 open! StdLabels
 
-type t = { tbl : int array array; data : int array; log2 : int array }
+type t = {
+  tbl : Int.t Array.t Array.t;
+  data : Int.t Array.t;
+  log2 : Int.t Array.t;
+}
 
 let fill_log2 log2 n =
   for i = 2 to n - 1 do

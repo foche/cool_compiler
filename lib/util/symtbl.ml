@@ -3,7 +3,7 @@
 open! MoreLabels
 open! StdLabels
 
-type ('a, 'b) t = 'a list Stack.t * ('a, 'b) Hashtbl.t
+type ('a, 'b) t = 'a List.t Stack.t * ('a, 'b) Hashtbl.t
 
 let create n =
   let stack = Stack.create () in
