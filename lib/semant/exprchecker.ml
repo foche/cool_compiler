@@ -435,22 +435,14 @@ and aux_case ~ctx ~expr ~case_expr:{ Abssyn.case_expr; case_branches } =
   else expr
 
 and create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches =
-  let branch_types =
-    List.rev_map
-      ~f:
-        (fun {
-               Abssyn.elem = { Abssyn.branch_body = { Abssyn.expr_typ; _ }; _ };
-               _;
-             } -> Option.get expr_typ)
-      typed_branches
-  in
+  let branch_types = List.rev_map ~f:snd typed_branches in
   let case_typ =
     all_lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ ~typs:branch_types
   in
+  let case_branches = List.map ~f:fst typed_branches in
   Ast.replace_expr ~expr
     ~new_expr:
-      (Abssyn.Case
-         { Abssyn.case_expr = typed_case_expr; case_branches = typed_branches })
+      (Abssyn.Case { Abssyn.case_expr = typed_case_expr; case_branches })
     ~typ:case_typ
 
 and dedup_branches ~typ_tbl
@@ -480,12 +472,13 @@ and aux_branch ~ctx branch =
            let typed_body = typecheck ~ctx branch_body in
            match typed_body.Abssyn.expr_typ with
            | None -> None
-           | Some _ ->
+           | Some body_typ ->
                Some
-                 {
-                   branch with
-                   Abssyn.elem = { elem with Abssyn.branch_body = typed_body };
-                 }))
+                 ( {
+                     branch with
+                     Abssyn.elem = { elem with Abssyn.branch_body = typed_body };
+                   },
+                   body_typ )))
   else None
 
 and validate_branch ~ctx ~loc ~id ~var_typ =

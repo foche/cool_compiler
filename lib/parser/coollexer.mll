@@ -175,8 +175,6 @@ and str_const strbuf n = parse
       }
   | eof
       { Parse.ERR "EOF in string constant" }
-  | _ as c
-      { Buffer.add_char strbuf c; str_const strbuf (n + 1) lexbuf }
 
 {
 let get_token lexbuf =

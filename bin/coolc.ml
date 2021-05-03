@@ -5,9 +5,11 @@
  *)
 
 open! StdLabels
-open Parser
-open Semant
-open Translator
+module Lexer = Parser.Coollexer
+module Parsedriver = Parser.Parsedriver
+module Typecheck = Semant.Typecheck
+module Objectlayout = Translator.Objectlayout
+module Temp = Translator.Temp
 module Arch = Util.Architecture
 
 (* let typechecker = *)
@@ -23,7 +25,7 @@ let parse_input filename = input_files := filename :: !input_files
 
 let spec_list =
   [
-    ("-l", Arg.Set Coollexer.lexer_debug, "Enable lexer tracing");
+    ("-l", Arg.Set Lexer.lexer_debug, "Enable lexer tracing");
     ( "-p",
       Arg.Unit (fun _ -> Parsing.set_trace true |> ignore),
       "Enable parser tracing" );

@@ -10,7 +10,7 @@ module Tree = Util.Tree
 
 type validator_args = {
   id_env : (Tbls.id_sym, Tbls.typ_sym) Symtbl.t;
-  func_env : (Tbls.id_sym, Abssyn.method_def) Symtbl.t;
+  func_env : (Tbls.id_sym, Tbls.typ_sym * Abssyn.method_def) Symtbl.t;
   inherit_tree : Tbls.typ_sym Tree.t;
   sigs : Methodtbl.t;
   untyped_classes : (Tbls.typ_sym, Abssyn.class_node) Hashtbl.t;
@@ -164,13 +164,14 @@ let validate_overridden_method ~method_def ~loc ~overridden_method =
        ~f:(validate_formal_types ~method_id)
        method_formals parent_formals
 
-let extract_method ~func_env ~method_def ~loc =
+let extract_method ~args ~cl_typ ~method_def ~loc =
   let method_id = method_def.Abssyn.method_id in
-  let overridden_method_opt = Symtbl.find_opt func_env method_id in
-  Symtbl.add func_env ~key:method_id ~data:method_def |> ignore;
+  let overridden_method_opt = Symtbl.find_opt args.func_env method_id in
+  Symtbl.add args.func_env ~key:method_id ~data:(cl_typ, method_def) |> ignore;
   match overridden_method_opt with
   | None -> true
-  | Some overridden_method ->
+  | Some (parent_typ, overridden_method) ->
+      Methodtbl.set_is_final args.sigs ~cl_typ:parent_typ ~method_id false;
       validate_overridden_method ~method_def ~loc ~overridden_method
 
 let extract_field ~id_env ~cl_typ
@@ -187,18 +188,16 @@ let extract_field ~id_env ~cl_typ
       field_id;
   (not is_duplicate) && not is_shadowed
 
-let extract_feature ~id_env ~func_env ~cl_typ feature =
+let extract_feature ~args ~cl_typ feature =
   let { Abssyn.elem; loc } = feature in
   match elem with
-  | Abssyn.Method method_def -> extract_method ~func_env ~method_def ~loc
+  | Abssyn.Method method_def -> extract_method ~args ~cl_typ ~method_def ~loc
   | Abssyn.Field { Abssyn.field_var; _ } ->
-      extract_field ~id_env ~cl_typ ~field_var
+      extract_field ~id_env:args.id_env ~cl_typ ~field_var
 
 let typecheck_class ~args ~typ cl =
   let { Abssyn.elem = { Abssyn.cl_typ; cl_features; _ } as elem; _ } = cl in
-  List.for_all
-    ~f:(extract_feature ~id_env:args.id_env ~func_env:args.func_env ~cl_typ)
-    cl_features
+  List.for_all ~f:(extract_feature ~args ~cl_typ) cl_features
   &&
   let typed_feature_opt =
     List.rev_map ~f:(typecheck_feature ~args ~cl_typ) cl_features

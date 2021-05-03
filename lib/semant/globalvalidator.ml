@@ -158,8 +158,8 @@ let is_unreserved ~cl:{ Abssyn.elem; loc } =
            Tbls.print_type elem.Abssyn.cl_typ))
     true
 
-let validate_class ~args
-    ({ Abssyn.elem = { Abssyn.cl_typ; cl_features; _ }; _ } as cl) =
+let validate_class ~args cl =
+  let { Abssyn.elem = { Abssyn.cl_typ; cl_features; _ }; _ } = cl in
   Hashtbl.add args.handle_to_class ~key:cl_typ ~data:cl;
   let is_valid_type = is_unreserved ~cl in
   let is_valid_parent = is_valid_inheritance ~cl in
@@ -176,7 +176,7 @@ let validate_main_method_exists ~loc =
 
 let validate_main ~handle_to_class =
   match Hashtbl.find_opt handle_to_class Tbls.main_type with
-  | Some main_cl -> validate_main_method_exists ~loc:main_cl.Abssyn.loc
+  | Some { Abssyn.loc; _ } -> validate_main_method_exists ~loc
   | None ->
       Format.eprintf "@[Class Main is not defined.@]@.";
       false

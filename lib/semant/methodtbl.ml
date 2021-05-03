@@ -10,6 +10,7 @@ type method_sig = {
   formals : Abssyn.var_decl List.t;
   impl_class : Tbls.typ_sym;
   label : Tbls.id_sym;
+  is_final : Bool.t;
 }
 
 type t = (Tbls.typ_sym * Tbls.id_sym, method_sig) Hashtbl.t
@@ -27,6 +28,7 @@ let add sigs ~cl_typ ~method_id ~method_ret_typ ~formals =
             formals;
             impl_class = cl_typ;
             label = Tbls.method_label cl_typ method_id;
+            is_final = true;
           };
       true
 
@@ -47,3 +49,8 @@ let find_opt sigs ~inherit_tree ~cl_typ ~method_id =
                 cont sig_opt))
   in
   aux ~typ:cl_typ ~cont:Fun.id
+
+let set_is_final sigs ~cl_typ ~method_id is_final =
+  let method_sig = Hashtbl.find sigs (cl_typ, method_id) in
+  Hashtbl.replace sigs ~key:(cl_typ, method_id)
+    ~data:{ method_sig with is_final }

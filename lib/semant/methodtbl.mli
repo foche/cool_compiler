@@ -10,6 +10,7 @@ type method_sig = {
   formals : Abssyn.var_decl List.t;
   impl_class : Tbls.typ_sym;
   label : Tbls.id_sym;
+  is_final : Bool.t;
 }
 
 type t
@@ -30,3 +31,6 @@ val find_opt :
   cl_typ:Tbls.typ_sym ->
   method_id:Tbls.id_sym ->
   method_sig Option.t
+
+val set_is_final :
+  t -> cl_typ:Tbls.typ_sym -> method_id:Tbls.id_sym -> Bool.t -> Unit.t

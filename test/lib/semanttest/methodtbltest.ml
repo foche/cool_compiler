@@ -34,10 +34,16 @@ let%test "find_opt" =
       formals;
       impl_class = Tutil.cl_a;
       label = label_a_foo;
+      is_final = false;
     }
   in
   let cl_c_foo_sig =
-    { cl_a_foo_sig with Methodtbl.impl_class = Tutil.cl_c; label = label_c_foo }
+    {
+      cl_a_foo_sig with
+      Methodtbl.impl_class = Tutil.cl_c;
+      label = label_c_foo;
+      is_final = true;
+    }
   in
   (* inheritance path: D -> C -> B -> A *)
   Methodtbl.add tbl ~cl_typ:Tutil.cl_a ~method_id:foo_method
@@ -46,9 +52,13 @@ let%test "find_opt" =
        ~method_ret_typ:Tables.int_type ~formals
   && Methodtbl.add tbl ~cl_typ:Tutil.cl_c ~method_id:foo_method
        ~method_ret_typ:Tutil.cl_b ~formals
-  && Methodtbl.find_opt tbl ~inherit_tree:Treeutil.tree ~cl_typ:Tutil.cl_c
-       ~method_id:foo_method
-     = Some cl_c_foo_sig
+  &&
+  let _ =
+    Methodtbl.set_is_final tbl ~cl_typ:Tutil.cl_a ~method_id:foo_method false
+  in
+  Methodtbl.find_opt tbl ~inherit_tree:Treeutil.tree ~cl_typ:Tutil.cl_c
+    ~method_id:foo_method
+  = Some cl_c_foo_sig
   && Methodtbl.find_opt tbl ~inherit_tree:Treeutil.tree ~cl_typ:Tutil.cl_d
        ~method_id:foo_method
      = Some cl_c_foo_sig
