@@ -81,9 +81,8 @@ and aux_assign ~ctx ~expr ~id ~sub_expr =
     | Some var_typ ->
         rec_helper ~ctx
           ~cont:(fun ~typed_sub_expr sub_expr_typ ->
-            Ast.replace_expr ~expr
-              ~new_expr:(Abssyn.Assign (id, typed_sub_expr))
-              ~typ:sub_expr_typ)
+            Abssyn.Assign (id, typed_sub_expr)
+            |> Ast.replace_expr ~expr ~typ:sub_expr_typ)
           ~err_fun:(fun ~sub_expr_typ ->
             Semantprint.print_error ~loc:sub_expr.Abssyn.expr_loc
               "Type %a of assigned expression does not conform to declared \
@@ -110,15 +109,13 @@ and aux_cond ~ctx ~expr ~cond_expr:{ Abssyn.cond_pred; cond_true; cond_false } =
             lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ then_typ
               else_typ
           in
-          Ast.replace_expr ~expr
-            ~new_expr:
-              (Abssyn.Cond
-                 {
-                   Abssyn.cond_pred = typed_pred;
-                   cond_true = true_branch;
-                   cond_false = false_branch;
-                 })
-            ~typ:cond_typ)
+          Abssyn.Cond
+            {
+              Abssyn.cond_pred = typed_pred;
+              cond_true = true_branch;
+              cond_false = false_branch;
+            }
+          |> Ast.replace_expr ~expr ~typ:cond_typ)
         true_branch.Abssyn.expr_typ false_branch.Abssyn.expr_typ)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:cond_pred.Abssyn.expr_loc
@@ -137,9 +134,8 @@ and aux_block ~ctx ~expr ~stmts ~sub_expr =
     match typed_sub_expr.Abssyn.expr_typ with
     | None -> expr
     | Some sub_expr_typ ->
-        Ast.replace_expr ~expr
-          ~new_expr:(Abssyn.Block (typed_stmts, typed_sub_expr))
-          ~typ:sub_expr_typ
+        Abssyn.Block (typed_stmts, typed_sub_expr)
+        |> Ast.replace_expr ~expr ~typ:sub_expr_typ
   else expr
 
 and aux_isvoid ~ctx ~expr ~sub_expr =
@@ -147,8 +143,7 @@ and aux_isvoid ~ctx ~expr ~sub_expr =
   match typed_sub_expr.Abssyn.expr_typ with
   | None -> expr
   | Some _ ->
-      Ast.replace_expr ~expr ~new_expr:(Abssyn.IsVoid typed_sub_expr)
-        ~typ:Tbls.bool_type
+      Abssyn.IsVoid typed_sub_expr |> Ast.replace_expr ~expr ~typ:Tbls.bool_type
 
 and aux_loop ~ctx ~expr ~loop_expr:{ Abssyn.loop_pred; loop_body } =
   rec_helper ~ctx
@@ -157,11 +152,8 @@ and aux_loop ~ctx ~expr ~loop_expr:{ Abssyn.loop_pred; loop_body } =
       match typed_body.Abssyn.expr_typ with
       | None -> expr
       | Some _ ->
-          Ast.replace_expr ~expr
-            ~new_expr:
-              (Abssyn.Loop
-                 { Abssyn.loop_pred = typed_pred; loop_body = typed_body })
-            ~typ:Tbls.object_type)
+          Abssyn.Loop { Abssyn.loop_pred = typed_pred; loop_body = typed_body }
+          |> Ast.replace_expr ~expr ~typ:Tbls.object_type)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:loop_pred.Abssyn.expr_loc
         "Loop condition does not have type Bool.")
@@ -170,8 +162,7 @@ and aux_loop ~ctx ~expr ~loop_expr:{ Abssyn.loop_pred; loop_body } =
 and aux_not ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
     ~cont:(fun ~typed_sub_expr _ ->
-      Ast.replace_expr ~expr ~new_expr:(Abssyn.Not typed_sub_expr)
-        ~typ:Tbls.bool_type)
+      Abssyn.Not typed_sub_expr |> Ast.replace_expr ~expr ~typ:Tbls.bool_type)
     ~err_fun:(fun ~sub_expr_typ ->
       Semantprint.print_error ~loc:sub_expr.Abssyn.expr_loc
         "Argument of 'not' has type %a instead of Bool." Tbls.print_type
@@ -181,8 +172,7 @@ and aux_not ~ctx ~expr ~sub_expr =
 and aux_neg ~ctx ~expr ~sub_expr =
   rec_helper ~ctx
     ~cont:(fun ~typed_sub_expr _ ->
-      Ast.replace_expr ~expr ~new_expr:(Abssyn.Neg typed_sub_expr)
-        ~typ:Tbls.int_type)
+      Abssyn.Neg typed_sub_expr |> Ast.replace_expr ~expr ~typ:Tbls.int_type)
     ~err_fun:(fun ~sub_expr_typ ->
       Semantprint.print_error ~loc:sub_expr.Abssyn.expr_loc
         "Argument of '~' has type %a instead of Int." Tbls.print_type
@@ -209,8 +199,7 @@ and aux_binop ~ctx ~expr ~op_str ~f ~e1 ~e2 ~typ =
   Opts.fold2 ~none:expr
     ~some:(fun typ1 typ2 ->
       let int_args = typ1 = Tbls.int_type && typ2 = Tbls.int_type in
-      if int_args then
-        Ast.replace_expr ~expr ~new_expr:(f ~typed_e1 ~typed_e2) ~typ
+      if int_args then f ~typed_e1 ~typed_e2 |> Ast.replace_expr ~expr ~typ
       else (
         Semantprint.print_error ~loc:expr.Abssyn.expr_loc
           "non-Int arguments: %a %s %a" Tbls.print_type typ1 op_str
@@ -228,9 +217,8 @@ and aux_eq ~ctx ~expr ~e1 ~e2 =
         || typ1 = typ2
       in
       if is_valid_comp then
-        Ast.replace_expr ~expr
-          ~new_expr:(Abssyn.Eq (typed_e1, typed_e2))
-          ~typ:Tbls.bool_type
+        Abssyn.Eq (typed_e1, typed_e2)
+        |> Ast.replace_expr ~expr ~typ:Tbls.bool_type
       else (
         Semantprint.print_error ~loc:expr.Abssyn.expr_loc
           "Illegal comparison with a basic type.";
@@ -290,15 +278,13 @@ and aux_let_helper ~ctx ~expr ~let_expr ~typed_init =
          match typed_body.Abssyn.expr_typ with
          | None -> expr
          | Some body_typ ->
-             Ast.replace_expr ~expr
-               ~new_expr:
-                 (Abssyn.Let
-                    {
-                      let_expr with
-                      Abssyn.let_init = typed_init;
-                      let_body = typed_body;
-                    })
-               ~typ:body_typ))
+             Abssyn.Let
+               {
+                 let_expr with
+                 Abssyn.let_init = typed_init;
+                 let_body = typed_body;
+               }
+             |> Ast.replace_expr ~expr ~typ:body_typ))
 
 and aux_dyn_dispatch ~ctx ~expr ~dyn =
   let { Abssyn.dyn_recv; dyn_method_id; dyn_args; _ } = dyn in
@@ -307,11 +293,9 @@ and aux_dyn_dispatch ~ctx ~expr ~dyn =
     ~recv_type_translator:(fun ~recv_typ ->
       Some (Types.translate_type ~cl_typ:ctx.cl_typ recv_typ))
     ~cont:(fun ~typed_recv ~typed_args ~trans_ret_typ ~label:_ ->
-      Ast.replace_expr ~expr
-        ~new_expr:
-          (Abssyn.DynamicDispatch
-             { dyn with Abssyn.dyn_recv = typed_recv; dyn_args = typed_args })
-        ~typ:trans_ret_typ)
+      Abssyn.DynamicDispatch
+        { dyn with Abssyn.dyn_recv = typed_recv; dyn_args = typed_args }
+      |> Ast.replace_expr ~expr ~typ:trans_ret_typ)
 
 and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
   let is_valid_recv_type =
@@ -336,16 +320,14 @@ and aux_stat_dispatch ~ctx ~expr ~stat =
         (validate_stat_recv_type ~ctx ~loc:expr.Abssyn.expr_loc
            ~target_typ:stat_target_typ)
       ~cont:(fun ~typed_recv ~typed_args ~trans_ret_typ ~label ->
-        Ast.replace_expr ~expr
-          ~new_expr:
-            (Abssyn.StaticDispatch
-               {
-                 stat with
-                 Abssyn.stat_recv = typed_recv;
-                 stat_args = typed_args;
-                 stat_label = Some label;
-               })
-          ~typ:trans_ret_typ)
+        Abssyn.StaticDispatch
+          {
+            stat with
+            Abssyn.stat_recv = typed_recv;
+            stat_args = typed_args;
+            stat_label = Some label;
+          }
+        |> Ast.replace_expr ~expr ~typ:trans_ret_typ)
   else (
     Semantprint.print_error ~loc:expr.Abssyn.expr_loc
       "Static dispatch to undefined class %a." Tbls.print_type stat_target_typ;
@@ -435,15 +417,12 @@ and aux_case ~ctx ~expr ~case_expr:{ Abssyn.case_expr; case_branches } =
   else expr
 
 and create_case_expr ~ctx ~expr ~typed_case_expr ~typed_branches =
-  let branch_types = List.rev_map ~f:snd typed_branches in
+  let case_branches, branch_types = List.split typed_branches in
   let case_typ =
     all_lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ ~typs:branch_types
   in
-  let case_branches = List.map ~f:fst typed_branches in
-  Ast.replace_expr ~expr
-    ~new_expr:
-      (Abssyn.Case { Abssyn.case_expr = typed_case_expr; case_branches })
-    ~typ:case_typ
+  Abssyn.Case { Abssyn.case_expr = typed_case_expr; case_branches }
+  |> Ast.replace_expr ~expr ~typ:case_typ
 
 and dedup_branches ~typ_tbl
     {

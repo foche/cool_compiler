@@ -19,6 +19,8 @@ let endpos =
 
 let loc = (startpos, endpos)
 
+let loc' = Location.create loc
+
 let startpos2 =
   { Lexing.pos_fname = "test.cl"; pos_lnum = 20; pos_bol = 7; pos_cnum = 10 }
 
@@ -26,6 +28,8 @@ let endpos2 =
   { Lexing.pos_fname = "test.cl"; pos_lnum = 21; pos_bol = 42; pos_cnum = 55 }
 
 let loc2 = (startpos2, endpos2)
+
+let loc2' = Location.create loc2
 
 let startpos3 =
   { Lexing.pos_fname = "test.cl"; pos_lnum = 101; pos_bol = 12; pos_cnum = 15 }
@@ -35,33 +39,35 @@ let endpos3 =
 
 let loc3 = (startpos3, endpos3)
 
+let loc3' = Location.create loc3
+
 let bool_const =
-  { Abssyn.expr_expr = Abssyn.BoolConst true; expr_typ = None; expr_loc = loc }
+  { Abssyn.expr_expr = Abssyn.BoolConst true; expr_typ = None; expr_loc = loc' }
 
 let int_const =
   {
     Abssyn.expr_expr = Abssyn.IntConst (T.make_int "42");
     expr_typ = None;
-    expr_loc = loc2;
+    expr_loc = loc2';
   }
 
 let var_expr =
-  { Abssyn.expr_expr = Abssyn.Variable x; expr_typ = None; expr_loc = loc3 }
+  { Abssyn.expr_expr = Abssyn.Variable x; expr_typ = None; expr_loc = loc3' }
 
 let%test "create_expr" =
-  Ast.create_expr ~expr:(Abssyn.BoolConst true) loc = bool_const
-  && Ast.create_expr ~typ:T.bool_type ~expr:(Abssyn.BoolConst true) loc
+  Ast.create_expr ~loc (Abssyn.BoolConst true) = bool_const
+  && Ast.create_expr ~typ:T.bool_type ~loc (Abssyn.BoolConst true)
      = { bool_const with Abssyn.expr_typ = Some T.bool_type }
 
 let%test "no_expr" =
   Ast.no_expr ~loc = { bool_const with Abssyn.expr_expr = Abssyn.NoExpr }
 
 let%test "replace_expr" =
-  Ast.replace_expr ~expr:bool_const ~new_expr:Abssyn.NoExpr ~typ:T.bool_type
+  Ast.replace_expr ~expr:bool_const ~typ:T.bool_type Abssyn.NoExpr
   = {
       Abssyn.expr_expr = Abssyn.NoExpr;
       expr_typ = Some T.bool_type;
-      expr_loc = loc;
+      expr_loc = loc';
     }
 
 let%test "add_type" =
@@ -71,8 +77,8 @@ let%test "add_type" =
 let%test "create_let" =
   let bindings =
     [
-      ({ Abssyn.elem = (y, T.bool_type); loc }, bool_const, loc);
-      ({ Abssyn.elem = (x, T.int_type); loc = loc2 }, int_const, loc2);
+      ({ Abssyn.elem = (y, T.bool_type); loc = loc' }, bool_const, loc);
+      ({ Abssyn.elem = (x, T.int_type); loc = loc2' }, int_const, loc2);
     ]
   in
   Ast.create_let ~bindings ~body:var_expr
@@ -80,31 +86,33 @@ let%test "create_let" =
       Abssyn.expr_expr =
         Abssyn.Let
           {
-            let_var = { Abssyn.elem = (x, T.int_type); loc = loc2 };
+            let_var = { Abssyn.elem = (x, T.int_type); loc = loc2' };
             let_init = int_const;
             let_body =
               {
                 Abssyn.expr_expr =
                   Abssyn.Let
                     {
-                      let_var = { Abssyn.elem = (y, T.bool_type); loc };
+                      let_var = { Abssyn.elem = (y, T.bool_type); loc = loc' };
                       let_init = bool_const;
                       let_body = var_expr;
                     };
                 expr_typ = None;
-                expr_loc = loc;
+                expr_loc = loc';
               };
           };
       expr_typ = None;
-      expr_loc = loc2;
+      expr_loc = loc2';
     }
 
-let%test "create_var_decl" = Ast.create_var_decl ~id:"x" ~typ:"A" = (x, cl_a)
+let%test "create_var_node" =
+  Ast.create_var_node ~id:"x" ~typ:"A" ~loc
+  = { Abssyn.elem = (x, cl_a); loc = loc' }
 
 let%test "self_var_expr" =
   Ast.self_var_expr ~loc
   = {
       Abssyn.expr_expr = Abssyn.Variable Tables.self_var;
       expr_typ = None;
-      expr_loc = loc;
+      expr_loc = loc';
     }

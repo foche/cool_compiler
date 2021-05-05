@@ -4,22 +4,27 @@ open! StdLabels
 module Tbls = Util.Tables
 module Abssyn = Abstractsyntax
 
-let create_expr ?typ ~expr expr_loc =
-  { Abssyn.expr_expr = expr; expr_typ = typ; expr_loc }
+type raw_pos = Lexing.position * Lexing.position
+
+let create_node ~loc elem = { Abssyn.elem; loc = Location.create loc }
+
+let create_expr ?typ ~loc expr =
+  { Abssyn.expr_expr = expr; expr_typ = typ; expr_loc = Location.create loc }
 
 let create_let ~bindings ~body =
   List.fold_left
     ~f:(fun let_body (let_var, let_init, loc) ->
-      create_expr ~expr:(Abssyn.Let { Abssyn.let_var; let_init; let_body }) loc)
+      create_expr ~loc (Abssyn.Let { Abssyn.let_var; let_init; let_body }))
     ~init:body bindings
 
-let no_expr ~loc = create_expr ~expr:Abssyn.NoExpr loc
+let no_expr ~loc = create_expr ~loc Abssyn.NoExpr
 
-let replace_expr ~expr ~new_expr ~typ =
+let replace_expr ~typ ~expr new_expr =
   { expr with Abssyn.expr_expr = new_expr; expr_typ = Some typ }
 
 let add_type ~typ expr = { expr with Abssyn.expr_typ = Some typ }
 
-let create_var_decl ~id ~typ = (Tbls.make_id id, Tbls.make_type typ)
+let create_var_node ~id ~typ ~loc =
+  (Tbls.make_id id, Tbls.make_type typ) |> create_node ~loc
 
-let self_var_expr ~loc = create_expr ~expr:(Abssyn.Variable Tbls.self_var) loc
+let self_var_expr ~loc = create_expr ~loc (Abssyn.Variable Tbls.self_var)

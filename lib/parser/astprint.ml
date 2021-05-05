@@ -20,7 +20,7 @@ let print_str_const = Format.printf "%a" Tbls.print_str
 
 let print_int_const = Format.printf "%a" Tbls.print_int
 
-let print_header (startpos, _) =
+let print_header { Location.startpos; _ } =
   Format.printf "#%d@,@[<v 2>%s" startpos.Lexing.pos_lnum
 
 let print_type_opt typ_opt =
@@ -220,7 +220,7 @@ let print_class { Abssyn.elem = { Abssyn.cl_typ; cl_parent; cl_features }; loc }
   print_type cl_typ;
   Format.print_cut ();
   print_type cl_parent;
-  Format.printf "@,%S@,(@," (fst loc).Lexing.pos_fname;
+  Format.printf "@,%S@,(@," loc.Location.startpos.Lexing.pos_fname;
   List.iter
     ~f:(fun feature ->
       print_feature feature;

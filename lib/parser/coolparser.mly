@@ -83,14 +83,12 @@ let parse :=
 let class_def :=
 | CLASS; typ = TYPEID; cl_parent = parent; LBRACE; cl_features = feature*; RBRACE; SEMI;
     {
-        {
-            Abssyn.elem = {
+        Ast.create_node ~loc:$loc
+            {
                 Abssyn.cl_typ = Tbls.make_type typ;
                 cl_parent;
                 cl_features;
-            };
-            loc = $loc;
-        }
+            }
     }
 
 let parent :=
@@ -100,18 +98,16 @@ let parent :=
 
 let feature :=
 | field_var = var_decl; field_init = init; SEMI;
-    { { Abssyn.elem = Abssyn.Field { Abssyn.field_var; field_init }; loc = $loc; } }
+    { Abssyn.Field { Abssyn.field_var; field_init } |> Ast.create_node ~loc:$loc }
 | id = OBJECTID; ~ = formals; COLON; ret_typ = TYPEID; LBRACE; ~ = expr; RBRACE; SEMI;
     {
-        {
-            Abssyn.elem = Abssyn.Method {
-                Abssyn.method_id = Tbls.make_id id;
-                method_formals = formals;
-                method_ret_typ = Tbls.make_type ret_typ;
-                method_body = expr;
-            };
-            loc = $loc;
+        Abssyn.Method {
+            Abssyn.method_id = Tbls.make_id id;
+            method_formals = formals;
+            method_ret_typ = Tbls.make_type ret_typ;
+            method_body = expr;
         }
+        |> Ast.create_node ~loc:$loc
     }
 
 let init :=
@@ -124,73 +120,70 @@ let formals :=
 
 let var_decl :=
 | id = OBJECTID; COLON; typ = TYPEID;
-    { { Abssyn.elem = Ast.create_var_decl ~id ~typ; loc = $loc; } }
+    { Ast.create_var_node ~id ~typ ~loc:$loc }
 
 let expr :=
 | id = OBJECTID; ASSIGN; ~ = expr;
-    { Ast.create_expr ~expr:(Abssyn.Assign (Tbls.make_id id, expr)) $loc }
+    { Ast.create_expr ~loc:$loc (Abssyn.Assign (Tbls.make_id id, expr)) }
 | method_id = OBJECTID; dyn_args = args;
     {
-        Ast.create_expr ~expr:(
-            Abssyn.DynamicDispatch {
-                Abssyn.dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
-                dyn_method_id = Tbls.make_id method_id;
-                dyn_args;
-            })
-        $loc
+        Abssyn.DynamicDispatch {
+            Abssyn.dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
+            dyn_method_id = Tbls.make_id method_id;
+            dyn_args;
+        }
+        |> Ast.create_expr ~loc:$loc
     }
 | dyn_recv = expr; DOT; method_id = OBJECTID; dyn_args = args;
     {
-        Ast.create_expr ~expr:(
-            Abssyn.DynamicDispatch {
-                Abssyn.dyn_recv;
-                dyn_method_id = Tbls.make_id method_id;
-                dyn_args;
-            })
-        $loc
+        Abssyn.DynamicDispatch {
+            Abssyn.dyn_recv;
+            dyn_method_id = Tbls.make_id method_id;
+            dyn_args;
+        }
+        |> Ast.create_expr ~loc:$loc
     }
 | stat_recv = expr; AT; target_typ = TYPEID; DOT; method_id = OBJECTID; stat_args = args;
     {
-        Ast.create_expr ~expr:(
-            Abssyn.StaticDispatch {
-                Abssyn.stat_recv;
-                stat_target_typ = Tbls.make_type target_typ;
-                stat_method_id = Tbls.make_id method_id;
-                stat_args;
-                stat_label = None;
-            })
-        $loc
+        Abssyn.StaticDispatch {
+            Abssyn.stat_recv;
+            stat_target_typ = Tbls.make_type target_typ;
+            stat_method_id = Tbls.make_id method_id;
+            stat_args;
+            stat_label = None;
+        }
+        |> Ast.create_expr ~loc:$loc
     }
 | IF; cond_pred = expr; THEN; cond_true = expr; ELSE; cond_false = expr; FI;
-    { Ast.create_expr ~expr:(Abssyn.Cond { Abssyn.cond_pred; cond_true; cond_false }) $loc }
+    { Abssyn.Cond { Abssyn.cond_pred; cond_true; cond_false } |> Ast.create_expr ~loc:$loc }
 | WHILE; loop_pred = expr; LOOP; loop_body = expr; POOL;
-    { Ast.create_expr ~expr:(Abssyn.Loop { Abssyn.loop_pred; loop_body }) $loc }
+    { Abssyn.Loop { Abssyn.loop_pred; loop_body } |> Ast.create_expr ~loc:$loc }
 | LBRACE; exprs = rev(terminated(expr, SEMI)+); RBRACE;
-    { Ast.create_expr ~expr:(Abssyn.Block (List.tl exprs |> List.rev, List.hd exprs)) $loc }
+    { Abssyn.Block (List.tl exprs |> List.rev, List.hd exprs) |> Ast.create_expr ~loc:$loc }
 | LET; bindings = rev(separated_nonempty_list(COMMA, binding)); IN; body = expr;
     { Ast.create_let ~bindings ~body } %prec let_prec
 | CASE; case_expr = expr; OF; case_branches = branch+; ESAC;
-    { Ast.create_expr ~expr:(Abssyn.Case { Abssyn.case_expr; case_branches }) $loc }
+    { Abssyn.Case { Abssyn.case_expr; case_branches } |> Ast.create_expr ~loc:$loc }
 | NEW; typ = TYPEID;
-    { Ast.create_expr ~expr:(Abssyn.New (Tbls.make_type typ)) $loc }
+    { Abssyn.New (Tbls.make_type typ) |> Ast.create_expr ~loc:$loc }
 | arith_e1 = expr; ~ = arith_op; arith_e2 = expr;
-    { Ast.create_expr ~expr:(Abssyn.Arith { Abssyn.arith_op; arith_e1; arith_e2 }) $loc }
+    { Abssyn.Arith { Abssyn.arith_op; arith_e1; arith_e2 } |> Ast.create_expr ~loc:$loc }
 | comp_e1 = expr; ~ = comp_op; comp_e2 = expr;
-    { Ast.create_expr ~expr:(Abssyn.Comp { Abssyn.comp_op; comp_e1; comp_e2 }) $loc }
+    { Abssyn.Comp { Abssyn.comp_op; comp_e1; comp_e2 } |> Ast.create_expr ~loc:$loc }
 | e1 = expr; EQ; e2 = expr;
-    { Ast.create_expr ~expr:(Abssyn.Eq (e1, e2)) $loc }
+    { Abssyn.Eq (e1, e2) |> Ast.create_expr ~loc:$loc }
 | op = unary_op; e = expr;
-    { Ast.create_expr ~expr:(op e) $loc }
+    { op e |> Ast.create_expr ~loc:$loc }
 | LPAREN; ~ = expr; RPAREN;
     <>
 | id = OBJECTID;
-    { Ast.create_expr ~expr:(Abssyn.Variable (Tbls.make_id id)) $loc }
+    { Abssyn.Variable (Tbls.make_id id) |> Ast.create_expr ~loc:$loc }
 | x = INT_CONST;
-    { Ast.create_expr ~expr:(Abssyn.IntConst (Tbls.make_int x)) $loc }
+    { Abssyn.IntConst (Tbls.make_int x) |> Ast.create_expr ~loc:$loc }
 | s = STR_CONST;
-    { Ast.create_expr ~expr:(Abssyn.StrConst (Tbls.make_str s)) $loc }
+    { Abssyn.StrConst (Tbls.make_str s) |> Ast.create_expr ~loc:$loc }
 | x = BOOL_CONST;
-    { Ast.create_expr ~expr:(Abssyn.BoolConst x) $loc }
+    { Abssyn.BoolConst x |> Ast.create_expr ~loc:$loc }
 
 (* this needs to be a macro to avoid shift/reduce conflicts *)
 let arith_op ==
@@ -213,11 +206,11 @@ let comp_op ==
 (* same as above *)
 let unary_op ==
 | NEG;
-    { (fun e -> Abssyn.Neg e) }
+    { fun e -> Abssyn.Neg e }
 | NOT;
-    { (fun e -> Abssyn.Not e) }
+    { fun e -> Abssyn.Not e }
 | ISVOID;
-    { (fun e -> Abssyn.IsVoid e) }
+    { fun e -> Abssyn.IsVoid e }
 
 let binding :=
 | ~ = var_decl; ~ = init;
@@ -225,7 +218,8 @@ let binding :=
 
 let branch :=
 | branch_var = var_decl; DARROW; branch_body = expr; SEMI;
-    { { Abssyn.elem = { Abssyn.branch_var; branch_body }; loc = $loc; } }
+    { Ast.create_node ~loc:$loc { Abssyn.branch_var; branch_body } }
 
-let args := LPAREN; ~ = separated_list(COMMA, expr); RPAREN;
+let args :=
+| LPAREN; ~ = separated_list(COMMA, expr); RPAREN;
     <>

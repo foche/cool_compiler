@@ -2,9 +2,7 @@
 
 module Tbls = Util.Tables
 
-type loc = Lexing.position * Lexing.position
-
-type 'a with_pos = { elem : 'a; loc : loc }
+type 'a with_pos = { elem : 'a; loc : Location.t }
 
 type arith_op = Plus | Minus | Mult | Div
 
@@ -39,7 +37,7 @@ type expr =
 and expr_node = {
   expr_expr : expr;
   expr_typ : Tbls.typ_sym Option.t;
-  expr_loc : loc;
+  expr_loc : Location.t;
 }
 
 and cond_expr = {
