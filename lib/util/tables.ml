@@ -53,6 +53,14 @@ let print_str ppf s = find_str s |> Format.fprintf ppf "%S"
 
 let print_int ppf x = find_int x |> Format.fprintf ppf "%s"
 
+let id_module = Strtbl.handle_module id_tbl
+
+let typ_module = Strtbl.handle_module type_tbl
+
+let int_module = Strtbl.handle_module int_const_tbl
+
+let str_module = Strtbl.handle_module str_const_tbl
+
 let empty_str = make_str ""
 
 let object_type = make_type "Object"

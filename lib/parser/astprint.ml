@@ -20,8 +20,8 @@ let print_str_const = Format.printf "%a" Tbls.print_str
 
 let print_int_const = Format.printf "%a" Tbls.print_int
 
-let print_header { Location.startpos; _ } =
-  Format.printf "#%d@,@[<v 2>%s" startpos.Lexing.pos_lnum
+let print_header loc =
+  Location.start_line_num loc |> Format.printf "#%d@,@[<v 2>%s"
 
 let print_type_opt typ_opt =
   Format.printf ": ";
@@ -52,12 +52,12 @@ and print_e loc expr =
   let print_header_with_name = print_header loc in
   let print_e_list = print_list print_expr in
   (match expr with
-  | Abssyn.Assign (id, expr') ->
+  | Abssyn.Assign (id, sub_expr) ->
       print_header_with_name "_assign";
       Format.print_cut ();
       print_id id;
       Format.print_cut ();
-      print_expr expr'
+      print_expr sub_expr
   | Abssyn.DynamicDispatch { Abssyn.dyn_recv; dyn_method_id; dyn_args } ->
       print_header_with_name "_dispatch";
       Format.print_cut ();
@@ -95,7 +95,7 @@ and print_e loc expr =
       print_header_with_name "_loop";
       Format.print_cut ();
       print_e_list [ loop_pred; loop_body ]
-  | Abssyn.Block (stmts, expr) ->
+  | Abssyn.Block (stmts, sub_expr) ->
       print_header_with_name "_block";
       Format.print_cut ();
       List.iter
@@ -103,7 +103,7 @@ and print_e loc expr =
           print_expr stmt;
           Format.print_cut ())
         stmts;
-      print_expr expr
+      print_expr sub_expr
   | Abssyn.Let
       { Abssyn.let_var = { Abssyn.elem = var, typ; _ }; let_init; let_body } ->
       print_header_with_name "_let";
@@ -125,18 +125,18 @@ and print_e loc expr =
       print_header_with_name "_new";
       Format.print_cut ();
       print_type typ
-  | Abssyn.IsVoid expr' ->
+  | Abssyn.IsVoid sub_expr ->
       print_header_with_name "_isvoid";
       Format.print_cut ();
-      print_expr expr'
+      print_expr sub_expr
   | Abssyn.Arith { Abssyn.arith_op; arith_e1; arith_e2 } ->
       get_arith_name arith_op |> print_header_with_name;
       Format.print_cut ();
       print_e_list [ arith_e1; arith_e2 ]
-  | Abssyn.Neg expr' ->
+  | Abssyn.Neg sub_expr ->
       print_header_with_name "_neg";
       Format.print_cut ();
-      print_expr expr'
+      print_expr sub_expr
   | Abssyn.Comp { Abssyn.comp_op; comp_e1; comp_e2 } ->
       get_comp_name comp_op |> print_header_with_name;
       Format.print_cut ();
@@ -145,10 +145,10 @@ and print_e loc expr =
       print_header_with_name "_eq";
       Format.print_cut ();
       print_e_list [ e1; e2 ]
-  | Abssyn.Not expr' ->
+  | Abssyn.Not sub_expr ->
       print_header_with_name "_comp";
       Format.print_cut ();
-      print_expr expr'
+      print_expr sub_expr
   | Abssyn.Variable handle ->
       print_header_with_name "_object";
       Format.print_cut ();
@@ -179,25 +179,21 @@ let print_formal { Abssyn.elem = id, typ; loc } =
   print_id id;
   Format.print_cut ();
   print_type typ;
-  Format.printf "@]"
+  Format.printf "@]@,"
 
-let print_method loc
+let print_method ~loc
     { Abssyn.method_id; method_formals; method_ret_typ; method_body } =
   print_header loc "_method";
   Format.print_cut ();
   print_id method_id;
   Format.print_cut ();
-  List.iter
-    ~f:(fun formal ->
-      print_formal formal;
-      Format.print_cut ())
-    method_formals;
+  List.iter ~f:print_formal method_formals;
   print_type method_ret_typ;
   Format.print_cut ();
   print_expr method_body;
-  Format.printf "@]"
+  Format.printf "@]@,"
 
-let print_field loc
+let print_field ~loc
     { Abssyn.field_var = { Abssyn.elem = id, typ; _ }; field_init } =
   print_header loc "_attr";
   Format.print_cut ();
@@ -206,26 +202,17 @@ let print_field loc
   print_type typ;
   Format.print_cut ();
   print_expr field_init;
-  Format.printf "@]"
+  Format.printf "@]@,"
 
-let print_feature { Abssyn.elem; loc } =
-  match elem with
-  | Abssyn.Method method_def -> print_method loc method_def
-  | Abssyn.Field field_def -> print_field loc field_def
-
-let print_class { Abssyn.elem = { Abssyn.cl_typ; cl_parent; cl_features }; loc }
-    =
+let print_class cl =
+  let { Abssyn.elem = { Abssyn.cl_typ; cl_parent; _ }; loc } = cl in
   print_header loc "_class";
   Format.print_cut ();
   print_type cl_typ;
   Format.print_cut ();
   print_type cl_parent;
-  Format.printf "@,%S@,(@," loc.Location.startpos.Lexing.pos_fname;
-  List.iter
-    ~f:(fun feature ->
-      print_feature feature;
-      Format.print_cut ())
-    cl_features;
+  Location.filename loc |> Format.printf "@,%S@,(@,";
+  Ast.iter_features ~method_f:print_method ~field_f:print_field cl;
   Format.printf ")@]"
 
 let print_ast { Abssyn.elem; loc } =

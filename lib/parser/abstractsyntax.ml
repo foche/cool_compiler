@@ -95,10 +95,12 @@ type field_def = { field_var : var_node; field_init : expr_node }
 
 type feature = Method of method_def | Field of field_def
 
+type feature_node = feature with_pos
+
 type class_def = {
   cl_typ : Tbls.typ_sym;
   cl_parent : Tbls.typ_sym;
-  cl_features : feature with_pos List.t;
+  cl_features : feature_node List.t;
 }
 
 type class_node = class_def with_pos

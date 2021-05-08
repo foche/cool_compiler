@@ -35,6 +35,14 @@ val print_str : Format.formatter -> str_sym -> Unit.t
 
 val print_int : Format.formatter -> int_sym -> Unit.t
 
+val id_module : id_sym Strtbl.handle_module
+
+val typ_module : typ_sym Strtbl.handle_module
+
+val int_module : int_sym Strtbl.handle_module
+
+val str_module : str_sym Strtbl.handle_module
+
 val empty_str : str_sym
 
 val object_type : typ_sym

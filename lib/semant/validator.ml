@@ -2,14 +2,17 @@
 
 module Tbls = Util.Tables
 
-let bind ?(accept = lazy ()) ~checker ~err_fun acc =
-  if Lazy.force checker then (
-    Lazy.force accept;
-    acc)
+let fold ?accept ~err_fun ~fail ~success pred =
+  if pred then (
+    Option.iter (fun cont -> Lazy.force cont) accept;
+    Lazy.force success)
   else (
     Lazy.force err_fun;
-    false)
+    fail)
 
-let is_not_self_var ~id = lazy (id <> Tbls.self_var)
+let map ?accept ~pred ~err_fun acc =
+  fold ?accept ~err_fun ~fail:false ~success:(lazy acc) pred
 
-let is_not_self_type ~typ = lazy (typ <> Tbls.self_type)
+let is_not_self_var id = id <> Tbls.self_var
+
+let is_not_self_type typ = typ <> Tbls.self_type

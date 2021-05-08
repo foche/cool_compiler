@@ -3,6 +3,7 @@
 open! StdLabels
 open! MoreLabels
 module Abssyn = Parser.Abstractsyntax
+module Ast = Parser.Ast
 module Tbls = Util.Tables
 module Tree = Util.Tree
 
@@ -16,12 +17,12 @@ type validator_args = {
 let main_method_exists = ref false
 
 let is_valid_type ~parents ~typ =
-  lazy (typ = Tbls.object_type || Hashtbl.mem parents typ)
+  typ = Tbls.object_type || Hashtbl.mem parents typ
 
-let check_field_type ~parents
-    ~field_var:{ Abssyn.elem = field_id, field_typ; loc } =
-  Validator.bind
-    ~checker:(is_valid_type ~parents ~typ:field_typ)
+let check_field_type ~parents ~loc:_
+    { Abssyn.field_var = { Abssyn.elem = field_id, field_typ; loc }; _ } =
+  Validator.map
+    ~pred:(is_valid_type ~parents ~typ:field_typ)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Class %a of attribute %a is undefined."
@@ -29,8 +30,8 @@ let check_field_type ~parents
     true
 
 let check_formal ~parents { Abssyn.elem = formal_id, formal_typ; loc } =
-  Validator.bind
-    ~checker:(is_valid_type ~parents ~typ:formal_typ)
+  Validator.map
+    ~pred:(is_valid_type ~parents ~typ:formal_typ)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc
@@ -38,30 +39,26 @@ let check_formal ~parents { Abssyn.elem = formal_id, formal_typ; loc } =
            formal_typ Tbls.print_id formal_id))
     true
 
-let check_ret_type ~parents ~method_def ~loc =
+let check_ret_type ~parents ~loc method_def =
   let { Abssyn.method_ret_typ; method_id; _ } = method_def in
-  Validator.bind
-    ~checker:(is_valid_type ~parents ~typ:method_ret_typ)
+  Validator.map
+    ~pred:(is_valid_type ~parents ~typ:method_ret_typ)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Undefined return type %a in method %a."
            Tbls.print_type method_ret_typ Tbls.print_id method_id))
     true
 
-let check_method ~parents ~method_def ~loc =
+let check_method ~parents ~loc method_def =
   let valid_formals =
     List.for_all ~f:(check_formal ~parents) method_def.Abssyn.method_formals
   in
-  check_ret_type ~parents ~method_def ~loc && valid_formals
+  check_ret_type ~parents ~loc method_def && valid_formals
 
-let check_feature ~parents { Abssyn.elem; loc } =
-  match elem with
-  | Abssyn.Method method_def -> check_method ~parents ~method_def ~loc
-  | Abssyn.Field { Abssyn.field_var; _ } -> check_field_type ~parents ~field_var
-
-let validate_feature_types ~parents
-    { Abssyn.elem = { Abssyn.cl_features; _ }; _ } =
-  List.for_all ~f:(check_feature ~parents) cl_features
+let validate_feature_types ~parents cl =
+  Ast.for_all_features ~method_f:(check_method ~parents)
+    ~field_f:(check_field_type ~parents)
+    cl
 
 let validate_main_method ~cl_typ
     ~method_def:{ Abssyn.method_id; method_formals; _ } ~loc =
@@ -71,8 +68,8 @@ let validate_main_method ~cl_typ
   (not is_main_method)
   ||
   let _ = main_method_exists := true in
-  Validator.bind
-    ~checker:(lazy (List.compare_length_with method_formals ~len:0 = 0))
+  Validator.map
+    ~pred:(List.compare_length_with method_formals ~len:0 = 0)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc
@@ -82,9 +79,8 @@ let validate_main_method ~cl_typ
 let add_to_sigs sigs ~cl_typ
     ~method_def:{ Abssyn.method_formals; method_id; method_ret_typ; _ } ~loc =
   let formals = List.map ~f:(fun formal -> formal.Abssyn.elem) method_formals in
-  Validator.bind
-    ~checker:
-      (lazy (Methodtbl.add sigs ~cl_typ ~method_id ~method_ret_typ ~formals))
+  Validator.map
+    ~pred:(Methodtbl.add sigs ~cl_typ ~method_id ~method_ret_typ ~formals)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Method %a is multiply defined."
@@ -92,46 +88,41 @@ let add_to_sigs sigs ~cl_typ
     true
 
 let validate_formal_not_self { Abssyn.elem = id, typ; loc } =
-  Validator.bind
-    ~checker:(Validator.is_not_self_var ~id)
+  Validator.map
+    ~pred:(Validator.is_not_self_var id)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc
            "'self' cannot be the name of a formal parameter."))
     true
-  |> Validator.bind
-       ~checker:(Validator.is_not_self_type ~typ)
+  |> Validator.map
+       ~pred:(Validator.is_not_self_type typ)
        ~err_fun:
          (lazy
            (Semantprint.print_error ~loc
               "Formal parameter %a cannot have type SELF_TYPE." Tbls.print_id id))
 
-let validate_method ~sigs ~method_def ~cl_typ ~loc =
+let validate_method ~sigs ~cl_typ ~loc method_def =
   let is_unique = add_to_sigs sigs ~cl_typ ~method_def ~loc in
   let is_valid_main = validate_main_method ~cl_typ ~method_def ~loc in
   List.for_all ~f:validate_formal_not_self method_def.Abssyn.method_formals
   && is_unique && is_valid_main
 
-let validate_field_not_self ~field_var:{ Abssyn.elem = field_id, _; loc } =
-  Validator.bind
-    ~checker:(Validator.is_not_self_var ~id:field_id)
+let validate_field_not_self ~loc:_
+    { Abssyn.field_var = { Abssyn.elem = field_id, _; loc }; _ } =
+  Validator.map
+    ~pred:(Validator.is_not_self_var field_id)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc
            "'self' cannot be the name of an attribute."))
     true
 
-let validate_feature ~args ~cl_typ { Abssyn.elem; loc } =
-  match elem with
-  | Abssyn.Field { Abssyn.field_var; _ } -> validate_field_not_self ~field_var
-  | Abssyn.Method method_def ->
-      validate_method ~sigs:args.sigs ~method_def ~cl_typ ~loc
-
 let add_to_parents ~parents
     ~cl:{ Abssyn.elem = { Abssyn.cl_typ; cl_parent; _ }; loc } =
-  Validator.bind
+  Validator.map
     ~accept:(lazy (Hashtbl.add parents ~key:cl_typ ~data:cl_parent))
-    ~checker:(lazy (Hashtbl.mem parents cl_typ |> not))
+    ~pred:(Hashtbl.mem parents cl_typ |> not)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Class %a was previously defined."
@@ -140,8 +131,8 @@ let add_to_parents ~parents
 
 let is_valid_inheritance
     ~cl:{ Abssyn.elem = { Abssyn.cl_typ; cl_parent; _ }; loc } =
-  Validator.bind
-    ~checker:(lazy (Hashtbl.mem Tbls.inheritance_blocklist cl_parent |> not))
+  Validator.map
+    ~pred:(Hashtbl.mem Tbls.inheritance_blocklist cl_parent |> not)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Class %a cannot inherit class %a."
@@ -149,9 +140,8 @@ let is_valid_inheritance
     true
 
 let is_unreserved ~cl:{ Abssyn.elem; loc } =
-  Validator.bind
-    ~checker:
-      (lazy (Hashtbl.mem Tbls.reserved_classes elem.Abssyn.cl_typ |> not))
+  Validator.map
+    ~pred:(Hashtbl.mem Tbls.reserved_classes elem.Abssyn.cl_typ |> not)
     ~err_fun:
       (lazy
         (Semantprint.print_error ~loc "Redefinition of basic class %a."
@@ -159,17 +149,18 @@ let is_unreserved ~cl:{ Abssyn.elem; loc } =
     true
 
 let validate_class ~args cl =
-  let { Abssyn.elem = { Abssyn.cl_typ; cl_features; _ }; _ } = cl in
+  let { Abssyn.elem = { Abssyn.cl_typ; _ }; _ } = cl in
   Hashtbl.add args.handle_to_class ~key:cl_typ ~data:cl;
   let is_valid_type = is_unreserved ~cl in
   let is_valid_parent = is_valid_inheritance ~cl in
   let is_unique = is_valid_type && add_to_parents ~parents:args.parents ~cl in
-  List.for_all ~f:(validate_feature ~args ~cl_typ) cl_features
+  Ast.for_all_features
+    ~method_f:(validate_method ~sigs:args.sigs ~cl_typ)
+    ~field_f:validate_field_not_self cl
   && is_valid_type && is_valid_parent && is_unique
 
 let validate_main_method_exists ~loc =
-  Validator.bind
-    ~checker:(lazy !main_method_exists)
+  Validator.map ~pred:!main_method_exists
     ~err_fun:
       (lazy (Semantprint.print_error ~loc "No 'main' method in class Main."))
     true

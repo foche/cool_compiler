@@ -28,3 +28,26 @@ let create_var_node ~id ~typ ~loc =
   (Tbls.make_id id, Tbls.make_type typ) |> create_node ~loc
 
 let self_var_expr ~loc = create_expr ~loc (Abssyn.Variable Tbls.self_var)
+
+let replace_features ~cl cl_features =
+  { cl with Abssyn.elem = { cl.Abssyn.elem with Abssyn.cl_features } }
+
+let match_feature ~method_f ~field_f { Abssyn.elem; loc } =
+  match elem with
+  | Abssyn.Method method_def -> method_f ~loc method_def
+  | Abssyn.Field field_def -> field_f ~loc field_def
+
+let iter_features ~method_f ~field_f cl =
+  List.iter
+    ~f:(match_feature ~method_f ~field_f)
+    cl.Abssyn.elem.Abssyn.cl_features
+
+let for_all_features ~method_f ~field_f cl =
+  List.for_all
+    ~f:(match_feature ~method_f ~field_f)
+    cl.Abssyn.elem.Abssyn.cl_features
+
+let rev_map_features ~method_f ~field_f cl =
+  List.rev_map
+    ~f:(match_feature ~method_f ~field_f)
+    cl.Abssyn.elem.Abssyn.cl_features

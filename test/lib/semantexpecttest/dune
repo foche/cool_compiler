@@ -1,5 +1,6 @@
 (executable
  (name semantexpecttest)
+ (modes byte exe)
  (libraries semant parser translator))
 
 (rule

@@ -3,6 +3,8 @@
 type 'a handle
 (** A [handle] that identifies a string. Can be used to retrieve the original string. *)
 
+type 'a handle_module = (module Set.OrderedType with type t = 'a)
+
 type ('a, 'b) t
 (** The type of string tables. *)
 
@@ -16,3 +18,5 @@ val find : ('a, 'b) t -> 'b handle -> 'a
 (** [find tbl h] uses handle [h] to look up its associated string. *)
 
 val length : ('a, 'b) t -> Int.t
+
+val handle_module : ('a, 'b) t -> 'b handle handle_module
