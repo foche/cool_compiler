@@ -1,63 +1,65 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "comparisons.test"
+    _inherits: Object
+    _file_name: "comparisons.test"
     (
-    #2
+    _line_num: 2
     _method
-      foo
-      #2
+      foo (
+      _line_num: 2
       _formal
         a
         A
-      Bool
-      #2
+      )
+      : Bool
+      _line_num: 2
       _block
-        #2
+        _line_num: 2
         _lt
-          #2
+          _line_num: 2
           _int
             6
           : Int
-          #2
+          _line_num: 2
           _int
             7
           : Int
         : Bool
-        #2
+        _line_num: 2
         _leq
-          #2
+          _line_num: 2
           _int
             6
           : Int
-          #2
+          _line_num: 2
           _int
             7
           : Int
         : Bool
-        #2
+        _line_num: 2
         _comp
-          #2
+          _line_num: 2
           _bool
-            1
+            true
           : Bool
         : Bool
       : Bool
     )
-  #5
+  _line_num: 5
   _class
     Main
-    Object
-    "comparisons.test"
+    _inherits: Object
+    _file_name: "comparisons.test"
     (
-    #5
+    _line_num: 5
     _method
-      main
-      Int
-      #5
+      main (
+      )
+      : Int
+      _line_num: 5
       _int
         6
       : Int

@@ -1,35 +1,36 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Test
-    Object
-    "dispatchonearg.test"
+    _inherits: Object
+    _file_name: "dispatchonearg.test"
     (
-    #2
+    _line_num: 2
     _attr
       foo
-      Test
-      #2
+      : Test
+      _line_num: 2
       _no_expr
       : _no_type
-    #3
+    _line_num: 3
     _method
-      bar
-      #3
+      bar (
+      _line_num: 3
       _formal
         x
         Baz
-      Object
-      #3
+      )
+      : Object
+      _line_num: 3
       _dispatch
-        #3
+        _is_tail: false
+        _line_num: 3
         _object
           foo
         : _no_type
-        bar
-        (
-        #3
+        bar (
+        _line_num: 3
         _object
           x
         : _no_type

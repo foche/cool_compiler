@@ -68,6 +68,7 @@ and dynamic_dispatch_expr = {
   dyn_recv : expr_node;
   dyn_method_id : Tbls.id_sym;
   dyn_args : expr_node List.t;
+  dyn_is_tail : Bool.t;
 }
 
 and static_dispatch_expr = {
@@ -76,6 +77,7 @@ and static_dispatch_expr = {
   stat_method_id : Tbls.id_sym;
   stat_args : expr_node List.t;
   stat_label : Tbls.id_sym Option.t;
+  stat_is_tail : Bool.t;
 }
 
 and branch = { branch_var : var_node; branch_body : expr_node }

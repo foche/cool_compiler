@@ -1,446 +1,450 @@
-#3
+_line_num: 3
 _program
-  #3
+  _line_num: 3
   _class
     Foo
-    Bazz
-    "hairyscary.cl.test"
+    _inherits: Bazz
+    _file_name: "hairyscary.cl.test"
     (
-    #4
+    _line_num: 4
     _attr
       a
-      Razz
-      #4
+      : Razz
+      _line_num: 4
       _typcase
-        #4
+        _line_num: 4
         _object
           self
         : SELF_TYPE
-        #5
+        _line_num: 5
         _branch
           n
           Razz
-          #5
+          _line_num: 5
           _new
             Bar
           : Bar
-        #6
+        _line_num: 6
         _branch
           n
           Foo
-          #6
+          _line_num: 6
           _new
             Razz
           : Razz
-        #7
+        _line_num: 7
         _branch
           n
           Bar
-          #7
+          _line_num: 7
           _object
             n
           : Bar
       : Razz
-    #10
+    _line_num: 10
     _attr
       b
-      Int
-      #10
+      : Int
+      _line_num: 10
       _plus
-        #10
+        _line_num: 10
         _plus
-          #10
+          _line_num: 10
           _plus
-            #10
+            _line_num: 10
             _dispatch
-              #10
+              _is_tail: false
+              _line_num: 10
               _object
                 a
               : Razz
-              doh
-              (
+              doh (
               )
             : Int
-            #10
+            _line_num: 10
             _dispatch
-              #10
+              _is_tail: false
+              _line_num: 10
               _object
                 g
               : Foo
-              doh
-              (
+              doh (
               )
             : Int
           : Int
-          #10
+          _line_num: 10
           _dispatch
-            #10
+            _is_tail: false
+            _line_num: 10
             _object
               self
             : SELF_TYPE
-            doh
-            (
+            doh (
             )
           : Int
         : Int
-        #10
+        _line_num: 10
         _dispatch
-          #10
+          _is_tail: false
+          _line_num: 10
           _object
             self
           : SELF_TYPE
-          printh
-          (
+          printh (
           )
         : Int
       : Int
-    #12
+    _line_num: 12
     _method
-      doh
-      Int
-      #12
+      doh (
+      )
+      : Int
+      _line_num: 12
       _let
         i
         Int
-        #12
+        _line_num: 12
         _object
           h
         : Int
-        #12
+        _line_num: 12
         _block
-          #12
+          _line_num: 12
           _assign
             h
-            #12
+            _line_num: 12
             _plus
-              #12
+              _line_num: 12
               _object
                 h
               : Int
-              #12
+              _line_num: 12
               _int
                 2
               : Int
             : Int
           : Int
-          #12
+          _line_num: 12
           _object
             i
           : Int
         : Int
       : Int
     )
-  #16
+  _line_num: 16
   _class
     Bar
-    Razz
-    "hairyscary.cl.test"
+    _inherits: Razz
+    _file_name: "hairyscary.cl.test"
     (
-    #18
+    _line_num: 18
     _attr
       c
-      Int
-      #18
+      : Int
+      _line_num: 18
       _dispatch
-        #18
+        _is_tail: false
+        _line_num: 18
         _object
           self
         : SELF_TYPE
-        doh
-        (
+        doh (
         )
       : Int
-    #20
+    _line_num: 20
     _attr
       d
-      Object
-      #20
+      : Object
+      _line_num: 20
       _dispatch
-        #20
+        _is_tail: false
+        _line_num: 20
         _object
           self
         : SELF_TYPE
-        printh
-        (
+        printh (
         )
       : Int
     )
-  #24
+  _line_num: 24
   _class
     Razz
-    Foo
-    "hairyscary.cl.test"
+    _inherits: Foo
+    _file_name: "hairyscary.cl.test"
     (
-    #26
+    _line_num: 26
     _attr
       e
-      Bar
-      #26
+      : Bar
+      _line_num: 26
       _typcase
-        #26
+        _line_num: 26
         _object
           self
         : SELF_TYPE
-        #27
+        _line_num: 27
         _branch
           n
           Razz
-          #27
+          _line_num: 27
           _new
             Bar
           : Bar
-        #28
+        _line_num: 28
         _branch
           n
           Bar
-          #28
+          _line_num: 28
           _object
             n
           : Bar
       : Bar
-    #31
+    _line_num: 31
     _attr
       f
-      Int
-      #31
+      : Int
+      _line_num: 31
       _plus
-        #31
+        _line_num: 31
         _plus
-          #31
+          _line_num: 31
           _plus
-            #31
+            _line_num: 31
             _plus
-              #31
+              _line_num: 31
               _static_dispatch
-                #31
+                _is_tail: false
+                _line_num: 31
                 _object
                   a
                 : Razz
                 Bazz
-                doh
-                (
+                doh (
                 )
               : Int
-              #31
+              _line_num: 31
               _dispatch
-                #31
+                _is_tail: false
+                _line_num: 31
                 _object
                   g
                 : Foo
-                doh
-                (
+                doh (
                 )
               : Int
             : Int
-            #31
+            _line_num: 31
             _dispatch
-              #31
+              _is_tail: false
+              _line_num: 31
               _object
                 e
               : Bar
-              doh
-              (
+              doh (
               )
             : Int
           : Int
-          #31
+          _line_num: 31
           _dispatch
-            #31
+            _is_tail: false
+            _line_num: 31
             _object
               self
             : SELF_TYPE
-            doh
-            (
+            doh (
             )
           : Int
         : Int
-        #31
+        _line_num: 31
         _dispatch
-          #31
+          _is_tail: false
+          _line_num: 31
           _object
             self
           : SELF_TYPE
-          printh
-          (
+          printh (
           )
         : Int
       : Int
     )
-  #35
+  _line_num: 35
   _class
     Bazz
-    IO
-    "hairyscary.cl.test"
+    _inherits: IO
+    _file_name: "hairyscary.cl.test"
     (
-    #37
+    _line_num: 37
     _attr
       h
-      Int
-      #37
+      : Int
+      _line_num: 37
       _int
         1
       : Int
-    #39
+    _line_num: 39
     _attr
       g
-      Foo
-      #39
+      : Foo
+      _line_num: 39
       _typcase
-        #39
+        _line_num: 39
         _object
           self
         : SELF_TYPE
-        #40
+        _line_num: 40
         _branch
           n
           Bazz
-          #40
+          _line_num: 40
           _new
             Foo
           : Foo
-        #41
+        _line_num: 41
         _branch
           n
           Razz
-          #41
+          _line_num: 41
           _new
             Bar
           : Bar
-        #42
+        _line_num: 42
         _branch
           n
           Foo
-          #42
+          _line_num: 42
           _new
             Razz
           : Razz
-        #43
+        _line_num: 43
         _branch
           n
           Bar
-          #43
+          _line_num: 43
           _object
             n
           : Bar
       : Foo
-    #46
+    _line_num: 46
     _attr
       i
-      Object
-      #46
+      : Object
+      _line_num: 46
       _dispatch
-        #46
+        _is_tail: false
+        _line_num: 46
         _object
           self
         : SELF_TYPE
-        printh
-        (
+        printh (
         )
       : Int
-    #48
+    _line_num: 48
     _method
-      printh
-      Int
-      #48
+      printh (
+      )
+      : Int
+      _line_num: 48
       _block
-        #48
+        _line_num: 48
         _dispatch
-          #48
+          _is_tail: false
+          _line_num: 48
           _object
             self
           : SELF_TYPE
-          out_int
-          (
-          #48
+          out_int (
+          _line_num: 48
           _object
             h
           : Int
           )
         : SELF_TYPE
-        #48
+        _line_num: 48
         _int
           0
         : Int
       : Int
-    #50
+    _line_num: 50
     _method
-      doh
-      Int
-      #50
+      doh (
+      )
+      : Int
+      _line_num: 50
       _let
         i
         Int
-        #50
+        _line_num: 50
         _object
           h
         : Int
-        #50
+        _line_num: 50
         _block
-          #50
+          _line_num: 50
           _assign
             h
-            #50
+            _line_num: 50
             _plus
-              #50
+              _line_num: 50
               _object
                 h
               : Int
-              #50
+              _line_num: 50
               _int
                 1
               : Int
             : Int
           : Int
-          #50
+          _line_num: 50
           _object
             i
           : Int
         : Int
       : Int
     )
-  #54
+  _line_num: 54
   _class
     Main
-    Object
-    "hairyscary.cl.test"
+    _inherits: Object
+    _file_name: "hairyscary.cl.test"
     (
-    #55
+    _line_num: 55
     _attr
       a
-      Bazz
-      #55
+      : Bazz
+      _line_num: 55
       _new
         Bazz
       : Bazz
-    #56
+    _line_num: 56
     _attr
       b
-      Foo
-      #56
+      : Foo
+      _line_num: 56
       _new
         Foo
       : Foo
-    #57
+    _line_num: 57
     _attr
       c
-      Razz
-      #57
+      : Razz
+      _line_num: 57
       _new
         Razz
       : Razz
-    #58
+    _line_num: 58
     _attr
       d
-      Bar
-      #58
+      : Bar
+      _line_num: 58
       _new
         Bar
       : Bar
-    #60
+    _line_num: 60
     _method
-      main
-      String
-      #60
+      main (
+      )
+      : String
+      _line_num: 60
       _string
         "do nothing"
       : String

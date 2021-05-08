@@ -1,142 +1,146 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "methodcallsitself.test"
+    _inherits: Object
+    _file_name: "methodcallsitself.test"
     (
-    #1
+    _line_num: 1
     _method
-      main
-      Int
-      #1
+      main (
+      )
+      : Int
+      _line_num: 1
       _int
         0
       : Int
     )
-  #3
+  _line_num: 3
   _class
     A
-    Object
-    "methodcallsitself.test"
+    _inherits: Object
+    _file_name: "methodcallsitself.test"
     (
-    #4
+    _line_num: 4
     _method
-      f
-      Int
-      #4
+      f (
+      )
+      : Int
+      _line_num: 4
       _dispatch
-        #4
+        _is_tail: true
+        _line_num: 4
         _object
           self
         : SELF_TYPE
-        f
-        (
+        f (
         )
       : Int
-    #5
+    _line_num: 5
     _method
-      g
-      #5
+      g (
+      _line_num: 5
       _formal
         a
         Int
-      Int
-      #5
+      )
+      : Int
+      _line_num: 5
       _dispatch
-        #5
+        _is_tail: true
+        _line_num: 5
         _object
           self
         : SELF_TYPE
-        g
-        (
-        #5
+        g (
+        _line_num: 5
         _dispatch
-          #5
+          _is_tail: false
+          _line_num: 5
           _object
             self
           : SELF_TYPE
-          g
-          (
-          #5
+          g (
+          _line_num: 5
           _dispatch
-            #5
+            _is_tail: false
+            _line_num: 5
             _object
               self
             : SELF_TYPE
-            f
-            (
+            f (
             )
           : Int
           )
         : Int
         )
       : Int
-    #6
+    _line_num: 6
     _method
-      h
-      #6
+      h (
+      _line_num: 6
       _formal
         a
         Int
-      #6
+      _line_num: 6
       _formal
         b
         Int
-      Int
-      #6
+      )
+      : Int
+      _line_num: 6
       _dispatch
-        #6
+        _is_tail: true
+        _line_num: 6
         _object
           self
         : SELF_TYPE
-        h
-        (
-        #6
+        h (
+        _line_num: 6
         _dispatch
-          #6
+          _is_tail: false
+          _line_num: 6
           _object
             self
           : SELF_TYPE
-          h
-          (
-          #6
+          h (
+          _line_num: 6
           _int
             0
           : Int
-          #6
+          _line_num: 6
           _int
             0
           : Int
           )
         : Int
-        #6
+        _line_num: 6
         _dispatch
-          #6
+          _is_tail: false
+          _line_num: 6
           _object
             self
           : SELF_TYPE
-          h
-          (
-          #6
+          h (
+          _line_num: 6
           _dispatch
-            #6
+            _is_tail: false
+            _line_num: 6
             _object
               self
             : SELF_TYPE
-            f
-            (
+            f (
             )
           : Int
-          #6
+          _line_num: 6
           _dispatch
-            #6
+            _is_tail: false
+            _line_num: 6
             _object
               self
             : SELF_TYPE
-            f
-            (
+            f (
             )
           : Int
           )

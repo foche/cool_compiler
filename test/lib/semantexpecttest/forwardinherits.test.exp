@@ -1,44 +1,45 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    B
-    "forwardinherits.test"
+    _inherits: B
+    _file_name: "forwardinherits.test"
     (
-    #3
+    _line_num: 3
     _attr
       foo
-      Int
-      #3
+      : Int
+      _line_num: 3
       _no_expr
       : Int
     )
-  #7
+  _line_num: 7
   _class
     B
-    Object
-    "forwardinherits.test"
+    _inherits: Object
+    _file_name: "forwardinherits.test"
     (
-    #9
+    _line_num: 9
     _attr
       bar
-      Int
-      #9
+      : Int
+      _line_num: 9
       _no_expr
       : Int
     )
-  #12
+  _line_num: 12
   _class
     Main
-    Object
-    "forwardinherits.test"
+    _inherits: Object
+    _file_name: "forwardinherits.test"
     (
-    #12
+    _line_num: 12
     _method
-      main
-      Int
-      #12
+      main (
+      )
+      : Int
+      _line_num: 12
       _int
         6
       : Int

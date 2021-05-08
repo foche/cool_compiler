@@ -1,64 +1,66 @@
-#5
+_line_num: 5
 _program
-  #5
+  _line_num: 5
   _class
     CellularAutomaton
-    IO
-    "cells.cl.test"
+    _inherits: IO
+    _file_name: "cells.cl.test"
     (
-    #6
+    _line_num: 6
     _attr
       population_map
-      String
-      #6
+      : String
+      _line_num: 6
       _no_expr
       : String
-    #8
+    _line_num: 8
     _method
-      init
-      #8
+      init (
+      _line_num: 8
       _formal
         map
         String
-      SELF_TYPE
-      #9
+      )
+      : SELF_TYPE
+      _line_num: 9
       _block
-        #10
+        _line_num: 10
         _assign
           population_map
-          #10
+          _line_num: 10
           _object
             map
           : String
         : String
-        #11
+        _line_num: 11
         _object
           self
         : SELF_TYPE
       : SELF_TYPE
-    #15
+    _line_num: 15
     _method
-      print
-      SELF_TYPE
-      #16
+      print (
+      )
+      : SELF_TYPE
+      _line_num: 16
       _block
-        #17
+        _line_num: 17
         _dispatch
-          #17
+          _is_tail: false
+          _line_num: 17
           _object
             self
           : SELF_TYPE
-          out_string
-          (
-          #17
+          out_string (
+          _line_num: 17
           _dispatch
-            #17
+            _is_tail: false
+            _line_num: 17
             _object
               population_map
             : String
-            concat
-            (
-            #17
+            concat (
+            _line_num: 17
             _string
               "\n"
             : String
@@ -66,114 +68,117 @@ _program
           : String
           )
         : SELF_TYPE
-        #18
+        _line_num: 18
         _object
           self
         : SELF_TYPE
       : SELF_TYPE
-    #22
+    _line_num: 22
     _method
-      num_cells
-      Int
-      #23
+      num_cells (
+      )
+      : Int
+      _line_num: 23
       _dispatch
-        #23
+        _is_tail: true
+        _line_num: 23
         _object
           population_map
         : String
-        length
-        (
+        length (
         )
       : Int
-    #26
+    _line_num: 26
     _method
-      cell
-      #26
+      cell (
+      _line_num: 26
       _formal
         position
         Int
-      String
-      #27
+      )
+      : String
+      _line_num: 27
       _dispatch
-        #27
+        _is_tail: true
+        _line_num: 27
         _object
           population_map
         : String
-        substr
-        (
-        #27
+        substr (
+        _line_num: 27
         _object
           position
         : Int
-        #27
+        _line_num: 27
         _int
           1
         : Int
         )
       : String
-    #30
+    _line_num: 30
     _method
-      cell_left_neighbor
-      #30
+      cell_left_neighbor (
+      _line_num: 30
       _formal
         position
         Int
-      String
-      #31
+      )
+      : String
+      _line_num: 31
       _cond
-        #31
+        _line_num: 31
         _eq
-          #31
+          _line_num: 31
           _object
             position
           : Int
-          #31
+          _line_num: 31
           _int
             0
           : Int
         : Bool
-        #32
+        _line_num: 32
         _dispatch
-          #32
+          _is_tail: true
+          _line_num: 32
           _object
             self
           : SELF_TYPE
-          cell
-          (
-          #32
+          cell (
+          _line_num: 32
           _sub
-            #32
+            _line_num: 32
             _dispatch
-              #32
+              _is_tail: false
+              _line_num: 32
               _object
                 self
               : SELF_TYPE
-              num_cells
-              (
+              num_cells (
               )
             : Int
-            #32
+            _line_num: 32
             _int
               1
             : Int
           : Int
           )
         : String
-        #34
+        _line_num: 34
         _dispatch
-          #34
+          _is_tail: true
+          _line_num: 34
           _object
             self
           : SELF_TYPE
-          cell
-          (
-          #34
+          cell (
+          _line_num: 34
           _sub
-            #34
+            _line_num: 34
             _object
               position
             : Int
-            #34
+            _line_num: 34
             _int
               1
             : Int
@@ -181,69 +186,70 @@ _program
           )
         : String
       : String
-    #38
+    _line_num: 38
     _method
-      cell_right_neighbor
-      #38
+      cell_right_neighbor (
+      _line_num: 38
       _formal
         position
         Int
-      String
-      #39
+      )
+      : String
+      _line_num: 39
       _cond
-        #39
+        _line_num: 39
         _eq
-          #39
+          _line_num: 39
           _object
             position
           : Int
-          #39
+          _line_num: 39
           _sub
-            #39
+            _line_num: 39
             _dispatch
-              #39
+              _is_tail: false
+              _line_num: 39
               _object
                 self
               : SELF_TYPE
-              num_cells
-              (
+              num_cells (
               )
             : Int
-            #39
+            _line_num: 39
             _int
               1
             : Int
           : Int
         : Bool
-        #40
+        _line_num: 40
         _dispatch
-          #40
+          _is_tail: true
+          _line_num: 40
           _object
             self
           : SELF_TYPE
-          cell
-          (
-          #40
+          cell (
+          _line_num: 40
           _int
             0
           : Int
           )
         : String
-        #42
+        _line_num: 42
         _dispatch
-          #42
+          _is_tail: true
+          _line_num: 42
           _object
             self
           : SELF_TYPE
-          cell
-          (
-          #42
+          cell (
+          _line_num: 42
           _plus
-            #42
+            _line_num: 42
             _object
               position
             : Int
-            #42
+            _line_num: 42
             _int
               1
             : Int
@@ -251,203 +257,205 @@ _program
           )
         : String
       : String
-    #48
+    _line_num: 48
     _method
-      cell_at_next_evolution
-      #48
+      cell_at_next_evolution (
+      _line_num: 48
       _formal
         position
         Int
-      String
-      #49
+      )
+      : String
+      _line_num: 49
       _cond
-        #49
+        _line_num: 49
         _eq
-          #49
+          _line_num: 49
           _plus
-            #49
+            _line_num: 49
             _plus
-              #49
+              _line_num: 49
               _cond
-                #49
+                _line_num: 49
                 _eq
-                  #49
+                  _line_num: 49
                   _dispatch
-                    #49
+                    _is_tail: false
+                    _line_num: 49
                     _object
                       self
                     : SELF_TYPE
-                    cell
-                    (
-                    #49
+                    cell (
+                    _line_num: 49
                     _object
                       position
                     : Int
                     )
                   : String
-                  #49
+                  _line_num: 49
                   _string
                     "X"
                   : String
                 : Bool
-                #49
+                _line_num: 49
                 _int
                   1
                 : Int
-                #49
+                _line_num: 49
                 _int
                   0
                 : Int
               : Int
-              #50
+              _line_num: 50
               _cond
-                #50
+                _line_num: 50
                 _eq
-                  #50
+                  _line_num: 50
                   _dispatch
-                    #50
+                    _is_tail: false
+                    _line_num: 50
                     _object
                       self
                     : SELF_TYPE
-                    cell_left_neighbor
-                    (
-                    #50
+                    cell_left_neighbor (
+                    _line_num: 50
                     _object
                       position
                     : Int
                     )
                   : String
-                  #50
+                  _line_num: 50
                   _string
                     "X"
                   : String
                 : Bool
-                #50
+                _line_num: 50
                 _int
                   1
                 : Int
-                #50
+                _line_num: 50
                 _int
                   0
                 : Int
               : Int
             : Int
-            #51
+            _line_num: 51
             _cond
-              #51
+              _line_num: 51
               _eq
-                #51
+                _line_num: 51
                 _dispatch
-                  #51
+                  _is_tail: false
+                  _line_num: 51
                   _object
                     self
                   : SELF_TYPE
-                  cell_right_neighbor
-                  (
-                  #51
+                  cell_right_neighbor (
+                  _line_num: 51
                   _object
                     position
                   : Int
                   )
                 : String
-                #51
+                _line_num: 51
                 _string
                   "X"
                 : String
               : Bool
-              #51
+              _line_num: 51
               _int
                 1
               : Int
-              #51
+              _line_num: 51
               _int
                 0
               : Int
             : Int
           : Int
-          #52
+          _line_num: 52
           _int
             1
           : Int
         : Bool
-        #54
+        _line_num: 54
         _string
           "X"
         : String
-        #56
+        _line_num: 56
         _string
           "."
         : String
       : String
-    #60
+    _line_num: 60
     _method
-      evolve
-      SELF_TYPE
-      #61
+      evolve (
+      )
+      : SELF_TYPE
+      _line_num: 61
       _let
         position
         Int
-        #61
+        _line_num: 61
         _no_expr
         : Int
-        #62
+        _line_num: 62
         _let
           num
           Int
-          #62
+          _line_num: 62
           _dispatch
-            #62
+            _is_tail: false
+            _line_num: 62
             _object
               self
             : SELF_TYPE
-            num_cells
-            (
+            num_cells (
             )
           : Int
-          #63
+          _line_num: 63
           _let
             temp
             String
-            #63
+            _line_num: 63
             _no_expr
             : String
-            #64
+            _line_num: 64
             _block
-              #65
+              _line_num: 65
               _loop
-                #65
+                _line_num: 65
                 _lt
-                  #65
+                  _line_num: 65
                   _object
                     position
                   : Int
-                  #65
+                  _line_num: 65
                   _object
                     num
                   : Int
                 : Bool
-                #66
+                _line_num: 66
                 _block
-                  #67
+                  _line_num: 67
                   _assign
                     temp
-                    #67
+                    _line_num: 67
                     _dispatch
-                      #67
+                      _is_tail: false
+                      _line_num: 67
                       _object
                         temp
                       : String
-                      concat
-                      (
-                      #67
+                      concat (
+                      _line_num: 67
                       _dispatch
-                        #67
+                        _is_tail: false
+                        _line_num: 67
                         _object
                           self
                         : SELF_TYPE
-                        cell_at_next_evolution
-                        (
-                        #67
+                        cell_at_next_evolution (
+                        _line_num: 67
                         _object
                           position
                         : Int
@@ -456,16 +464,16 @@ _program
                       )
                     : String
                   : String
-                  #68
+                  _line_num: 68
                   _assign
                     position
-                    #68
+                    _line_num: 68
                     _plus
-                      #68
+                      _line_num: 68
                       _object
                         position
                       : Int
-                      #68
+                      _line_num: 68
                       _int
                         1
                       : Int
@@ -473,15 +481,15 @@ _program
                   : Int
                 : Int
               : Object
-              #71
+              _line_num: 71
               _assign
                 population_map
-                #71
+                _line_num: 71
                 _object
                   temp
                 : String
               : String
-              #72
+              _line_num: 72
               _object
                 self
               : SELF_TYPE
@@ -490,106 +498,107 @@ _program
         : SELF_TYPE
       : SELF_TYPE
     )
-  #78
+  _line_num: 78
   _class
     Main
-    Object
-    "cells.cl.test"
+    _inherits: Object
+    _file_name: "cells.cl.test"
     (
-    #79
+    _line_num: 79
     _attr
       cells
-      CellularAutomaton
-      #79
+      : CellularAutomaton
+      _line_num: 79
       _no_expr
       : CellularAutomaton
-    #81
+    _line_num: 81
     _method
-      main
-      SELF_TYPE
-      #82
+      main (
+      )
+      : SELF_TYPE
+      _line_num: 82
       _block
-        #83
+        _line_num: 83
         _assign
           cells
-          #83
+          _line_num: 83
           _dispatch
-            #83
+            _is_tail: false
+            _line_num: 83
             _new
               CellularAutomaton
             : CellularAutomaton
-            init
-            (
-            #83
+            init (
+            _line_num: 83
             _string
               "         X         "
             : String
             )
           : CellularAutomaton
         : CellularAutomaton
-        #84
+        _line_num: 84
         _dispatch
-          #84
+          _is_tail: false
+          _line_num: 84
           _object
             cells
           : CellularAutomaton
-          print
-          (
+          print (
           )
         : CellularAutomaton
-        #85
+        _line_num: 85
         _let
           countdown
           Int
-          #85
+          _line_num: 85
           _int
             20
           : Int
-          #86
+          _line_num: 86
           _loop
-            #86
+            _line_num: 86
             _lt
-              #86
+              _line_num: 86
               _int
                 0
               : Int
-              #86
+              _line_num: 86
               _object
                 countdown
               : Int
             : Bool
-            #87
+            _line_num: 87
             _block
-              #88
+              _line_num: 88
               _dispatch
-                #88
+                _is_tail: false
+                _line_num: 88
                 _object
                   cells
                 : CellularAutomaton
-                evolve
-                (
+                evolve (
                 )
               : CellularAutomaton
-              #89
+              _line_num: 89
               _dispatch
-                #89
+                _is_tail: false
+                _line_num: 89
                 _object
                   cells
                 : CellularAutomaton
-                print
-                (
+                print (
                 )
               : CellularAutomaton
-              #90
+              _line_num: 90
               _assign
                 countdown
-                #90
+                _line_num: 90
                 _sub
-                  #90
+                  _line_num: 90
                   _object
                     countdown
                   : Int
-                  #90
+                  _line_num: 90
                   _int
                     1
                   : Int
@@ -598,7 +607,7 @@ _program
             : Int
           : Object
         : Object
-        #94
+        _line_num: 94
         _object
           self
         : SELF_TYPE

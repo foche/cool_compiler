@@ -1,52 +1,54 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "inheritsObject.test"
+    _inherits: Object
+    _file_name: "inheritsObject.test"
     (
-    #3
+    _line_num: 3
     _attr
       foo
-      Int
-      #3
+      : Int
+      _line_num: 3
       _no_expr
       : Int
-    #5
+    _line_num: 5
     _method
-      main
-      Int
-      #6
+      main (
+      )
+      : Int
+      _line_num: 6
       _int
         6
       : Int
     )
-  #11
+  _line_num: 11
   _class
     B
-    Object
-    "inheritsObject.test"
+    _inherits: Object
+    _file_name: "inheritsObject.test"
     (
-    #13
+    _line_num: 13
     _attr
       bar
-      Int
-      #13
+      : Int
+      _line_num: 13
       _no_expr
       : Int
     )
-  #17
+  _line_num: 17
   _class
     Main
-    Object
-    "inheritsObject.test"
+    _inherits: Object
+    _file_name: "inheritsObject.test"
     (
-    #17
+    _line_num: 17
     _method
-      main
-      Int
-      #17
+      main (
+      )
+      : Int
+      _line_num: 17
       _int
         6
       : Int

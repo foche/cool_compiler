@@ -1,134 +1,139 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "classes.test"
+    _inherits: Object
+    _file_name: "classes.test"
     (
-    #3
+    _line_num: 3
     _attr
       a
-      Int
-      #3
+      : Int
+      _line_num: 3
       _int
         0
       : Int
-    #4
+    _line_num: 4
     _attr
       d
-      Int
-      #4
+      : Int
+      _line_num: 4
       _int
         1
       : Int
-    #5
+    _line_num: 5
     _method
-      f
-      Int
-      #5
+      f (
+      )
+      : Int
+      _line_num: 5
       _assign
         a
-        #5
+        _line_num: 5
         _plus
-          #5
+          _line_num: 5
           _object
             a
           : Int
-          #5
+          _line_num: 5
           _object
             d
           : Int
         : Int
       : Int
     )
-  #9
+  _line_num: 9
   _class
     B
-    A
-    "classes.test"
+    _inherits: A
+    _file_name: "classes.test"
     (
-    #10
+    _line_num: 10
     _attr
       b
-      Int
-      #10
+      : Int
+      _line_num: 10
       _int
         2
       : Int
-    #11
+    _line_num: 11
     _method
-      f
-      Int
-      #11
+      f (
+      )
+      : Int
+      _line_num: 11
       _object
         a
       : Int
-    #12
+    _line_num: 12
     _method
-      g
-      Int
-      #12
+      g (
+      )
+      : Int
+      _line_num: 12
       _assign
         a
-        #12
+        _line_num: 12
         _sub
-          #12
+          _line_num: 12
           _object
             a
           : Int
-          #12
+          _line_num: 12
           _object
             b
           : Int
         : Int
       : Int
     )
-  #15
+  _line_num: 15
   _class
     C
-    A
-    "classes.test"
+    _inherits: A
+    _file_name: "classes.test"
     (
-    #16
+    _line_num: 16
     _attr
       c
-      Int
-      #16
+      : Int
+      _line_num: 16
       _int
         3
       : Int
-    #17
+    _line_num: 17
     _method
-      h
-      Int
-      #17
+      h (
+      )
+      : Int
+      _line_num: 17
       _assign
         a
-        #17
+        _line_num: 17
         _sub
-          #17
+          _line_num: 17
           _object
             a
           : Int
-          #17
+          _line_num: 17
           _object
             c
           : Int
         : Int
       : Int
     )
-  #19
+  _line_num: 19
   _class
     Main
-    Object
-    "classes.test"
+    _inherits: Object
+    _file_name: "classes.test"
     (
-    #19
+    _line_num: 19
     _method
-      main
-      Int
-      #19
+      main (
+      )
+      : Int
+      _line_num: 19
       _int
         6
       : Int

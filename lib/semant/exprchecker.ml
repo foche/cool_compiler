@@ -36,7 +36,8 @@ let get_arith_op_str = function
 
 let get_comp_op_str = function Abssyn.Lt -> "<" | Abssyn.Le -> "<="
 
-let rec aux ?(super_typ = Tbls.object_type) ~ctx ~cont expr =
+let rec aux ?(super_typ = Tbls.object_type) ?(is_tail_pos = false) ~ctx ~cont
+    expr =
   (match expr.Abssyn.expr_expr with
   | Abssyn.IntConst _ -> Ast.add_type ~typ:Tbls.int_type expr
   | Abssyn.StrConst _ -> Ast.add_type ~typ:Tbls.string_type expr
@@ -44,8 +45,9 @@ let rec aux ?(super_typ = Tbls.object_type) ~ctx ~cont expr =
   | Abssyn.Variable id -> aux_var ~ctx ~expr id
   | Abssyn.Assign (id, sub_expr) -> aux_assign ~ctx ~expr ~id sub_expr
   | Abssyn.New typ -> aux_new ~ctx ~expr typ
-  | Abssyn.Cond cond_expr -> aux_cond ~ctx ~expr cond_expr
-  | Abssyn.Block (stmts, sub_expr) -> aux_block ~ctx ~expr stmts sub_expr
+  | Abssyn.Cond cond_expr -> aux_cond ~is_tail_pos ~ctx ~expr cond_expr
+  | Abssyn.Block (stmts, sub_expr) ->
+      aux_block ~is_tail_pos ~ctx ~expr stmts sub_expr
   | Abssyn.IsVoid sub_expr -> aux_isvoid ~ctx ~expr sub_expr
   | Abssyn.Loop loop_expr -> aux_loop ~ctx ~expr loop_expr
   | Abssyn.Not sub_expr -> aux_not ~ctx ~expr sub_expr
@@ -53,17 +55,16 @@ let rec aux ?(super_typ = Tbls.object_type) ~ctx ~cont expr =
   | Abssyn.Arith arith_expr -> aux_arith ~ctx ~expr arith_expr
   | Abssyn.Comp comp_expr -> aux_comp ~ctx ~expr comp_expr
   | Abssyn.Eq (e1, e2) -> aux_eq ~ctx ~expr e1 e2
-  | Abssyn.Let let_expr -> aux_let ~ctx ~expr let_expr
-  | Abssyn.DynamicDispatch dyn -> aux_dyn_dispatch ~ctx ~expr dyn
-  | Abssyn.StaticDispatch stat -> aux_stat_dispatch ~ctx ~expr stat
-  | Abssyn.Case case_expr -> aux_case ~ctx ~expr case_expr
+  | Abssyn.Let let_expr -> aux_let ~is_tail_pos ~ctx ~expr let_expr
+  | Abssyn.DynamicDispatch dyn -> aux_dyn_dispatch ~is_tail_pos ~ctx ~expr dyn
+  | Abssyn.StaticDispatch stat -> aux_stat_dispatch ~is_tail_pos ~ctx ~expr stat
+  | Abssyn.Case case_expr -> aux_case ~is_tail_pos ~ctx ~expr case_expr
   | Abssyn.NoExpr -> Ast.add_type ~typ:super_typ expr)
   |> cont
 
-and aux2 ~ctx ~cont e1 e2 =
-  aux ~ctx
-    ~cont:(fun typed_e1 ->
-      aux ~ctx ~cont:(fun typed_e2 -> cont typed_e1 typed_e2) e2)
+and aux2 ?is_tail_pos ~ctx ~cont e1 e2 =
+  aux ?is_tail_pos ~ctx
+    ~cont:(fun typed_e1 -> aux ?is_tail_pos ~ctx ~cont:(cont typed_e1) e2)
     e1
 
 and aux_var ~ctx ~expr id =
@@ -94,7 +95,7 @@ and aux_assign ~ctx ~expr ~id sub_expr =
                  type %a of identifier %a."
                 Tbls.print_type sub_expr_typ Tbls.print_type var_typ
                 Tbls.print_id id)
-            ~expr ~sub_expr ~super_typ:var_typ)
+            ~super_typ:var_typ ~expr sub_expr)
   in
   Validator.is_not_self_var id
   |> Validator.fold
@@ -111,34 +112,36 @@ and aux_new ~ctx ~expr typ =
        ~fail:expr
        ~success:(lazy (Ast.add_type ~typ expr))
 
-and aux_cond ~ctx ~expr { Abssyn.cond_pred; cond_true; cond_false } =
-  rec_helper ~ctx
-    ~cont:(fun ~typed_sub_expr:typed_pred _ ->
-      let cont typed_true typed_false =
-        Opts.fold2 ~none:expr
-          ~some:(fun true_typ false_typ ->
-            let cond_typ =
-              lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ true_typ
-                false_typ
-            in
-            Abssyn.Cond
-              {
-                Abssyn.cond_pred = typed_pred;
-                cond_true = typed_true;
-                cond_false = typed_false;
-              }
-            |> Ast.replace_expr ~expr ~typ:cond_typ)
-          typed_true.Abssyn.expr_typ typed_false.Abssyn.expr_typ
-      in
-      aux2 ~ctx ~cont cond_true cond_false)
+and aux_cond ~is_tail_pos ~ctx ~expr { Abssyn.cond_pred; cond_true; cond_false }
+    =
+  let cont ~typed_sub_expr:typed_pred _ =
+    let cont typed_true typed_false =
+      Opts.fold2 ~none:expr
+        ~some:(fun true_typ false_typ ->
+          let cond_typ =
+            lca ~inherit_tree:ctx.inherit_tree ~cl_typ:ctx.cl_typ true_typ
+              false_typ
+          in
+          Abssyn.Cond
+            {
+              Abssyn.cond_pred = typed_pred;
+              cond_true = typed_true;
+              cond_false = typed_false;
+            }
+          |> Ast.replace_expr ~expr ~typ:cond_typ)
+        typed_true.Abssyn.expr_typ typed_false.Abssyn.expr_typ
+    in
+    aux2 ~is_tail_pos ~ctx ~cont cond_true cond_false
+  in
+  rec_helper ~ctx ~cont
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:cond_pred.Abssyn.expr_loc
         "Predicate of 'if' does not have type Bool.")
-    ~expr ~sub_expr:cond_pred ~super_typ:Tbls.bool_type
+    ~super_typ:Tbls.bool_type ~expr cond_pred
 
-and aux_block ~ctx ~expr stmts sub_expr =
+and aux_block ~is_tail_pos ~ctx ~expr stmts sub_expr =
   let typed_stmts = List.map ~f:(aux ~ctx ~cont:Fun.id) stmts in
-  aux ~ctx
+  aux ~is_tail_pos ~ctx
     ~cont:(fun typed_sub_expr ->
       let valid_stmts =
         List.for_all
@@ -179,7 +182,7 @@ and aux_loop ~ctx ~expr { Abssyn.loop_pred; loop_body } =
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:loop_pred.Abssyn.expr_loc
         "Loop condition does not have type Bool.")
-    ~expr ~sub_expr:loop_pred ~super_typ:Tbls.bool_type
+    ~super_typ:Tbls.bool_type ~expr loop_pred
 
 and aux_not ~ctx ~expr sub_expr =
   rec_helper ~ctx
@@ -189,7 +192,7 @@ and aux_not ~ctx ~expr sub_expr =
       Semantprint.print_error ~loc:sub_expr.Abssyn.expr_loc
         "Argument of 'not' has type %a instead of Bool." Tbls.print_type
         sub_expr_typ)
-    ~expr ~sub_expr ~super_typ:Tbls.bool_type
+    ~super_typ:Tbls.bool_type ~expr sub_expr
 
 and aux_neg ~ctx ~expr sub_expr =
   rec_helper ~ctx
@@ -199,7 +202,7 @@ and aux_neg ~ctx ~expr sub_expr =
       Semantprint.print_error ~loc:sub_expr.Abssyn.expr_loc
         "Argument of '~' has type %a instead of Int." Tbls.print_type
         sub_expr_typ)
-    ~expr ~sub_expr ~super_typ:Tbls.int_type
+    ~super_typ:Tbls.int_type ~expr sub_expr
 
 and aux_arith ~ctx ~expr { Abssyn.arith_op; arith_e1; arith_e2 } =
   let op_str = get_arith_op_str arith_op in
@@ -272,7 +275,7 @@ and validate_let_type ~inherit_tree ~loc ~id var_typ =
            var_typ Tbls.print_id id))
     true
 
-and aux_let ~ctx ~expr let_expr =
+and aux_let ~is_tail_pos ~ctx ~expr let_expr =
   let { Abssyn.let_var = { Abssyn.elem = id, var_typ; _ }; let_init; _ } =
     let_expr
   in
@@ -284,23 +287,23 @@ and aux_let ~ctx ~expr let_expr =
   if is_valid_var && is_valid_type then
     rec_helper ~ctx
       ~cont:(fun ~typed_sub_expr:typed_init _ ->
-        aux_let_helper ~ctx ~expr ~let_expr ~typed_init)
-      ~err_fun:(fun ~sub_expr_typ ->
+        aux_let_helper ~is_tail_pos ~ctx ~expr ~let_expr ~typed_init)
+      ~err_fun:(fun ~sub_expr_typ:init_typ ->
         Semantprint.print_error ~loc:let_init.Abssyn.expr_loc
           "Inferred type %a of initialization of %a does not conform to \
            identifier's declared type %a."
-          Tbls.print_type sub_expr_typ Tbls.print_id id Tbls.print_type var_typ)
-      ~expr ~sub_expr:let_init ~super_typ:var_typ
+          Tbls.print_type init_typ Tbls.print_id id Tbls.print_type var_typ)
+      ~super_typ:var_typ ~expr let_init
   else expr
 
-and aux_let_helper ~ctx ~expr ~let_expr ~typed_init =
+and aux_let_helper ~is_tail_pos ~ctx ~expr ~let_expr ~typed_init =
   let cont =
     lazy
       (let { Abssyn.let_var = { Abssyn.elem = id, var_typ; _ }; let_body; _ } =
          let_expr
        in
        Symtbl.add ctx.id_env ~key:id ~data:var_typ |> ignore;
-       aux ~ctx
+       aux ~is_tail_pos ~ctx
          ~cont:(fun typed_body ->
            match typed_body.Abssyn.expr_typ with
            | None -> expr
@@ -316,7 +319,7 @@ and aux_let_helper ~ctx ~expr ~let_expr ~typed_init =
   in
   Symtbl.enter_scope ctx.id_env ~cont
 
-and aux_dyn_dispatch ~ctx ~expr dyn =
+and aux_dyn_dispatch ~is_tail_pos ~ctx ~expr dyn =
   let { Abssyn.dyn_recv; dyn_method_id; dyn_args; _ } = dyn in
   aux_dispatch_common ~ctx ~expr ~method_id:dyn_method_id ~recv:dyn_recv
     ~args:dyn_args
@@ -324,7 +327,12 @@ and aux_dyn_dispatch ~ctx ~expr dyn =
       Some (Types.translate_type ~cl_typ:ctx.cl_typ recv_typ))
     ~cont:(fun ~typed_recv ~typed_args ~trans_ret_typ ~label:_ ->
       Abssyn.DynamicDispatch
-        { dyn with Abssyn.dyn_recv = typed_recv; dyn_args = typed_args }
+        {
+          dyn with
+          Abssyn.dyn_recv = typed_recv;
+          dyn_args = typed_args;
+          dyn_is_tail = is_tail_pos;
+        }
       |> Ast.replace_expr ~expr ~typ:trans_ret_typ)
 
 and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
@@ -340,7 +348,7 @@ and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
        ~fail:None
        ~success:(lazy (Some target_typ))
 
-and aux_stat_dispatch ~ctx ~expr stat =
+and aux_stat_dispatch ~is_tail_pos ~ctx ~expr stat =
   let { Abssyn.stat_recv; stat_target_typ; stat_method_id; stat_args; _ } =
     stat
   in
@@ -358,6 +366,7 @@ and aux_stat_dispatch ~ctx ~expr stat =
                Abssyn.stat_recv = typed_recv;
                stat_args = typed_args;
                stat_label = Some label;
+               stat_is_tail = is_tail_pos;
              }
            |> Ast.replace_expr ~expr ~typ:trans_ret_typ))
   in
@@ -439,12 +448,12 @@ and validate_arg_type ~ctx ~loc ~method_id arg_typ (id, formal_typ) =
            Tbls.print_type formal_typ))
     true
 
-and aux_case ~ctx ~expr { Abssyn.case_expr; case_branches } =
+and aux_case ~is_tail_pos ~ctx ~expr { Abssyn.case_expr; case_branches } =
   aux ~ctx
     ~cont:(fun typed_case_expr ->
       let typed_branches_opt =
         List.fold_right
-          ~f:(fun branch -> Opts.merge (aux_branch ~ctx branch))
+          ~f:(fun branch -> Opts.merge (aux_branch ~is_tail_pos ~ctx branch))
           case_branches ~init:(Some [])
       in
       let typ_tbl = Hashtbl.create ((List.length case_branches * 2) - 1) in
@@ -481,7 +490,7 @@ and dedup_branches ~typ_tbl
            Tbls.print_type var_typ))
     true
 
-and aux_branch ~ctx branch =
+and aux_branch ~is_tail_pos ~ctx branch =
   let { Abssyn.elem; loc } = branch in
   let { Abssyn.branch_var = { Abssyn.elem = id, var_typ; _ }; branch_body; _ } =
     elem
@@ -490,7 +499,7 @@ and aux_branch ~ctx branch =
     let cont =
       lazy
         (Symtbl.add ctx.id_env ~key:id ~data:var_typ |> ignore;
-         let typed_body = aux ~ctx ~cont:Fun.id branch_body in
+         let typed_body = aux ~is_tail_pos ~ctx ~cont:Fun.id branch_body in
          match typed_body.Abssyn.expr_typ with
          | None -> None
          | Some body_typ ->
@@ -523,8 +532,8 @@ and validate_branch ~ctx ~loc ~id ~var_typ =
            (Semantprint.print_error ~loc "Class %a of case branch is undefined."
               Tbls.print_type var_typ))
 
-and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
-  aux ~super_typ ~ctx
+and rec_helper ?is_tail_pos ~ctx ~cont ~err_fun ~super_typ ~expr sub_expr =
+  aux ~super_typ ?is_tail_pos ~ctx
     ~cont:(fun typed_sub_expr ->
       match typed_sub_expr.Abssyn.expr_typ with
       | None -> sub_expr
@@ -537,4 +546,5 @@ and rec_helper ~ctx ~cont ~err_fun ~expr ~sub_expr ~super_typ =
                ~success:(lazy (cont ~typed_sub_expr sub_expr_typ)))
     sub_expr
 
-let typecheck ?super_typ ~ctx expr = aux ?super_typ ~ctx ~cont:Fun.id expr
+let typecheck ?super_typ ~is_tail_pos ~ctx expr =
+  aux ?super_typ ~is_tail_pos ~ctx ~cont:Fun.id expr

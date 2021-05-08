@@ -1,37 +1,39 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "objectdispatchabort.test"
+    _inherits: Object
+    _file_name: "objectdispatchabort.test"
     (
-    #3
+    _line_num: 3
     _method
-      foo
-      Object
-      #3
+      foo (
+      )
+      : Object
+      _line_num: 3
       _dispatch
-        #3
+        _is_tail: true
+        _line_num: 3
         _new
           Object
         : Object
-        abort
-        (
+        abort (
         )
       : Object
     )
-  #6
+  _line_num: 6
   _class
     Main
-    Object
-    "objectdispatchabort.test"
+    _inherits: Object
+    _file_name: "objectdispatchabort.test"
     (
-    #6
+    _line_num: 6
     _method
-      main
-      Int
-      #6
+      main (
+      )
+      : Int
+      _line_num: 6
       _int
         6
       : Int

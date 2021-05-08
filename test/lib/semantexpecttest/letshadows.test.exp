@@ -1,40 +1,41 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "letshadows.test"
+    _inherits: IO
+    _file_name: "letshadows.test"
     (
-    #2
+    _line_num: 2
     _attr
       x
-      Int
-      #2
+      : Int
+      _line_num: 2
       _no_expr
       : Int
-    #3
+    _line_num: 3
     _method
-      main
-      Object
-      #3
+      main (
+      )
+      : Object
+      _line_num: 3
       _block
-        #4
+        _line_num: 4
         _let
           x
           String
-          #4
+          _line_num: 4
           _string
             "test"
           : String
-          #4
+          _line_num: 4
           _dispatch
-            #4
+            _is_tail: true
+            _line_num: 4
             _object
               x
             : String
-            length
-            (
+            length (
             )
           : Int
         : Int

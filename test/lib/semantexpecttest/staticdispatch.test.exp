@@ -1,109 +1,112 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "staticdispatch.test"
+    _inherits: Object
+    _file_name: "staticdispatch.test"
     (
-    #2
+    _line_num: 2
     _attr
       b
-      B
-      #2
+      : B
+      _line_num: 2
       _new
         B
       : B
-    #3
+    _line_num: 3
     _method
-      main
-      Object
-      #3
+      main (
+      )
+      : Object
+      _line_num: 3
       _static_dispatch
-        #3
+        _is_tail: true
+        _line_num: 3
         _object
           b
         : B
         A
-        foo
-        (
-        #3
+        foo (
+        _line_num: 3
         _int
           5
         : Int
-        #3
+        _line_num: 3
         _object
           b
         : B
-        #3
+        _line_num: 3
         _object
           b
         : B
-        #3
+        _line_num: 3
         _object
           b
         : B
         )
       : Int
     )
-  #6
+  _line_num: 6
   _class
     A
-    Object
-    "staticdispatch.test"
+    _inherits: Object
+    _file_name: "staticdispatch.test"
     (
-    #7
+    _line_num: 7
     _method
-      foo
-      #7
+      foo (
+      _line_num: 7
       _formal
         a
         Int
-      #7
+      _line_num: 7
       _formal
         b
         B
-      #7
+      _line_num: 7
       _formal
         c
         A
-      #7
+      _line_num: 7
       _formal
         d
         B
-      Int
-      #8
+      )
+      : Int
+      _line_num: 8
       _int
         5
       : Int
     )
-  #13
+  _line_num: 13
   _class
     B
-    A
-    "staticdispatch.test"
+    _inherits: A
+    _file_name: "staticdispatch.test"
     (
-    #15
+    _line_num: 15
     _method
-      foo
-      #15
+      foo (
+      _line_num: 15
       _formal
         a
         Int
-      #15
+      _line_num: 15
       _formal
         b
         B
-      #15
+      _line_num: 15
       _formal
         c
         A
-      #15
+      _line_num: 15
       _formal
         d
         B
-      Int
-      #16
+      )
+      : Int
+      _line_num: 16
       _int
         6
       : Int

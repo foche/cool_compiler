@@ -1,34 +1,35 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "letselftype.test"
+    _inherits: IO
+    _file_name: "letselftype.test"
     (
-    #2
+    _line_num: 2
     _method
-      main
-      Object
-      #2
+      main (
+      )
+      : Object
+      _line_num: 2
       _block
-        #3
+        _line_num: 3
         _let
           y
           SELF_TYPE
-          #4
+          _line_num: 4
           _let
             x
             SELF_TYPE
-            #4
+            _line_num: 4
             _no_expr
             : SELF_TYPE
-            #4
+            _line_num: 4
             _object
               x
             : SELF_TYPE
           : SELF_TYPE
-          #5
+          _line_num: 5
           _object
             y
           : SELF_TYPE

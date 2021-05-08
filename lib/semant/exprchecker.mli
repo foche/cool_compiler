@@ -13,4 +13,8 @@ type context = {
 }
 
 val typecheck :
-  ?super_typ:Tbls.typ_sym -> ctx:context -> Abssyn.expr_node -> Abssyn.expr_node
+  ?super_typ:Tbls.typ_sym ->
+  is_tail_pos:Bool.t ->
+  ctx:context ->
+  Abssyn.expr_node ->
+  Abssyn.expr_node

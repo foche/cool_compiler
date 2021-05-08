@@ -1,48 +1,49 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "basicclassestree.test"
+    _inherits: Object
+    _file_name: "basicclassestree.test"
     (
-    #1
+    _line_num: 1
     _method
-      main
-      Int
-      #1
+      main (
+      )
+      : Int
+      _line_num: 1
       _int
         0
       : Int
     )
-  #3
+  _line_num: 3
   _class
     A
-    Object
-    "basicclassestree.test"
+    _inherits: Object
+    _file_name: "basicclassestree.test"
     (
-    #4
+    _line_num: 4
     _attr
       a
-      Object
-      #4
+      : Object
+      _line_num: 4
       _int
         0
       : Int
-    #5
+    _line_num: 5
     _attr
       b
-      Object
-      #5
+      : Object
+      _line_num: 5
       _string
         ""
       : String
-    #6
+    _line_num: 6
     _attr
       c
-      Object
-      #6
+      : Object
+      _line_num: 6
       _bool
-        1
+        true
       : Bool
     )

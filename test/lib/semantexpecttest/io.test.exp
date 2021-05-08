@@ -1,84 +1,85 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "io.test"
+    _inherits: IO
+    _file_name: "io.test"
     (
-    #2
+    _line_num: 2
     _attr
       x
-      Int
-      #2
+      : Int
+      _line_num: 2
       _no_expr
       : Int
-    #3
+    _line_num: 3
     _attr
       y
-      String
-      #3
+      : String
+      _line_num: 3
       _no_expr
       : String
-    #4
+    _line_num: 4
     _method
-      main
-      Object
-      #4
+      main (
+      )
+      : Object
+      _line_num: 4
       _block
-        #5
+        _line_num: 5
         _dispatch
-          #5
+          _is_tail: false
+          _line_num: 5
           _object
             self
           : SELF_TYPE
-          out_string
-          (
-          #5
+          out_string (
+          _line_num: 5
           _string
             "test"
           : String
           )
         : SELF_TYPE
-        #6
+        _line_num: 6
         _dispatch
-          #6
+          _is_tail: false
+          _line_num: 6
           _object
             self
           : SELF_TYPE
-          out_int
-          (
-          #6
+          out_int (
+          _line_num: 6
           _int
             5
           : Int
           )
         : SELF_TYPE
-        #7
+        _line_num: 7
         _assign
           y
-          #7
+          _line_num: 7
           _dispatch
-            #7
+            _is_tail: false
+            _line_num: 7
             _object
               self
             : SELF_TYPE
-            in_string
-            (
+            in_string (
             )
           : String
         : String
-        #8
+        _line_num: 8
         _assign
           x
-          #8
+          _line_num: 8
           _dispatch
-            #8
+            _is_tail: false
+            _line_num: 8
             _object
               self
             : SELF_TYPE
-            in_int
-            (
+            in_int (
             )
           : Int
         : Int

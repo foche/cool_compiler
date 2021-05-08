@@ -1,40 +1,41 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "assignseq.test"
+    _inherits: Object
+    _file_name: "assignseq.test"
     (
-    #2
+    _line_num: 2
     _attr
       x
-      Int
-      #2
+      : Int
+      _line_num: 2
       _no_expr
       : _no_type
-    #3
+    _line_num: 3
     _attr
       y
-      Int
-      #3
+      : Int
+      _line_num: 3
       _no_expr
       : _no_type
-    #4
+    _line_num: 4
     _method
-      main
-      Object
-      #4
+      main (
+      )
+      : Object
+      _line_num: 4
       _block
-        #4
+        _line_num: 4
         _assign
           x
-          #4
+          _line_num: 4
           _assign
             y
-            #4
+            _line_num: 4
             _neg
-              #4
+              _line_num: 4
               _int
                 5
               : _no_type

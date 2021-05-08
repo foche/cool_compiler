@@ -1,74 +1,77 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "methodnameclash.test"
+    _inherits: Object
+    _file_name: "methodnameclash.test"
     (
-    #1
+    _line_num: 1
     _attr
       x
-      Int
-      #1
+      : Int
+      _line_num: 1
       _no_expr
       : Int
-    #1
+    _line_num: 1
     _attr
       y
-      String
-      #1
+      : String
+      _line_num: 1
       _no_expr
       : String
     )
-  #3
+  _line_num: 3
   _class
     L
-    A
-    "methodnameclash.test"
+    _inherits: A
+    _file_name: "methodnameclash.test"
     (
-    #3
+    _line_num: 3
     _method
-      foo
-      Int
-      #3
+      foo (
+      )
+      : Int
+      _line_num: 3
       _object
         x
       : Int
     )
-  #4
+  _line_num: 4
   _class
     R
-    A
-    "methodnameclash.test"
+    _inherits: A
+    _file_name: "methodnameclash.test"
     (
-    #4
+    _line_num: 4
     _method
-      foo
-      String
-      #4
+      foo (
+      )
+      : String
+      _line_num: 4
       _object
         y
       : String
     )
-  #6
+  _line_num: 6
   _class
     Main
-    Object
-    "methodnameclash.test"
+    _inherits: Object
+    _file_name: "methodnameclash.test"
     (
-    #6
+    _line_num: 6
     _method
-      main
-      Int
-      #6
+      main (
+      )
+      : Int
+      _line_num: 6
       _dispatch
-        #6
+        _is_tail: true
+        _line_num: 6
         _new
           L
         : L
-        foo
-        (
+        foo (
         )
       : Int
     )

@@ -1,76 +1,80 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "trickyatdispatch.test"
+    _inherits: Object
+    _file_name: "trickyatdispatch.test"
     (
-    #1
+    _line_num: 1
     _method
-      main
-      Int
-      #1
+      main (
+      )
+      : Int
+      _line_num: 1
       _int
         0
       : Int
     )
-  #3
+  _line_num: 3
   _class
     A
-    Object
-    "trickyatdispatch.test"
+    _inherits: Object
+    _file_name: "trickyatdispatch.test"
     (
-    #4
+    _line_num: 4
     _method
-      inky
-      Int
-      #4
+      inky (
+      )
+      : Int
+      _line_num: 4
       _int
         1
       : Int
     )
-  #7
+  _line_num: 7
   _class
     B
-    A
-    "trickyatdispatch.test"
+    _inherits: A
+    _file_name: "trickyatdispatch.test"
     (
-    #8
+    _line_num: 8
     _method
-      binky
-      String
-      #8
+      binky (
+      )
+      : String
+      _line_num: 8
       _string
         "hello"
       : String
     )
-  #11
+  _line_num: 11
   _class
     C
-    Object
-    "trickyatdispatch.test"
+    _inherits: Object
+    _file_name: "trickyatdispatch.test"
     (
-    #12
+    _line_num: 12
     _attr
       b
-      B
-      #12
+      : B
+      _line_num: 12
       _no_expr
       : B
-    #13
+    _line_num: 13
     _method
-      winky
-      Int
-      #13
+      winky (
+      )
+      : Int
+      _line_num: 13
       _static_dispatch
-        #13
+        _is_tail: true
+        _line_num: 13
         _object
           b
         : B
         B
-        inky
-        (
+        inky (
         )
       : Int
     )

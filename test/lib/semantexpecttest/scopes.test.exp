@@ -1,89 +1,93 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "scopes.test"
+    _inherits: Object
+    _file_name: "scopes.test"
     (
-    #1
+    _line_num: 1
     _method
-      main
-      Int
-      #1
+      main (
+      )
+      : Int
+      _line_num: 1
       _int
         0
       : Int
     )
-  #3
+  _line_num: 3
   _class
     A
-    Object
-    "scopes.test"
+    _inherits: Object
+    _file_name: "scopes.test"
     (
-    #4
+    _line_num: 4
     _attr
       x
-      Int
-      #4
+      : Int
+      _line_num: 4
       _no_expr
       : Int
-    #6
+    _line_num: 6
     _method
-      f
-      #6
+      f (
+      _line_num: 6
       _formal
         x
         A
-      String
-      #6
+      )
+      : String
+      _line_num: 6
       _string
         "ab"
       : String
-    #7
+    _line_num: 7
     _method
-      g
-      #7
+      g (
+      _line_num: 7
       _formal
         x
         Bool
-      A
-      #7
+      )
+      : A
+      _line_num: 7
       _object
         self
       : SELF_TYPE
-    #8
+    _line_num: 8
     _method
-      h
-      Object
-      #8
+      h (
+      )
+      : Object
+      _line_num: 8
       _let
         x
         String
-        #8
+        _line_num: 8
         _dispatch
-          #8
+          _is_tail: false
+          _line_num: 8
           _object
             self
           : SELF_TYPE
-          f
-          (
-          #8
+          f (
+          _line_num: 8
           _let
             x
             Bool
-            #8
+            _line_num: 8
             _no_expr
             : Bool
-            #8
+            _line_num: 8
             _dispatch
-              #8
+              _is_tail: false
+              _line_num: 8
               _object
                 self
               : SELF_TYPE
-              g
-              (
-              #8
+              g (
+              _line_num: 8
               _object
                 x
               : Bool
@@ -92,10 +96,10 @@ _program
           : A
           )
         : String
-        #8
+        _line_num: 8
         _assign
           x
-          #8
+          _line_num: 8
           _string
             "ab"
           : String

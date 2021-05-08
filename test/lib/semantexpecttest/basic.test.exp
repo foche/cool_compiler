@@ -1,55 +1,56 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "basic.test"
+    _inherits: Object
+    _file_name: "basic.test"
     (
-    #2
+    _line_num: 2
     _method
-      main
-      Object
-      #2
+      main (
+      )
+      : Object
+      _line_num: 2
       _block
-        #2
+        _line_num: 2
         _dispatch
-          #2
+          _is_tail: false
+          _line_num: 2
           _int
             5
           : Int
-          copy
-          (
+          copy (
           )
         : Int
-        #2
+        _line_num: 2
         _dispatch
-          #2
+          _is_tail: false
+          _line_num: 2
           _string
             "test"
           : String
-          copy
-          (
+          copy (
           )
         : String
-        #2
+        _line_num: 2
         _dispatch
-          #2
+          _is_tail: false
+          _line_num: 2
           _bool
-            1
+            true
           : Bool
-          copy
-          (
+          copy (
           )
         : Bool
-        #3
+        _line_num: 3
         _dispatch
-          #3
+          _is_tail: true
+          _line_num: 3
           _string
             "test"
           : String
-          length
-          (
+          length (
           )
         : Int
       : Int

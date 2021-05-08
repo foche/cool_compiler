@@ -1,20 +1,21 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Hello
-    Object
-    "classmethodonearg.test"
+    _inherits: Object
+    _file_name: "classmethodonearg.test"
     (
-    #3
+    _line_num: 3
     _method
-      cow
-      #3
+      cow (
+      _line_num: 3
       _formal
         a
         Int
-      SELF_TYPE
-      #4
+      )
+      : SELF_TYPE
+      _line_num: 4
       _object
         self
       : _no_type

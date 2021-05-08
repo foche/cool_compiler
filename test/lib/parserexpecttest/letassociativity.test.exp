@@ -1,33 +1,34 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Goodbye
-    Object
-    "letassociativity.test"
+    _inherits: Object
+    _file_name: "letassociativity.test"
     (
-    #3
+    _line_num: 3
     _method
-      help
-      #3
+      help (
+      _line_num: 3
       _formal
         a
         Int
-      Int
-      #4
+      )
+      : Int
+      _line_num: 4
       _let
         a
         Int
-        #4
+        _line_num: 4
         _no_expr
         : _no_type
-        #5
+        _line_num: 5
         _plus
-          #5
+          _line_num: 5
           _int
             6
           : _no_type
-          #5
+          _line_num: 5
           _int
             7
           : _no_type

@@ -1,56 +1,58 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     A
-    Object
-    "newselftype.test"
+    _inherits: Object
+    _file_name: "newselftype.test"
     (
-    #3
+    _line_num: 3
     _attr
       bar
-      Int
-      #3
+      : Int
+      _line_num: 3
       _dispatch
-        #3
+        _is_tail: false
+        _line_num: 3
         _object
           self
         : SELF_TYPE
-        foo
-        (
-        #3
+        foo (
+        _line_num: 3
         _new
           SELF_TYPE
         : SELF_TYPE
         )
       : Int
-    #5
+    _line_num: 5
     _method
-      foo
-      #5
+      foo (
+      _line_num: 5
       _formal
         a
         A
-      Int
-      #5
+      )
+      : Int
+      _line_num: 5
       _neg
-        #5
+        _line_num: 5
         _int
           7
         : Int
       : Int
     )
-  #8
+  _line_num: 8
   _class
     Main
-    Object
-    "newselftype.test"
+    _inherits: Object
+    _file_name: "newselftype.test"
     (
-    #8
+    _line_num: 8
     _method
-      main
-      Int
-      #8
+      main (
+      )
+      : Int
+      _line_num: 8
       _int
         6
       : Int

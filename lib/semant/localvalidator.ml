@@ -49,7 +49,7 @@ let typecheck_field ~args ~cl_typ ~loc field_def =
   let { Abssyn.field_var = { Abssyn.elem = _, field_typ; _ }; field_init } =
     field_def
   in
-  Exprchecker.typecheck ~super_typ:field_typ
+  Exprchecker.typecheck ~super_typ:field_typ ~is_tail_pos:false
     ~ctx:
       {
         Exprchecker.id_env = args.id_env;
@@ -101,7 +101,7 @@ let typecheck_method ~args ~cl_typ ~loc method_def =
        in
        let { Abssyn.method_formals; method_body; _ } = method_def in
        if List.for_all ~f:add_formal method_formals then
-         Exprchecker.typecheck
+         Exprchecker.typecheck ~is_tail_pos:true
            ~ctx:
              {
                Exprchecker.id_env = args.id_env;

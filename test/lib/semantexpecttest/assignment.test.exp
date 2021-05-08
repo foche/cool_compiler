@@ -1,91 +1,93 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "assignment.test"
+    _inherits: IO
+    _file_name: "assignment.test"
     (
-    #2
+    _line_num: 2
     _attr
       x
-      Int
-      #2
+      : Int
+      _line_num: 2
       _no_expr
       : Int
-    #3
+    _line_num: 3
     _attr
       y
-      String
-      #3
+      : String
+      _line_num: 3
       _no_expr
       : String
-    #4
+    _line_num: 4
     _attr
       f
-      Foo
-      #4
+      : Foo
+      _line_num: 4
       _no_expr
       : Foo
-    #5
+    _line_num: 5
     _method
-      main
-      Object
-      #5
+      main (
+      )
+      : Object
+      _line_num: 5
       _block
-        #6
+        _line_num: 6
         _assign
           x
-          #6
+          _line_num: 6
           _int
             3
           : Int
         : Int
-        #6
+        _line_num: 6
         _assign
           x
-          #6
+          _line_num: 6
           _int
             5
           : Int
         : Int
-        #6
+        _line_num: 6
         _assign
           y
-          #6
+          _line_num: 6
           _string
             "test"
           : String
         : String
-        #6
+        _line_num: 6
         _assign
           f
-          #6
+          _line_num: 6
           _new
             Foo
           : Foo
         : Foo
       : Foo
-    #8
+    _line_num: 8
     _method
-      foo
-      String
-      #8
+      foo (
+      )
+      : String
+      _line_num: 8
       _string
         "test"
       : String
     )
-  #10
+  _line_num: 10
   _class
     Foo
-    Object
-    "assignment.test"
+    _inherits: Object
+    _file_name: "assignment.test"
     (
-    #11
+    _line_num: 11
     _attr
       x
-      Int
-      #11
+      : Int
+      _line_num: 11
       _int
         3
       : Int

@@ -127,21 +127,19 @@ let expr :=
     { Ast.create_expr ~loc:$loc (Abssyn.Assign (Tbls.make_id id, expr)) }
 | method_id = OBJECTID; dyn_args = args;
     {
-        Abssyn.DynamicDispatch {
-            Abssyn.dyn_recv = Ast.self_var_expr ~loc:$loc(method_id);
-            dyn_method_id = Tbls.make_id method_id;
-            dyn_args;
-        }
-        |> Ast.create_expr ~loc:$loc
+        Ast.create_dyn
+            ~dyn_recv:(Ast.self_var_expr ~loc:$loc(method_id))
+            ~dyn_method_id:(Tbls.make_id method_id)
+            ~dyn_args
+            ~loc:$loc
     }
 | dyn_recv = expr; DOT; method_id = OBJECTID; dyn_args = args;
     {
-        Abssyn.DynamicDispatch {
-            Abssyn.dyn_recv;
-            dyn_method_id = Tbls.make_id method_id;
-            dyn_args;
-        }
-        |> Ast.create_expr ~loc:$loc
+        Ast.create_dyn
+            ~dyn_recv
+            ~dyn_method_id:(Tbls.make_id method_id)
+            ~dyn_args
+            ~loc:$loc
     }
 | stat_recv = expr; AT; target_typ = TYPEID; DOT; method_id = OBJECTID; stat_args = args;
     {
@@ -151,6 +149,7 @@ let expr :=
             stat_method_id = Tbls.make_id method_id;
             stat_args;
             stat_label = None;
+            stat_is_tail = false;
         }
         |> Ast.create_expr ~loc:$loc
     }

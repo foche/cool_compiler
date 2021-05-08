@@ -1,23 +1,23 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Hello
-    Object
-    "classtwofields.test"
+    _inherits: Object
+    _file_name: "classtwofields.test"
     (
-    #2
+    _line_num: 2
     _attr
       foo
-      Int
-      #2
+      : Int
+      _line_num: 2
       _no_expr
       : _no_type
-    #3
+    _line_num: 3
     _attr
       bar
-      String
-      #3
+      : String
+      _line_num: 3
       _no_expr
       : _no_type
     )

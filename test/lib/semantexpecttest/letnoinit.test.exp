@@ -1,25 +1,26 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "letnoinit.test"
+    _inherits: IO
+    _file_name: "letnoinit.test"
     (
-    #2
+    _line_num: 2
     _method
-      main
-      Object
-      #2
+      main (
+      )
+      : Object
+      _line_num: 2
       _block
-        #3
+        _line_num: 3
         _let
           x
           Int
-          #3
+          _line_num: 3
           _no_expr
           : Int
-          #3
+          _line_num: 3
           _object
             x
           : Int

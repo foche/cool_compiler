@@ -14,6 +14,13 @@ val create_let :
   body:Abssyn.expr_node ->
   Abssyn.expr_node
 
+val create_dyn :
+  dyn_recv:Abssyn.expr_node ->
+  dyn_method_id:Tbls.id_sym ->
+  dyn_args:Abssyn.expr_node List.t ->
+  loc:raw_pos ->
+  Abssyn.expr_node
+
 val no_expr : loc:raw_pos -> Abssyn.expr_node
 
 val replace_expr :

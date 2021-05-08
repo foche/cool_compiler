@@ -1,90 +1,93 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    Object
-    "dispatch.test"
+    _inherits: Object
+    _file_name: "dispatch.test"
     (
-    #2
+    _line_num: 2
     _method
-      main
-      Object
-      #2
+      main (
+      )
+      : Object
+      _line_num: 2
       _int
         42
       : Int
     )
-  #5
+  _line_num: 5
   _class
     A
-    Object
-    "dispatch.test"
+    _inherits: Object
+    _file_name: "dispatch.test"
     (
-    #6
+    _line_num: 6
     _method
-      foo
-      #6
+      foo (
+      _line_num: 6
       _formal
         a
         Int
-      #6
+      _line_num: 6
       _formal
         b
         B
-      #6
+      _line_num: 6
       _formal
         c
         A
-      #6
+      _line_num: 6
       _formal
         d
         B
-      A
-      #7
+      )
+      : A
+      _line_num: 7
       _object
         self
       : SELF_TYPE
     )
-  #12
+  _line_num: 12
   _class
     B
-    A
-    "dispatch.test"
+    _inherits: A
+    _file_name: "dispatch.test"
     (
-    #14
+    _line_num: 14
     _method
-      moo
-      A
-      #15
+      moo (
+      )
+      : A
+      _line_num: 15
       _let
         b
         B
-        #15
+        _line_num: 15
         _new
           B
         : B
-        #16
+        _line_num: 16
         _dispatch
-          #16
+          _is_tail: true
+          _line_num: 16
           _object
             self
           : SELF_TYPE
-          foo
-          (
-          #16
+          foo (
+          _line_num: 16
           _int
             4
           : Int
-          #16
+          _line_num: 16
           _object
             b
           : B
-          #16
+          _line_num: 16
           _object
             b
           : B
-          #16
+          _line_num: 16
           _object
             b
           : B

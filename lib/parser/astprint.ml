@@ -21,7 +21,7 @@ let print_str_const = Format.printf "%a" Tbls.print_str
 let print_int_const = Format.printf "%a" Tbls.print_int
 
 let print_header loc =
-  Location.start_line_num loc |> Format.printf "#%d@,@[<v 2>%s"
+  Location.start_line_num loc |> Format.printf "_line_num: %d@,@[<v 2>%s"
 
 let print_type_opt typ_opt =
   Format.printf ": ";
@@ -36,6 +36,8 @@ let get_arith_name = function
   | Abssyn.Div -> "_divide"
 
 let get_comp_name = function Abssyn.Lt -> "_lt" | Abssyn.Le -> "_leq"
+
+let print_is_tail = Format.printf "_is_tail: %B"
 
 let rec print_branch { Abssyn.elem = { Abssyn.branch_var; branch_body }; loc } =
   print_header loc "_branch";
@@ -58,13 +60,16 @@ and print_e loc expr =
       print_id id;
       Format.print_cut ();
       print_expr sub_expr
-  | Abssyn.DynamicDispatch { Abssyn.dyn_recv; dyn_method_id; dyn_args } ->
+  | Abssyn.DynamicDispatch
+      { Abssyn.dyn_recv; dyn_method_id; dyn_args; dyn_is_tail } ->
       print_header_with_name "_dispatch";
+      Format.print_cut ();
+      print_is_tail dyn_is_tail;
       Format.print_cut ();
       print_expr dyn_recv;
       Format.print_cut ();
       print_id dyn_method_id;
-      Format.printf "@,(@,";
+      Format.printf " (@,";
       List.iter
         ~f:(fun arg ->
           print_expr arg;
@@ -72,15 +77,24 @@ and print_e loc expr =
         dyn_args;
       Format.printf ")"
   | Abssyn.StaticDispatch
-      { Abssyn.stat_recv; stat_target_typ; stat_method_id; stat_args; _ } ->
+      {
+        Abssyn.stat_recv;
+        stat_target_typ;
+        stat_method_id;
+        stat_args;
+        stat_is_tail;
+        stat_label = _;
+      } ->
       print_header_with_name "_static_dispatch";
+      Format.print_cut ();
+      print_is_tail stat_is_tail;
       Format.print_cut ();
       print_expr stat_recv;
       Format.print_cut ();
       print_type stat_target_typ;
       Format.print_cut ();
       print_id stat_method_id;
-      Format.printf "@,(@,";
+      Format.printf " (@,";
       List.iter
         ~f:(fun arg ->
           print_expr arg;
@@ -164,7 +178,7 @@ and print_e loc expr =
   | Abssyn.BoolConst x ->
       print_header_with_name "_bool";
       Format.print_cut ();
-      Format.printf (if x then "1" else "0")
+      Format.printf "%B" x
   | Abssyn.NoExpr -> print_header_with_name "_no_expr");
   Format.printf "@]"
 
@@ -186,8 +200,9 @@ let print_method ~loc
   print_header loc "_method";
   Format.print_cut ();
   print_id method_id;
-  Format.print_cut ();
+  Format.printf " (@,";
   List.iter ~f:print_formal method_formals;
+  Format.printf ")@,: ";
   print_type method_ret_typ;
   Format.print_cut ();
   print_expr method_body;
@@ -198,7 +213,7 @@ let print_field ~loc
   print_header loc "_attr";
   Format.print_cut ();
   print_id id;
-  Format.print_cut ();
+  Format.printf "@,: ";
   print_type typ;
   Format.print_cut ();
   print_expr field_init;
@@ -209,9 +224,9 @@ let print_class cl =
   print_header loc "_class";
   Format.print_cut ();
   print_type cl_typ;
-  Format.print_cut ();
+  Format.printf "@,_inherits: ";
   print_type cl_parent;
-  Location.filename loc |> Format.printf "@,%S@,(@,";
+  Location.filename loc |> Format.printf "@,_file_name: %S@,(@,";
   Ast.iter_features ~method_f:print_method ~field_f:print_field cl;
   Format.printf ")@]"
 

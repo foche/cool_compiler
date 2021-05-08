@@ -1,50 +1,52 @@
-#1
+_line_num: 1
 _program
-  #1
+  _line_num: 1
   _class
     Main
-    IO
-    "neg.test"
+    _inherits: IO
+    _file_name: "neg.test"
     (
-    #2
+    _line_num: 2
     _attr
       x
-      Bool
-      #2
+      : Bool
+      _line_num: 2
       _no_expr
       : Bool
-    #3
+    _line_num: 3
     _method
-      main
-      Object
-      #3
+      main (
+      )
+      : Object
+      _line_num: 3
       _block
-        #4
+        _line_num: 4
         _neg
-          #4
+          _line_num: 4
           _int
             7
           : Int
         : Int
-        #4
+        _line_num: 4
         _neg
-          #4
+          _line_num: 4
           _dispatch
-            #4
+            _is_tail: false
+            _line_num: 4
             _object
               self
             : SELF_TYPE
-            foo
-            (
+            foo (
             )
           : Int
         : Int
       : Int
-    #6
+    _line_num: 6
     _method
-      foo
-      Int
-      #6
+      foo (
+      )
+      : Int
+      _line_num: 6
       _int
         4
       : Int

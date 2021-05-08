@@ -17,6 +17,11 @@ let create_let ~bindings ~body =
       create_expr ~loc (Abssyn.Let { Abssyn.let_var; let_init; let_body }))
     ~init:body bindings
 
+let create_dyn ~dyn_recv ~dyn_method_id ~dyn_args ~loc =
+  Abssyn.DynamicDispatch
+    { Abssyn.dyn_recv; dyn_method_id; dyn_args; dyn_is_tail = false }
+  |> create_expr ~loc
+
 let no_expr ~loc = create_expr ~loc Abssyn.NoExpr
 
 let replace_expr ~typ ~expr new_expr =
