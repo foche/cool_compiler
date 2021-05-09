@@ -19,7 +19,7 @@ _program
       _line_num: 8
       _formal
         map
-        String
+        : String
       )
       : SELF_TYPE
       _line_num: 9
@@ -94,7 +94,7 @@ _program
       _line_num: 26
       _formal
         position
-        Int
+        : Int
       )
       : String
       _line_num: 27
@@ -121,7 +121,7 @@ _program
       _line_num: 30
       _formal
         position
-        Int
+        : Int
       )
       : String
       _line_num: 31
@@ -192,7 +192,7 @@ _program
       _line_num: 38
       _formal
         position
-        Int
+        : Int
       )
       : String
       _line_num: 39
@@ -263,7 +263,7 @@ _program
       _line_num: 48
       _formal
         position
-        Int
+        : Int
       )
       : String
       _line_num: 49
@@ -394,14 +394,14 @@ _program
       _line_num: 61
       _let
         position
-        Int
+        : Int
         _line_num: 61
         _no_expr
         : Int
         _line_num: 62
         _let
           num
-          Int
+          : Int
           _line_num: 62
           _dispatch
             _is_tail: false
@@ -415,7 +415,7 @@ _program
           _line_num: 63
           _let
             temp
-            String
+            : String
             _line_num: 63
             _no_expr
             : String
@@ -549,7 +549,7 @@ _program
         _line_num: 85
         _let
           countdown
-          Int
+          : Int
           _line_num: 85
           _int
             20

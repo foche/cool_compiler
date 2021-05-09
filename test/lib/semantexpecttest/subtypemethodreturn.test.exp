@@ -14,7 +14,7 @@ _program
       _line_num: 3
       _let
         x
-        A
+        : A
         _line_num: 3
         _no_expr
         : A

@@ -143,15 +143,12 @@ let expr :=
     }
 | stat_recv = expr; AT; target_typ = TYPEID; DOT; method_id = OBJECTID; stat_args = args;
     {
-        Abssyn.StaticDispatch {
-            Abssyn.stat_recv;
-            stat_target_typ = Tbls.make_type target_typ;
-            stat_method_id = Tbls.make_id method_id;
-            stat_args;
-            stat_label = None;
-            stat_is_tail = false;
-        }
-        |> Ast.create_expr ~loc:$loc
+        Ast.create_stat
+            ~stat_recv
+            ~stat_target_typ:(Tbls.make_type target_typ)
+            ~stat_method_id:(Tbls.make_id method_id)
+            ~stat_args
+            ~loc:$loc
     }
 | IF; cond_pred = expr; THEN; cond_true = expr; ELSE; cond_false = expr; FI;
     { Abssyn.Cond { Abssyn.cond_pred; cond_true; cond_false } |> Ast.create_expr ~loc:$loc }

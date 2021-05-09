@@ -28,7 +28,7 @@ _program
       _line_num: 4
       _formal
         a
-        Int
+        : Int
       )
       : Int
       _line_num: 4
@@ -51,7 +51,7 @@ _program
       _line_num: 5
       _formal
         a
-        Int
+        : Int
       )
       : Int
       _line_num: 5
@@ -74,7 +74,7 @@ _program
       _line_num: 6
       _formal
         a
-        Int
+        : Int
       )
       : Int
       _line_num: 6

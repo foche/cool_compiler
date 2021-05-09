@@ -14,7 +14,7 @@ _program
       _line_num: 2
       _let
         a
-        Int
+        : Int
         _line_num: 2
         _no_expr
         : _no_type
@@ -27,7 +27,7 @@ _program
           _line_num: 2
           _let
             b
-            String
+            : String
             _line_num: 2
             _no_expr
             : _no_type

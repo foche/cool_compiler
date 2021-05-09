@@ -16,11 +16,11 @@ _program
         _line_num: 3
         _let
           y
-          SELF_TYPE
+          : SELF_TYPE
           _line_num: 4
           _let
             x
-            SELF_TYPE
+            : SELF_TYPE
             _line_num: 4
             _no_expr
             : SELF_TYPE

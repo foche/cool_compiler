@@ -19,15 +19,15 @@ _program
       _line_num: 3
       _formal
         x
-        Int
+        : Int
       _line_num: 3
       _formal
         y
-        Int
+        : Int
       _line_num: 3
       _formal
         z
-        Int
+        : Int
       )
       : Object
       _line_num: 3

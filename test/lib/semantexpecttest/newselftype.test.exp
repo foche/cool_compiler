@@ -30,7 +30,7 @@ _program
       _line_num: 5
       _formal
         a
-        A
+        : A
       )
       : Int
       _line_num: 5

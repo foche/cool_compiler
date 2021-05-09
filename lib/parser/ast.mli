@@ -21,6 +21,14 @@ val create_dyn :
   loc:raw_pos ->
   Abssyn.expr_node
 
+val create_stat :
+  stat_recv:Abssyn.expr_node ->
+  stat_target_typ:Tbls.typ_sym ->
+  stat_method_id:Tbls.id_sym ->
+  stat_args:Abssyn.expr_node List.t ->
+  loc:raw_pos ->
+  Abssyn.expr_node
+
 val no_expr : loc:raw_pos -> Abssyn.expr_node
 
 val replace_expr :

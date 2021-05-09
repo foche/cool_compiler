@@ -35,7 +35,7 @@ _program
       _line_num: 6
       _formal
         x
-        A
+        : A
       )
       : String
       _line_num: 6
@@ -48,7 +48,7 @@ _program
       _line_num: 7
       _formal
         x
-        Bool
+        : Bool
       )
       : A
       _line_num: 7
@@ -63,7 +63,7 @@ _program
       _line_num: 8
       _let
         x
-        String
+        : String
         _line_num: 8
         _dispatch
           _is_tail: false
@@ -75,7 +75,7 @@ _program
           _line_num: 8
           _let
             x
-            Bool
+            : Bool
             _line_num: 8
             _no_expr
             : Bool

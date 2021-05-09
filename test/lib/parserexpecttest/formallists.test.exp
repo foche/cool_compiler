@@ -21,7 +21,7 @@ _program
       _line_num: 5
       _formal
         x
-        Bool
+        : Bool
       )
       : IO
       _line_num: 6
@@ -34,11 +34,11 @@ _program
       _line_num: 8
       _formal
         y
-        SELF_TYPE
+        : SELF_TYPE
       _line_num: 8
       _formal
         z
-        Int
+        : Int
       )
       : SELF_TYPE
       _line_num: 9
@@ -51,15 +51,15 @@ _program
       _line_num: 11
       _formal
         a
-        Int
+        : Int
       _line_num: 11
       _formal
         b
-        Bool
+        : Bool
       _line_num: 11
       _formal
         c
-        Object
+        : Object
       )
       : Object
       _line_num: 12

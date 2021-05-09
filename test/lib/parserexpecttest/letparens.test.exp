@@ -16,7 +16,7 @@ _program
         _line_num: 2
         _let
           a
-          Int
+          : Int
           _line_num: 2
           _no_expr
           : _no_type
@@ -37,7 +37,7 @@ _program
           _line_num: 3
           _let
             a
-            Int
+            : Int
             _line_num: 3
             _no_expr
             : _no_type
@@ -54,7 +54,7 @@ _program
         _line_num: 4
         _let
           a
-          Int
+          : Int
           _line_num: 4
           _no_expr
           : _no_type

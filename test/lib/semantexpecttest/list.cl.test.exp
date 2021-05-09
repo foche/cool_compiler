@@ -65,7 +65,7 @@ _program
       _line_num: 49
       _formal
         i
-        Int
+        : Int
       )
       : List
       _line_num: 50
@@ -140,11 +140,11 @@ _program
       _line_num: 82
       _formal
         i
-        Int
+        : Int
       _line_num: 82
       _formal
         rest
-        List
+        : List
       )
       : List
       _line_num: 83
@@ -190,7 +190,7 @@ _program
       _line_num: 107
       _formal
         l
-        List
+        : List
       )
       : Object
       _line_num: 108

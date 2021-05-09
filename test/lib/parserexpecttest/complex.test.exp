@@ -14,7 +14,7 @@ _program
       _line_num: 3
       _let
         c
-        Complex
+        : Complex
         _line_num: 3
         _dispatch
           _is_tail: false
@@ -121,11 +121,11 @@ _program
       _line_num: 16
       _formal
         a
-        Int
+        : Int
       _line_num: 16
       _formal
         b
-        Int
+        : Int
       )
       : Complex
       _line_num: 17

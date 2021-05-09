@@ -23,7 +23,7 @@ _program
         _line_num: 4
         _let
           x
-          String
+          : String
           _line_num: 4
           _string
             "test"

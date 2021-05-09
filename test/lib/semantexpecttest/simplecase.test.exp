@@ -45,7 +45,7 @@ _program
           _line_num: 5
           _branch
             i
-            Int
+            : Int
             _line_num: 5
             _object
               i
@@ -53,7 +53,7 @@ _program
           _line_num: 6
           _branch
             b
-            Bool
+            : Bool
             _line_num: 6
             _object
               b
@@ -61,7 +61,7 @@ _program
           _line_num: 7
           _branch
             s
-            String
+            : String
             _line_num: 7
             _object
               s

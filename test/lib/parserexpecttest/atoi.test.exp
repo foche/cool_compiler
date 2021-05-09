@@ -12,7 +12,7 @@ _program
       _line_num: 15
       _formal
         char
-        String
+        : String
       )
       : Int
       _line_num: 16
@@ -218,7 +218,7 @@ _program
       _line_num: 33
       _formal
         i
-        Int
+        : Int
       )
       : String
       _line_num: 34
@@ -424,7 +424,7 @@ _program
       _line_num: 56
       _formal
         s
-        String
+        : String
       )
       : Int
       _line_num: 57
@@ -612,13 +612,13 @@ _program
       _line_num: 68
       _formal
         s
-        String
+        : String
       )
       : Int
       _line_num: 69
       _let
         int
-        Int
+        : Int
         _line_num: 69
         _int
           0
@@ -628,7 +628,7 @@ _program
           _line_num: 71
           _let
             j
-            Int
+            : Int
             _line_num: 71
             _dispatch
               _is_tail: false
@@ -642,7 +642,7 @@ _program
             _line_num: 72
             _let
               i
-              Int
+              : Int
               _line_num: 72
               _int
                 0
@@ -739,7 +739,7 @@ _program
       _line_num: 90
       _formal
         i
-        Int
+        : Int
       )
       : String
       _line_num: 91
@@ -828,7 +828,7 @@ _program
       _line_num: 100
       _formal
         i
-        Int
+        : Int
       )
       : String
       _line_num: 101
@@ -851,7 +851,7 @@ _program
         _line_num: 102
         _let
           next
-          Int
+          : Int
           _line_num: 102
           _divide
             _line_num: 102

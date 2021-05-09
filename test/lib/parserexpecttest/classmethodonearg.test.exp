@@ -12,7 +12,7 @@ _program
       _line_num: 3
       _formal
         a
-        Int
+        : Int
       )
       : SELF_TYPE
       _line_num: 4

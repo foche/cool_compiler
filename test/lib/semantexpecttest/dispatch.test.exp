@@ -28,19 +28,19 @@ _program
       _line_num: 6
       _formal
         a
-        Int
+        : Int
       _line_num: 6
       _formal
         b
-        B
+        : B
       _line_num: 6
       _formal
         c
-        A
+        : A
       _line_num: 6
       _formal
         d
-        B
+        : B
       )
       : A
       _line_num: 7
@@ -62,7 +62,7 @@ _program
       _line_num: 15
       _let
         b
-        B
+        : B
         _line_num: 15
         _new
           B

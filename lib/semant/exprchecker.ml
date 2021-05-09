@@ -114,8 +114,8 @@ and aux_new ~ctx ~expr typ =
 
 and aux_cond ~is_tail_pos ~ctx ~expr { Abssyn.cond_pred; cond_true; cond_false }
     =
-  let cont ~typed_sub_expr:typed_pred _ =
-    let cont typed_true typed_false =
+  let pred_cont ~typed_sub_expr:typed_pred _ =
+    let branch_cont typed_true typed_false =
       Opts.fold2 ~none:expr
         ~some:(fun true_typ false_typ ->
           let cond_typ =
@@ -131,9 +131,9 @@ and aux_cond ~is_tail_pos ~ctx ~expr { Abssyn.cond_pred; cond_true; cond_false }
           |> Ast.replace_expr ~expr ~typ:cond_typ)
         typed_true.Abssyn.expr_typ typed_false.Abssyn.expr_typ
     in
-    aux2 ~is_tail_pos ~ctx ~cont cond_true cond_false
+    aux2 ~is_tail_pos ~ctx ~cont:branch_cont cond_true cond_false
   in
-  rec_helper ~ctx ~cont
+  rec_helper ~ctx ~cont:pred_cont
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:cond_pred.Abssyn.expr_loc
         "Predicate of 'if' does not have type Bool.")
@@ -141,44 +141,43 @@ and aux_cond ~is_tail_pos ~ctx ~expr { Abssyn.cond_pred; cond_true; cond_false }
 
 and aux_block ~is_tail_pos ~ctx ~expr stmts sub_expr =
   let typed_stmts = List.map ~f:(aux ~ctx ~cont:Fun.id) stmts in
-  aux ~is_tail_pos ~ctx
-    ~cont:(fun typed_sub_expr ->
-      let valid_stmts =
-        List.for_all
-          ~f:(fun sub_expr -> Option.is_some sub_expr.Abssyn.expr_typ)
-          typed_stmts
-      in
-      if valid_stmts then
-        match typed_sub_expr.Abssyn.expr_typ with
-        | None -> expr
-        | Some sub_expr_typ ->
-            Abssyn.Block (typed_stmts, typed_sub_expr)
-            |> Ast.replace_expr ~expr ~typ:sub_expr_typ
-      else expr)
-    sub_expr
-
-and aux_isvoid ~ctx ~expr sub_expr =
-  aux ~ctx
-    ~cont:(fun typed_sub_expr ->
+  let cont typed_sub_expr =
+    let valid_stmts =
+      List.for_all
+        ~f:(fun sub_expr -> Option.is_some sub_expr.Abssyn.expr_typ)
+        typed_stmts
+    in
+    if valid_stmts then
       match typed_sub_expr.Abssyn.expr_typ with
       | None -> expr
-      | Some _ ->
-          Abssyn.IsVoid typed_sub_expr
-          |> Ast.replace_expr ~expr ~typ:Tbls.bool_type)
-    sub_expr
+      | Some sub_expr_typ ->
+          Abssyn.Block (typed_stmts, typed_sub_expr)
+          |> Ast.replace_expr ~expr ~typ:sub_expr_typ
+    else expr
+  in
+  aux ~is_tail_pos ~ctx ~cont sub_expr
+
+and aux_isvoid ~ctx ~expr sub_expr =
+  let update_isvoid typed_sub_expr =
+    match typed_sub_expr.Abssyn.expr_typ with
+    | None -> expr
+    | Some _ ->
+        Abssyn.IsVoid typed_sub_expr
+        |> Ast.replace_expr ~expr ~typ:Tbls.bool_type
+  in
+  aux ~ctx ~cont:update_isvoid sub_expr
 
 and aux_loop ~ctx ~expr { Abssyn.loop_pred; loop_body } =
+  let update_loop ~typed_pred typed_body =
+    match typed_body.Abssyn.expr_typ with
+    | None -> expr
+    | Some _ ->
+        Abssyn.Loop { Abssyn.loop_pred = typed_pred; loop_body = typed_body }
+        |> Ast.replace_expr ~expr ~typ:Tbls.object_type
+  in
   rec_helper ~ctx
     ~cont:(fun ~typed_sub_expr:typed_pred _ ->
-      aux ~ctx
-        ~cont:(fun typed_body ->
-          match typed_body.Abssyn.expr_typ with
-          | None -> expr
-          | Some _ ->
-              Abssyn.Loop
-                { Abssyn.loop_pred = typed_pred; loop_body = typed_body }
-              |> Ast.replace_expr ~expr ~typ:Tbls.object_type)
-        loop_body)
+      aux ~ctx ~cont:(update_loop ~typed_pred) loop_body)
     ~err_fun:(fun ~sub_expr_typ:_ ->
       Semantprint.print_error ~loc:loop_pred.Abssyn.expr_loc
         "Loop condition does not have type Bool.")
@@ -297,43 +296,41 @@ and aux_let ~is_tail_pos ~ctx ~expr let_expr =
   else expr
 
 and aux_let_helper ~is_tail_pos ~ctx ~expr ~let_expr ~typed_init =
+  let update_let typed_body =
+    match typed_body.Abssyn.expr_typ with
+    | None -> expr
+    | Some body_typ ->
+        Abssyn.Let
+          { let_expr with Abssyn.let_init = typed_init; let_body = typed_body }
+        |> Ast.replace_expr ~expr ~typ:body_typ
+  in
   let cont =
     lazy
       (let { Abssyn.let_var = { Abssyn.elem = id, var_typ; _ }; let_body; _ } =
          let_expr
        in
        Symtbl.add ctx.id_env ~key:id ~data:var_typ |> ignore;
-       aux ~is_tail_pos ~ctx
-         ~cont:(fun typed_body ->
-           match typed_body.Abssyn.expr_typ with
-           | None -> expr
-           | Some body_typ ->
-               Abssyn.Let
-                 {
-                   let_expr with
-                   Abssyn.let_init = typed_init;
-                   let_body = typed_body;
-                 }
-               |> Ast.replace_expr ~expr ~typ:body_typ)
-         let_body)
+       aux ~is_tail_pos ~ctx ~cont:update_let let_body)
   in
   Symtbl.enter_scope ctx.id_env ~cont
 
 and aux_dyn_dispatch ~is_tail_pos ~ctx ~expr dyn =
   let { Abssyn.dyn_recv; dyn_method_id; dyn_args; _ } = dyn in
+  let update_dyn ~typed_recv ~typed_args ~trans_ret_typ ~label:_ =
+    Abssyn.DynamicDispatch
+      {
+        dyn with
+        Abssyn.dyn_recv = typed_recv;
+        dyn_args = typed_args;
+        dyn_is_tail = is_tail_pos;
+      }
+    |> Ast.replace_expr ~expr ~typ:trans_ret_typ
+  in
   aux_dispatch_common ~ctx ~expr ~method_id:dyn_method_id ~recv:dyn_recv
     ~args:dyn_args
     ~recv_type_translator:(fun ~recv_typ ->
       Some (Types.translate_type ~cl_typ:ctx.cl_typ recv_typ))
-    ~cont:(fun ~typed_recv ~typed_args ~trans_ret_typ ~label:_ ->
-      Abssyn.DynamicDispatch
-        {
-          dyn with
-          Abssyn.dyn_recv = typed_recv;
-          dyn_args = typed_args;
-          dyn_is_tail = is_tail_pos;
-        }
-      |> Ast.replace_expr ~expr ~typ:trans_ret_typ)
+    ~cont:update_dyn
 
 and validate_stat_recv_type ~ctx ~loc ~target_typ ~recv_typ =
   Types.is_subtype ctx.inherit_tree ~cl_typ:ctx.cl_typ ~sub_typ:recv_typ
@@ -352,6 +349,17 @@ and aux_stat_dispatch ~is_tail_pos ~ctx ~expr stat =
   let { Abssyn.stat_recv; stat_target_typ; stat_method_id; stat_args; _ } =
     stat
   in
+  let update_stat ~typed_recv ~typed_args ~trans_ret_typ ~label =
+    Abssyn.StaticDispatch
+      {
+        stat with
+        Abssyn.stat_recv = typed_recv;
+        stat_args = typed_args;
+        stat_label = Some label;
+        stat_is_tail = is_tail_pos;
+      }
+    |> Ast.replace_expr ~expr ~typ:trans_ret_typ
+  in
   let cont =
     lazy
       (aux_dispatch_common ~ctx ~expr ~method_id:stat_method_id ~recv:stat_recv
@@ -359,16 +367,7 @@ and aux_stat_dispatch ~is_tail_pos ~ctx ~expr stat =
          ~recv_type_translator:
            (validate_stat_recv_type ~ctx ~loc:expr.Abssyn.expr_loc
               ~target_typ:stat_target_typ)
-         ~cont:(fun ~typed_recv ~typed_args ~trans_ret_typ ~label ->
-           Abssyn.StaticDispatch
-             {
-               stat with
-               Abssyn.stat_recv = typed_recv;
-               stat_args = typed_args;
-               stat_label = Some label;
-               stat_is_tail = is_tail_pos;
-             }
-           |> Ast.replace_expr ~expr ~typ:trans_ret_typ))
+         ~cont:update_stat)
   in
   Tree.mem ctx.inherit_tree stat_target_typ
   |> Validator.fold
@@ -410,7 +409,7 @@ and check_method_sig ~ctx ~expr ~method_id ~typed_recv ~recv_typ ~typed_args
         Tbls.print_id method_id;
       expr
   | Some { Methodtbl.method_ret_typ; formals; label; _ } ->
-      let cont =
+      let validate_arg_types =
         lazy
           (let trans_ret_typ =
              Types.translate_type ~cl_typ:recv_typ method_ret_typ
@@ -432,7 +431,7 @@ and check_method_sig ~ctx ~expr ~method_id ~typed_recv ~recv_typ ~typed_args
                (Semantprint.print_error ~loc
                   "Method %a called with wrong number of arguments."
                   Tbls.print_id method_id))
-           ~fail:expr ~success:cont
+           ~fail:expr ~success:validate_arg_types
 
 and validate_arg_type ~ctx ~loc ~method_id arg_typ (id, formal_typ) =
   Validator.map
@@ -532,7 +531,7 @@ and validate_branch ~ctx ~loc ~id ~var_typ =
            (Semantprint.print_error ~loc "Class %a of case branch is undefined."
               Tbls.print_type var_typ))
 
-and rec_helper ?is_tail_pos ~ctx ~cont ~err_fun ~super_typ ~expr sub_expr =
+and rec_helper ~super_typ ?is_tail_pos ~ctx ~cont ~err_fun ~expr sub_expr =
   aux ~super_typ ?is_tail_pos ~ctx
     ~cont:(fun typed_sub_expr ->
       match typed_sub_expr.Abssyn.expr_typ with

@@ -19,19 +19,19 @@ _program
       _line_num: 4
       _formal
         a
-        String
+        : String
       _line_num: 4
       _formal
         b
-        Int
+        : Int
       _line_num: 4
       _formal
         c
-        Int
+        : Int
       _line_num: 4
       _formal
         d
-        Int
+        : Int
       )
       : Hello
       _line_num: 5

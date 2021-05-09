@@ -29,7 +29,7 @@ _program
               _line_num: 4
               _let
                 x
-                Int
+                : Int
                 _line_num: 4
                 _int
                   5

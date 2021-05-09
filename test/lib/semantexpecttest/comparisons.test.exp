@@ -12,7 +12,7 @@ _program
       _line_num: 2
       _formal
         a
-        A
+        : A
       )
       : Bool
       _line_num: 2

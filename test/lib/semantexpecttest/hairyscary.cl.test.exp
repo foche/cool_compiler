@@ -19,7 +19,7 @@ _program
         _line_num: 5
         _branch
           n
-          Razz
+          : Razz
           _line_num: 5
           _new
             Bar
@@ -27,7 +27,7 @@ _program
         _line_num: 6
         _branch
           n
-          Foo
+          : Foo
           _line_num: 6
           _new
             Razz
@@ -35,7 +35,7 @@ _program
         _line_num: 7
         _branch
           n
-          Bar
+          : Bar
           _line_num: 7
           _object
             n
@@ -102,7 +102,7 @@ _program
       _line_num: 12
       _let
         i
-        Int
+        : Int
         _line_num: 12
         _object
           h
@@ -185,7 +185,7 @@ _program
         _line_num: 27
         _branch
           n
-          Razz
+          : Razz
           _line_num: 27
           _new
             Bar
@@ -193,7 +193,7 @@ _program
         _line_num: 28
         _branch
           n
-          Bar
+          : Bar
           _line_num: 28
           _object
             n
@@ -294,7 +294,7 @@ _program
         _line_num: 40
         _branch
           n
-          Bazz
+          : Bazz
           _line_num: 40
           _new
             Foo
@@ -302,7 +302,7 @@ _program
         _line_num: 41
         _branch
           n
-          Razz
+          : Razz
           _line_num: 41
           _new
             Bar
@@ -310,7 +310,7 @@ _program
         _line_num: 42
         _branch
           n
-          Foo
+          : Foo
           _line_num: 42
           _new
             Razz
@@ -318,7 +318,7 @@ _program
         _line_num: 43
         _branch
           n
-          Bar
+          : Bar
           _line_num: 43
           _object
             n
@@ -372,7 +372,7 @@ _program
       _line_num: 50
       _let
         i
-        Int
+        : Int
         _line_num: 50
         _object
           h

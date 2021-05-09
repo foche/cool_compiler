@@ -12,13 +12,13 @@ _program
       _line_num: 2
       _formal
         x
-        Int
+        : Int
       )
       : Object
       _line_num: 3
       _let
         x
-        Int
+        : Int
         _line_num: 3
         _int
           3
@@ -26,42 +26,42 @@ _program
         _line_num: 4
         _let
           y
-          Bool
+          : Bool
           _line_num: 4
           _no_expr
           : _no_type
           _line_num: 4
           _let
             z
-            Object
+            : Object
             _line_num: 4
             _no_expr
             : _no_type
             _line_num: 5
             _let
               a
-              Object
+              : Object
               _line_num: 5
               _no_expr
               : _no_type
               _line_num: 5
               _let
                 b
-                Object
+                : Object
                 _line_num: 5
                 _no_expr
                 : _no_type
                 _line_num: 5
                 _let
                   c
-                  Object
+                  : Object
                   _line_num: 5
                   _no_expr
                   : _no_type
                   _line_num: 6
                   _let
                     d
-                    Int
+                    : Int
                     _line_num: 6
                     _int
                       6

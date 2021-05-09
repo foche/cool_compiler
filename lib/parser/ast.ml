@@ -22,6 +22,18 @@ let create_dyn ~dyn_recv ~dyn_method_id ~dyn_args ~loc =
     { Abssyn.dyn_recv; dyn_method_id; dyn_args; dyn_is_tail = false }
   |> create_expr ~loc
 
+let create_stat ~stat_recv ~stat_target_typ ~stat_method_id ~stat_args ~loc =
+  Abssyn.StaticDispatch
+    {
+      Abssyn.stat_recv;
+      stat_target_typ;
+      stat_method_id;
+      stat_args;
+      stat_label = None;
+      stat_is_tail = false;
+    }
+  |> create_expr ~loc
+
 let no_expr ~loc = create_expr ~loc Abssyn.NoExpr
 
 let replace_expr ~typ ~expr new_expr =

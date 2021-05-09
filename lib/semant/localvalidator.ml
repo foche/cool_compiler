@@ -88,31 +88,31 @@ let check_method_body ~inherit_tree ~cl_typ ~loc ~method_def typed_body =
                   }))
 
 let typecheck_method ~args ~cl_typ ~loc method_def =
-  let lazy_typecheck =
-    lazy
-      (let add_formal { Abssyn.elem = id, typ; loc } =
-         Validator.map
-           ~pred:(Symtbl.add args.id_env ~key:id ~data:typ |> fst |> not)
-           ~err_fun:
-             (lazy
-               (Semantprint.print_error ~loc
-                  "Formal parameter %a is multiply defined." Tbls.print_id id))
-           true
-       in
-       let { Abssyn.method_formals; method_body; _ } = method_def in
-       if List.for_all ~f:add_formal method_formals then
-         Exprchecker.typecheck ~is_tail_pos:true
-           ~ctx:
-             {
-               Exprchecker.id_env = args.id_env;
-               sigs = args.sigs;
-               inherit_tree = args.inherit_tree;
-               cl_typ;
-             }
-           method_body
-       else method_body)
+  let add_formal { Abssyn.elem = id, typ; loc } =
+    Validator.map
+      ~pred:(Symtbl.add args.id_env ~key:id ~data:typ |> fst |> not)
+      ~err_fun:
+        (lazy
+          (Semantprint.print_error ~loc
+             "Formal parameter %a is multiply defined." Tbls.print_id id))
+      true
   in
-  Symtbl.enter_scope args.id_env ~cont:lazy_typecheck
+  let { Abssyn.method_formals; method_body; _ } = method_def in
+  let cont =
+    lazy
+      (if List.for_all ~f:add_formal method_formals then
+       Exprchecker.typecheck ~is_tail_pos:true
+         ~ctx:
+           {
+             Exprchecker.id_env = args.id_env;
+             sigs = args.sigs;
+             inherit_tree = args.inherit_tree;
+             cl_typ;
+           }
+         method_body
+      else method_body)
+  in
+  Symtbl.enter_scope args.id_env ~cont
   |> check_method_body ~inherit_tree:args.inherit_tree ~cl_typ ~loc ~method_def
 
 let validate_formal_types ~method_id formal parent_formal =

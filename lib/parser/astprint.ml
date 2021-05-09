@@ -23,9 +23,7 @@ let print_int_const = Format.printf "%a" Tbls.print_int
 let print_header loc =
   Location.start_line_num loc |> Format.printf "_line_num: %d@,@[<v 2>%s"
 
-let print_type_opt typ_opt =
-  Format.printf ": ";
-  match typ_opt with
+let print_type_opt = function
   | None -> Format.printf "_no_type"
   | Some handle -> print_type handle
 
@@ -44,7 +42,7 @@ let rec print_branch { Abssyn.elem = { Abssyn.branch_var; branch_body }; loc } =
   Format.print_cut ();
   let var, typ = branch_var.Abssyn.elem in
   print_id var;
-  Format.print_cut ();
+  Format.printf "@,: ";
   print_type typ;
   Format.print_cut ();
   print_expr branch_body;
@@ -123,7 +121,7 @@ and print_e loc expr =
       print_header_with_name "_let";
       Format.print_cut ();
       print_id var;
-      Format.print_cut ();
+      Format.printf "@,: ";
       print_type typ;
       Format.print_cut ();
       print_expr let_init;
@@ -184,14 +182,14 @@ and print_e loc expr =
 
 and print_expr { Abssyn.expr_expr; expr_typ; expr_loc } =
   print_e expr_loc expr_expr;
-  Format.print_cut ();
+  Format.printf "@,: ";
   print_type_opt expr_typ
 
 let print_formal { Abssyn.elem = id, typ; loc } =
   print_header loc "_formal";
   Format.print_cut ();
   print_id id;
-  Format.print_cut ();
+  Format.printf "@,: ";
   print_type typ;
   Format.printf "@]@,"
 

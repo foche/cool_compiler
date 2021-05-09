@@ -16,7 +16,7 @@ _program
         _line_num: 3
         _let
           x
-          Int
+          : Int
           _line_num: 3
           _int
             5

@@ -14,7 +14,7 @@ _program
       _line_num: 4
       _let
         x
-        Int
+        : Int
         _line_num: 4
         _int
           42
@@ -22,7 +22,7 @@ _program
         _line_num: 5
         _let
           y
-          String
+          : String
           _line_num: 5
           _string
             "foo"
@@ -30,7 +30,7 @@ _program
           _line_num: 6
           _let
             z
-            SELF_TYPE
+            : SELF_TYPE
             _line_num: 6
             _object
               self

@@ -19,7 +19,7 @@ _program
       _line_num: 3
       _formal
         x
-        Baz
+        : Baz
       )
       : Object
       _line_num: 3

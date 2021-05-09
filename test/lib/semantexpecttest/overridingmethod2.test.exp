@@ -28,19 +28,19 @@ _program
       _line_num: 4
       _formal
         a
-        Int
+        : Int
       _line_num: 4
       _formal
         b
-        String
+        : String
       _line_num: 4
       _formal
         c
-        A
+        : A
       _line_num: 4
       _formal
         d
-        Bool
+        : Bool
       )
       : Int
       _line_num: 4
@@ -60,19 +60,19 @@ _program
       _line_num: 8
       _formal
         a
-        Int
+        : Int
       _line_num: 8
       _formal
         b
-        String
+        : String
       _line_num: 8
       _formal
         c
-        A
+        : A
       _line_num: 8
       _formal
         d
-        Bool
+        : Bool
       )
       : Int
       _line_num: 8

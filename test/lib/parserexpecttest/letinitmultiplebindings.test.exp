@@ -21,7 +21,7 @@ _program
       _line_num: 3
       _let
         x
-        Int
+        : Int
         _line_num: 3
         _int
           5
@@ -29,7 +29,7 @@ _program
         _line_num: 3
         _let
           y
-          String
+          : String
           _line_num: 3
           _string
             "biddle"
@@ -37,7 +37,7 @@ _program
           _line_num: 3
           _let
             z
-            Int
+            : Int
             _line_num: 3
             _no_expr
             : _no_type
